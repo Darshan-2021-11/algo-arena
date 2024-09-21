@@ -1,6 +1,17 @@
 .you {
-    background-color: rgb(139, 0, 0);
+    height: 92vh;
+    background: linear-gradient(18deg, rgb(214, 219, 220) 0 50%, rgb(33, 33, 33) 50% 100%);
+    display: flex;
+    justify-content: right;
 }
 .l {
-    color: green;
+   font-size: 38px;
+   margin-right: 0px;
+   margin-top: 120px;
+   margin-left: 10px;
+}
+.h{
+    margin-left: 40px;
+    margin-right: 60px;
+    
 }
