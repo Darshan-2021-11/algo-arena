@@ -1,10 +1,12 @@
-import React from 'react'
+import React from 'react';
+import style from './Home.module.css'
 
-const page = () => {
+const Page: React.FC = () => {
   return (
-    <div>
+    <div className={[style.you, style.l].join(" ")}>
+      Hello this is home page
     </div>
-  )
+  );
 }
 
-export default page
+export default Page;
