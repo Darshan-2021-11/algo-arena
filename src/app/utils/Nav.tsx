@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Nav = () => {
+const Nav: React.FC = () => {
   return (
     <div>
       Nav bar

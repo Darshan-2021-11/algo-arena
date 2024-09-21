@@ -1,11 +1,11 @@
-import React from 'react'
+import React from 'react';
 
-const page = () => {
+const Page: React.FC = () => {
   return (
-    <div>
-      
+    <div className="bg-white">
+      Hello this is Compete Page
     </div>
-  )
+  );
 }
 
-export default page
+export default Page;
