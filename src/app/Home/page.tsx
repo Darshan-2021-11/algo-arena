@@ -1,10 +1,16 @@
-import React from 'react'
+import React from 'react';
+import style from './Home.module.css'
 
-const page = () => {
+const Page: React.FC = () => {
   return (
-    <div>
+    <div className={[style.you].join(" ")}>
+      <div>
+      <h1 className={[style.l].join(" ")}>Code, Compete, Conquer!</h1>
+      <p className={[style.h].join(" ")}>Unleash your skills, climb the leaderboards, and emerge as the ultimate coding champion.</p>
+      </div>
+      
     </div>
-  )
+  );
 }
 
-export default page
+export default Page;

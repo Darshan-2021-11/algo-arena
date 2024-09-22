@@ -1,0 +1,25 @@
+.bg{
+    background-color: rgb(33, 33, 33)  ;
+    height: 50px;
+    display: flex;
+}
+.img{
+    padding-left: 50px;
+    padding-top: 11px;
+    height: 40px;
+}
+.p{
+    padding-left: 4%;
+    padding-top: 15px;
+    font-size: 15px;
+}
+.e{
+    padding-left: 61%;
+    padding-top: 15px;
+    font-size: 15px;
+}
+.l{
+    padding-left: 5%;
+    padding-top: 15px;
+    font-size: 15px;
+}

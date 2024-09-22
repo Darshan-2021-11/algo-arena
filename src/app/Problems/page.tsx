@@ -87,7 +87,7 @@ const page = () => {
         >{">"}</p>
       </div>
     </div>
-  )
+  );
 }
 
-export default page
+export default page;

@@ -4,7 +4,7 @@ import { Provider } from "react-redux";
 import store from "./store";
 
 
-export default function Home() {
+export default function Home(): JSX.Element {
   return (
     <Provider
     store={store}
