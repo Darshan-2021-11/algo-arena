@@ -8,7 +8,6 @@ const Page: React.FC = () => {
       <h1 className={[style.l].join(" ")}>Code, Compete, Conquer!</h1>
       <p className={[style.h].join(" ")}>Unleash your skills, climb the leaderboards, and emerge as the ultimate coding champion.</p>
       </div>
-      
     </div>
   );
 }

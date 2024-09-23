@@ -1,0 +1,152 @@
+"use client";
+
+import Editor from "@monaco-editor/react";
+import { useState, useEffect, FormEvent } from "react";
+
+interface Project {
+  id: string;
+}
+
+interface DeploymentResponse {
+  id: string;
+  status: string;
+  domains: string[];
+}
+
+export default function IDE() {
+  const [URL, setURL] = useState<string>("");
+  const [project, setProject] = useState<Project | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    // Function to call the create project API
+    const createProject = async () => {
+      try {
+        const response = await fetch("/api/createproject", {
+          method: "GET", // Assuming it's a GET request, update as needed
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+        }
+
+        const responseData = await response.json();
+        setProject(responseData); // Update the state variable with the response data
+      } catch (error) {
+        console.error("Failed to create project:", error);
+      }
+    };
+
+    createProject();
+  }, []);
+
+  const project_id = project?.id; // Get the project id from the state variable
+
+  const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
+  const pollDeploymentStatus = async (deploymentId: string): Promise<DeploymentResponse> => {
+    let response;
+    try {
+      response = await fetch("/api/getdeployment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: deploymentId }),
+      });
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+    return await response.json();
+  };
+
+  const updateStatus = (message: string) => {
+    const ideMessage = document.querySelector(".ide-message");
+    if (ideMessage) {
+      ideMessage.textContent = message;
+    }
+  };
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    updateStatus("Deploying code...");
+
+    const codeText = document.querySelector(".monaco-scrollable-element")?.textContent;
+    if (!codeText || !project_id) return;
+
+    try {
+      const response = await fetch("/api/createdeployment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code: codeText, project: project_id }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      // Poll deployment details until status is no longer pending.
+      let responseData: DeploymentResponse = await response.json();
+      while (responseData.status === "pending") {
+        await delay(3000);
+        responseData = await pollDeploymentStatus(responseData.id);
+        console.log(responseData);
+      }
+
+      // Define URL and show iframe.
+      if (responseData.status === "success") {
+        setURL(`http://${responseData.domains[0]}`);
+        dateStatus("Successfully deployed.");
+      } else {
+        updateStatus("Deployment failed.");
+        throw new Error("Deployment failed");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleLoad = () => {
+    setIsLoading(false); // Set loading to false when iframe loads successfully
+  };
+
+  const handleError = () => {
+    setIsLoading(true); // Keep loading true or set an error state if the iframe fails to load
+  };
+
+  return (
+    <>
+        <div className="w-1/2">
+        </div>
+        <div className="w-1/2">
+            <form action="#" onSubmit={handleSubmit}>
+                <div className="">
+                    <label htmlFor="comment" className="sr-only">
+                        Add your code
+                    </label>
+                    <Editor
+                        height="90vh"
+                        defaultLanguage="javascript"
+                        defaultValue='//write your code here'
+                    />
+                </div>
+                <div className="flex justify-between pt-2">
+                    <div className="flex items-center space-x-5"></div>
+                    <div className="flex-shrink-0">
+                        <button
+                            type="submit"
+                            className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500"
+                        >
+                            Run
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </>
+  );
+}

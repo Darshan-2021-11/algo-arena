@@ -34,7 +34,6 @@ export async function GET(request : NextRequest){
             maxpage:maxindex,
             lastelement:i
         }
-    
         return NextResponse.json({...response},{status:200})
     }catch(err){
         console.log(err);
@@ -43,5 +42,4 @@ export async function GET(request : NextRequest){
             err
         },{status:500})
     }
-    
 }
