@@ -3,7 +3,6 @@
 import { Problem } from "@/app/Api/models/problemModel";
 import { NextRequest, NextResponse } from "next/server";
 import { PROBLEM } from "../../../../../public/assets/problems";
-import { error } from "console";
 
 interface Response {
     success: boolean,
@@ -29,7 +28,6 @@ export async function GET(request : NextRequest){
                 success: true,
                 problem:result,
             }
-        
             return NextResponse.json({response},{status:200})
         }
     }
