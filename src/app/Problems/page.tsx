@@ -26,18 +26,6 @@ const page = () => {
     }
   }
 
-  const problem =(x:ProblemTrailer, i:number)=>{
-
-        return ( <div
-            key={i}
-            className={`text-white  ${i % 2 ? 'bg-gray-600' : ''} p-2 flex`}
-          >
-            <p className='pr-1 pl-1 w-24'>{(lastelem) + i + 1}</p>
-            <p className='  w-9/12 hover:text-blue-800 hover:cursor-pointer overflow-hidden'>{x.title}</p>
-            <p className={` w-24 ${x.difficulty === "easy" ? 'text-green-900' : 'text-orange-600'} `}>{x.difficulty}</p>
-          </div>)
-;
-  }
 
   const nextPage = () => {
     if (page < maxpage) {
@@ -55,13 +43,31 @@ const page = () => {
   }, [page])
 
   return (
-    <div className='bg-gray-900 h-screen w-full'>
+    <div className='bg-gray-900 h-screen w-full pt-16'>
       <div className='flex  p-2'>
         <p className='w-24'>sl no</p>
         <p className='w-9/12'>title</p>
         <p className='w-24'>difficulty</p>
       </div>
-      problems.map((x:ProblemTrailer, i:int) => { problem(x, i)})
+      {
+        problems.map((x,i)=>(
+          <div
+            key={i}
+            className={`text-white  ${i % 2 ? 'bg-gray-600' : ''} p-2 flex`}
+          >
+            <p className='pr-1 pl-1 w-24'>{(lastelem) + i + 1}</p>
+          <Link 
+          href={`/Problems/${x.id}`}
+          className='  w-9/12 hover:text-blue-800 hover:cursor-pointer overflow-hidden'
+          >
+            {x.title}
+            </Link>
+            <p 
+            className={` w-24 ${x.difficulty === "easy" ? 'text-green-900' : 'text-orange-600'} `}
+            >{x.difficulty}</p>
+          </div>
+        ))
+      }
 <div
   className='fixed bottom-4 right-1/2 translate-x-1/2 flex '
 >

@@ -1,25 +1,25 @@
 .bg{
     background-color: rgb(33, 33, 33)  ;
-    height: 50px;
+    width: 100vw;
     display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10000;
 }
 .img{
-    padding-left: 50px;
-    padding-top: 11px;
-    height: 40px;
+    margin-right: 1rem;
+    color: goldenrod;
+    font-family: sans-serif;
 }
-.p{
-    padding-left: 4%;
-    padding-top: 15px;
-    font-size: 15px;
+.left{
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-.e{
-    padding-left: 61%;
-    padding-top: 15px;
-    font-size: 15px;
-}
-.l{
-    padding-left: 5%;
-    padding-top: 15px;
-    font-size: 15px;
+.left div{
+        padding:0.3rem;
 }

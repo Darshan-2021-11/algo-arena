@@ -1,41 +1,88 @@
 "use client";
 
 import Editor from "@monaco-editor/react";
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import axios from "axios";
+import { useParams } from "next/navigation";
+import { Problem } from "@/app/Api/models/problemModel";
 
 
-import { ProblemTrailer } from '../Api/models/problemModel';
 
 export default function IDE() {
   const [value, setValue] = useState<string>('');
-  const [problems, setproblems] = useState<ProblemTrailer[]>([]);
+  const [Problem, setProblem] = useState<Problem>();
+  const {id} = useParams();
   const editorRef = useRef();
-  const onMount = (editor) => {
+  const onMount = (editor: any) => {
     editor.current = editor;
     editor.focus();
   }
 
-  const getProblems = async() : Promise<void> =>{
+  const getProblem = async() : Promise<void> =>{
     try{
-      const url = `Api/Problems/GetProblemById?page=${id}`;
-      console.log(url)
+      const url = `/Api/Problems/GetProblembyId?id=${id}`;
       const {data} = await axios.get(url);
-        let newdata : Array<any> = data.problems || [];
-        setproblems(newdata);
-        setmaxpage(data.maxpage);
-        setelem(data.lastelement);
+      setProblem(data.response.problem);
     }catch(err){
       console.log(err);
     }
   }
 
+  useEffect(()=>{
+    getProblem();
+  },[])
+
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen pt-16">
+      {
+        Problem ?
       <div className="w-1/2 p-4 border-r flex flex-col">
-        <h2 className="text-xl font-bold">Problem Statement</h2>
-        <p>Description of the coding problem goes here.</p>
+        <div
+        className="flex align-middle justify-between"
+        >
+        <p
+            className={` w-24 ${Problem.difficulty === "easy" ? 'text-green-900' : 'text-orange-600'} `}
+        >{Problem.difficulty}</p>
+        <div
+        className="text-gray-500"
+        >
+        {
+          Problem.topics.map((elem)=>(
+            <span 
+            className="ml-4"
+            >{elem}</span>
+          ))
+        }
+        </div>
+        </div>
+        <h2 
+        className="text-xl font-bold m-5"
+        >{Problem.title}</h2>
+        <p>{Problem.question}</p>
+        <div 
+        className="text-gray-400 border-gray-800 border-2 p-3 rounded-md mt-3"
+        >
+          {
+            Problem.Examples.map(({input, output, Explanation})=>(
+              <>
+              <p>input : {input}</p>
+              <p>output : {output}</p>
+              <p>explanation : {Explanation}</p>
+              </>
+            ))
+          }
+        </div>
       </div>
+        :
+        //loading screen
+        <div className="w-1/2 p-4 border-r flex flex-col">
+        <h2 className="text-xl font-bold"></h2>
+        <p></p>
+      </div>
+
+      }
+      
 
       <div className="w-1/2 p-4 flex flex-col">
         <form className="flex-1 flex flex-col">
@@ -47,7 +94,7 @@ export default function IDE() {
               defaultValue="// Write your code here"
               value={value}
               onChange={
-                (value, event) => setValue(value)
+                (value, event) => setValue(value || "")
               }
               onMount={onMount}
             />
