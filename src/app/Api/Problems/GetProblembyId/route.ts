@@ -2,7 +2,7 @@
 
 import { Problem } from "@/app/Api/models/problemModel";
 import { NextRequest, NextResponse } from "next/server";
-import { PROBLEM } from "../../../../../public/assets/problems";
+import { PROBLEMS } from "../../../../../public/assets/problems";
 
 interface Response {
     success: boolean,
@@ -12,7 +12,7 @@ interface Response {
 
 export async function GET(request : NextRequest){
     const params = new URL(request.url).searchParams;
-    const id : string | null = params.get('id');
+    const id : number | null = Number(params.get('id'));
     if(!id){
         return NextResponse.json({
             success:false,
@@ -21,9 +21,9 @@ export async function GET(request : NextRequest){
     {status:500})
     }
     let result : Problem;
-    for(let i=0;i<PROBLEM.length;i++){
-        if(PROBLEM[i].id === id){
-            result = PROBLEM[i];
+    for(let i=0;i<PROBLEMS.length;i++){
+        if(PROBLEMS[i].id === id){
+            result = PROBLEMS[i];
             const response : Response = {
                 success: true,
                 problem:result,

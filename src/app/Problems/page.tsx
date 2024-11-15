@@ -2,22 +2,20 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import Link from 'next/link';
-import { ProblemTrailer } from '../Api/models/problemModel';
+import { Problem } from '../Api/models/problemModel';
 const page = () => {
 
   const [page, setpage] = useState(1);
-  const [problems, setproblems] = useState<ProblemTrailer[]>([]);
+  const [problems, setproblems] = useState<Problem[]>([]);
   const [maxpage, setmaxpage] = useState(1);
   const [lastelem, setelem] = useState(1);
 
   const getProblems = async (): Promise<void> => {
     try {
       const url = `Api/Problems/GetAllProblems?page=${page}`;
-      console.log(url)
       const { data } = await axios.get(url);
       let newdata: Array<any> = data.problems || [];
       setproblems(newdata);
-      console.log(newdata)
       setmaxpage(data.maxpage);
       setelem(data.lastelement);
       console.log(data);
@@ -63,7 +61,7 @@ const page = () => {
             {x.title}
             </Link>
             <p 
-            className={` w-24 ${x.difficulty === "easy" ? 'text-green-900' : 'text-orange-600'} `}
+            className={` w-24 ${x.difficulty === 1 ? 'text-green-900' : 'text-orange-600'} `}
             >{x.difficulty}</p>
           </div>
         ))

@@ -1,28 +1,19 @@
 export interface TESTCASE {
-    questions:Array<any>
-    answers:Array<any>
+    question:string,
+    answer:string
 }
 
-export interface EXAMPLE {
-    input:string,
-    output:string,
-    Explanation:string | null
+export interface HIDDEN_TESTCASE {
+    id: number,
+    hidden_testcases:Array<TESTCASE>,
 }
 
 export interface Problem {
-    id:string,
+    id:number,
     title:string,
+    difficulty:number,
+    topics:Array<string>,
     question:string,
-    topics:Array<string>,
-    Examples:Array<EXAMPLE>,
     constraints:Array<string>,
-    testcases:TESTCASE,
-    difficulty:string
-}
-
-export interface ProblemTrailer {
-    id:string,
-    title:string,
-    topics:Array<string>,
-    difficulty:string
+    sample_testcases:Array<TESTCASE>,
 }

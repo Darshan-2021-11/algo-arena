@@ -8,10 +8,12 @@ import { Problem } from "@/app/Api/models/problemModel";
 
 
 
+
 export default function IDE() {
   const [value, setValue] = useState<string>('');
   const [Problem, setProblem] = useState<Problem>();
   const {id} = useParams();
+  const katexref = useRef();
   const editorRef = useRef();
   const onMount = (editor: any) => {
     editor.current = editor;
@@ -42,7 +44,7 @@ export default function IDE() {
         className="flex align-middle justify-between"
         >
         <p
-            className={` w-24 ${Problem.difficulty === "easy" ? 'text-green-900' : 'text-orange-600'} `}
+            className={` w-24 ${Problem.difficulty === 1 ? 'text-green-900' : 'text-orange-600'} `}
         >{Problem.difficulty}</p>
         <div
         className="text-gray-500"
@@ -64,11 +66,10 @@ export default function IDE() {
         className="text-gray-400 border-gray-800 border-2 p-3 rounded-md mt-3"
         >
           {
-            Problem.Examples.map(({input, output, Explanation})=>(
+            Problem.sample_testcases.map(({question, answer})=>(
               <>
-              <p>input : {input}</p>
-              <p>output : {output}</p>
-              <p>explanation : {Explanation}</p>
+              <p>input : {question}</p>
+              <p>output : {answer}</p>
               </>
             ))
           }
