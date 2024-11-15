@@ -9,6 +9,7 @@
     top: 0;
     left: 0;
     z-index: 10000;
+    height: 65px;
 }
 .img{
     margin-right: 1rem;
@@ -22,4 +23,12 @@
 }
 .left div{
         padding:0.3rem;
+}
+.s{
+    color: green;
+    margin-right: 20px;
+}
+.l{
+    color: red;
+    margin-right: 20px;
 }
