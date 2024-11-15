@@ -1,26 +1,42 @@
 'use client'
 import { useState } from 'react';
 import Link from "next/link";
-import {useCreateUserWithEmailAndPassword} from 'react-firebase-hooks/auth'
-import {auth} from '@/app/firebase/config'
+import {useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth'
+import { sendEmailVerification } from 'firebase/auth';
+import {auth,firestore} from '@/app/firebase/config'
 import { useRouter } from 'next/navigation';
+import { getFirestore, doc, setDoc } from "firebase/firestore";
 
 const SignUp: React.FC = () =>  {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordTwo, setPasswordTwo] = useState("");
+  // const [error,setError]=useState<string | null>(null);
+  // const [message,setMessage]=useState<string | null>(null);
   const [createUserWithEmailAndPassword] = useCreateUserWithEmailAndPassword(auth);
   const router = useRouter()
+  // const db = getFirestore(); 
   const handleSignUp = async () => {
    
     try {
       if (password === passwordTwo){
-        const res = await createUserWithEmailAndPassword(email, password)
-        console.log({res})
-        sessionStorage.setItem('user', true)
-        setEmail('');
-        setPassword('')
-        setPasswordTwo('')
+        const res = await createUserWithEmailAndPassword(email, password);
+        // console.log({res})
+        if (res?.user) {
+          // Save user data to Firestore
+          await setDoc(doc(firestore, 'users', res.user.uid), {
+            name,
+            email,
+            createdAt: new Date().toISOString(),
+          });
+
+          sessionStorage.setItem('user', true);
+          setName('');
+          setEmail('');
+          setPassword('');
+          setPasswordTwo('');
+          router.push('/Problems');}
       }else{
         alert("Passwords do not match");
       }
@@ -36,6 +52,13 @@ const SignUp: React.FC = () =>  {
             AlgoArena
           </h2>
         {/* <h1 className="text-white text-2xl mb-5">Sign Up</h1> */}
+        <input
+      type="text"
+      placeholder="Name"
+      value={name}
+      onChange={(e) => setName(e.target.value)}
+      className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
+    />
         <input 
           type="email" 
           placeholder="Email" 
