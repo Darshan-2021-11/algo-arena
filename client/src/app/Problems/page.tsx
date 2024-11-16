@@ -18,7 +18,6 @@ const Page = () => {
       setproblems(newdata);
       setmaxpage(data.maxpage);
       setelem(data.lastelement);
-      console.log(data);
     } catch (err) {
       console.log(err);
     }
