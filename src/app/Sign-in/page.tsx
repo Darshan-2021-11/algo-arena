@@ -1,23 +1,50 @@
 'use client'
 import { useState } from 'react';
 import {useSignInWithEmailAndPassword} from 'react-firebase-hooks/auth'
-import {auth} from '@/app/firebase/config'
+import {auth, firestore} from '@/app/firebase/config'
 import { useRouter } from 'next/navigation';
+import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
+import { onAuthStateChanged } from 'firebase/auth';
+import { User } from 'firebase/auth';
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  
   const [signInWithEmailAndPassword] = useSignInWithEmailAndPassword(auth);
   const router = useRouter()
 
   const handleSignIn = async () => {
     try {
+
         const res = await signInWithEmailAndPassword(email, password);
         console.log({res});
-       sessionStorage.setItem('user', true)
-        setEmail('');
-        setPassword('');
-        router.push('/Problems')
+        const user = res.user;
+        if(user.emailVerified){
+          const signupData = localStorage.getItem("signupData")
+          
+          const {
+            name =""
+          }= signupData ? JSON.parse(signupData) : {};
+          const userDoc = await getDoc(doc(firestore,'users',user.uid));
+
+              if(!userDoc.exists()){
+               await setDoc(doc(firestore, 'users', user.uid), {
+                       name,
+                       email : user.email,
+                       createdAt: new Date().toISOString()
+               });
+        }
+        sessionStorage.setItem('user', true)
+          setEmail('');
+          setPassword('');
+          router.push('/Problems')
+
+        } else{
+          alert("verify your email first")
+        }
+       
+       
     }catch(e){
         console.error(e)
     }

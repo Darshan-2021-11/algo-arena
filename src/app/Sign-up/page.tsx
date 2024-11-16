@@ -23,20 +23,29 @@ const SignUp: React.FC = () =>  {
       if (password === passwordTwo){
         const res = await createUserWithEmailAndPassword(email, password);
         // console.log({res})
+        const user= res.user;
+        await sendEmailVerification(user)
         if (res?.user) {
           // Save user data to Firestore
-          await setDoc(doc(firestore, 'users', res.user.uid), {
-            name,
-            email,
-            createdAt: new Date().toISOString(),
-          });
+          // await setDoc(doc(firestore, 'users', res.user.uid), {
+          //   name,
+          //   email,
+          //   createdAt: new Date().toISOString(),
+          // });
+        localStorage.setItem("signupData",
+          JSON.stringify({name,email})
+        )
 
-          sessionStorage.setItem('user', true);
+          // sessionStorage.setItem('user', true);
           setName('');
           setEmail('');
           setPassword('');
           setPasswordTwo('');
-          router.push('/Problems');}
+          alert("Registration Successfull! Please check your email for Verification")
+          router.push('/Sign-in');}
+          else{
+            alert("already email")
+          }
       }else{
         alert("Passwords do not match");
       }
