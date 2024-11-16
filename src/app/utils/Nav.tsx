@@ -1,9 +1,8 @@
 'use client'
-import React from "react";
+import React, { useEffect, useState, useRef} from "react";
 import style from "./Nav.module.css";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth,firestore } from "@/app/firebase/config";
 import { signOut } from 'firebase/auth';
@@ -13,8 +12,11 @@ import { getFirestore, doc, getDoc } from 'firebase/firestore';
 const Nav: React.FC = () => {
   const [user] = useAuthState(auth);
   const router = useRouter()
-  const userSession = sessionStorage.getItem('user');
-  console.log({ user });
+  const userSession  = useRef<string|null>(null);
+
+  useEffect(()=>{
+    userSession.current = sessionStorage.getItem('user');
+  },[])
 
   const [userName, setUserName] = useState<string | null>(null);
   
@@ -67,7 +69,7 @@ const Nav: React.FC = () => {
       </div>
       <div className={style.left}>
         <div>
-          {!user && !userSession ? (
+          {!user && !userSession.current ? (
             <div className={style.left}>
               <div className={[style.s].join(" ")}>
                 <h6>

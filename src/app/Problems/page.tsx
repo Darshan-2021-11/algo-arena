@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import Link from 'next/link';
 import { Problem } from '../Api/models/problemModel';
-const page = () => {
+const Page = () => {
 
   const [page, setpage] = useState(1);
   const [problems, setproblems] = useState<Problem[]>([]);
@@ -97,4 +97,4 @@ const page = () => {
   );
 }
 
-export default page;
+export default Page;

@@ -53,8 +53,7 @@ Print a line that contains all values of n during the algorithm.`
             sample_testcases: [
                 {
                     question: `3`,
-                    answer: `
-3 10 5 16 8 4 2 1`
+                    answer: `3 10 5 16 8 4 2 1`
                 }
             ],
         },

@@ -8,6 +8,7 @@ export interface HIDDEN_TESTCASE {
     hidden_testcases:Array<TESTCASE>,
 }
 
+
 export interface Problem {
     id:number,
     title:string,
