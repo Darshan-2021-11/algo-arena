@@ -31,7 +31,7 @@ export async function GET(request : NextRequest){
             problems:result,
             length:result.length,
             page,
-            maxpage:maxindex,
+            maxpage:Math.max(1,maxindex),
             lastelement:i
         }
         return NextResponse.json({...response},{status:200})

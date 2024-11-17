@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import Link from 'next/link';
 import { Problem } from '../Api/models/problemModel';
+import { v4 as uuidv4 } from 'uuid';
+
 const Page = () => {
 
   const [page, setpage] = useState(1);
@@ -49,7 +51,7 @@ const Page = () => {
       {
         problems.map((x,i)=>(
           <div
-            key={i}
+            key={uuidv4()}
             className={`text-white  ${i % 2 ? 'bg-gray-600' : ''} p-2 flex`}
           >
             <p className='pr-1 pl-1 w-24'>{(lastelem) + i + 1}</p>
@@ -76,12 +78,12 @@ const Page = () => {
     new Array(maxpage).fill(undefined).map((_, i) => (
       i + 1 === page ?
         <p
-          key={`${i}th page`}
+          key={`${uuidv4()}th page`}
           className={'bg-gray-600 pr-4 pl-4 pt-2 pb-2 mr-4 ml-4 rounded-lg cursor-pointer'}
         >{i + 1}</p>
         :
         <p
-          key={`${i}th page`}
+          key={`${uuidv4()}th page`}
           onClick={() => setpage(i + 1)}
           className={'bg-gray-400 pr-4 pl-4 pt-2 pb-2 mr-4 ml-4 rounded-lg cursor-pointer'}
         >{i + 1}</p>

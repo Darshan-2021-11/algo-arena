@@ -123,7 +123,7 @@ export default function IDE() {
                 {
                   result.map((r,i)=>(
                     <div 
-                    key={i}
+                    key={uuidv4()}
                     className={`flex w-11/12 justify-evenly m-4 p-4 bg-${r.status.id === 3 ? 'green-500' : 'red-500'}`}>
                       <div>test {i+1}</div>
                       <div>{r.status.description}</div>
@@ -179,10 +179,9 @@ export default function IDE() {
             <Editor
               line={1}
               height="80vh"
-              defaultLanguage="javascript"
+              defaultLanguage="python"
               theme="vs-dark"
-              defaultValue={`
-                //write your code here
+              defaultValue={`//write your code here
                 
                 `}
               value={value}

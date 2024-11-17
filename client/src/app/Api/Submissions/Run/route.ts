@@ -36,7 +36,7 @@ export async function POST(req: NextApiRequest, res: NextApiResponse) {
                     const judgeurl = 'http://localhost:2358/submissions/';
                     const submissionBody = {
                         source_code: code,
-                        language_id: 63,
+                        language_id: 71,
                         stdin: test_case.question,
                         expected_output: test_case.answer,
                         cpu_time_limit: '2',

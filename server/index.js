@@ -4,6 +4,14 @@ const { Server } = require('socket.io');
 require('dotenv').config();
 const cors = require('cors');
 
+const { waiting_list,
+    ongoing_matches_list,
+    requests_list,
+    waiting_lock,
+    ongoing_matches_lock} = require('./data_models');
+const eventemmiter = require('./event');
+
+
 const app = express();
 const port = process.env.PORT||9310; 
 app.use(cors({
