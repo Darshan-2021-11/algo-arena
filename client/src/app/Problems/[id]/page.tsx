@@ -8,6 +8,7 @@ import { Problem } from "@/app/Api/models/problemModel";
 import { v4 as uuidv4 } from 'uuid';
 import { stringify } from "querystring";
 
+
 export default function IDE() {
   const [value, setValue] = useState<string>('');
   const [Problem, setProblem] = useState<Problem>();
@@ -181,9 +182,7 @@ export default function IDE() {
               height="80vh"
               defaultLanguage="python"
               theme="vs-dark"
-              defaultValue={`//write your code here
-                
-                `}
+              defaultValue={`# Write your code here`}
               value={value}
               onChange={
                 (value, event) => setValue(value || "")
@@ -207,7 +206,6 @@ export default function IDE() {
             </div>
           </div>
         </form>
-        
       </div>
     </div>
   );

@@ -1,12 +1,12 @@
 'use client'
-import React, { useEffect, useState, useRef} from "react";
+import React, { useEffect, useState, useRef } from "react";
 import style from "./Nav.module.css";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth,firestore } from "@/app/firebase/config";
+import { auth,firestore } from "@/app/Firebase/config";
 import { signOut } from 'firebase/auth';
-import {  onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
 
 const Nav: React.FC = () => {
@@ -18,7 +18,7 @@ const Nav: React.FC = () => {
     userSession.current = sessionStorage.getItem('user');
   },[])
 
-  const [userName, setUserName] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>();
   
   // const db = getFirestore();
 
@@ -44,11 +44,17 @@ const Nav: React.FC = () => {
         fetchUserData();
       } else {
         setUserName(null); // Reset if the user logs out
+        router.push('/')
       }
     });
 
     return () => unsubscribe(); // Cleanup the listener
   }, [auth, firestore]);
+
+  useEffect(() => {
+  	if (typeof window !== 'undefined' && userName != null)
+  	window.sessionStorage.setItem('userName', userName);
+	}, [userName])
 
   return (
     <div className={[style.bg].join(" ")}>
@@ -86,7 +92,7 @@ const Nav: React.FC = () => {
             <div className={style.left}>
               <div className={[style.e].join(" ")}>
               {userName ? (<div className={style.left}>
-                <img className={[style.im].join(" ")} src="/person.png" alt="AlgoArena logo" />
+                <img className={[style.im].join(" ")} src="/person.png" alt="Profile_Picture" />
           <span className="text-blue-600 text-sm"> {userName} </span>
           </div>
         ) : (
