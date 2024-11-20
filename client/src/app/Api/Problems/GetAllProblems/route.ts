@@ -24,7 +24,8 @@ export async function GET(request : NextRequest){
             i = (pagelen * page) - pagelen;
             j = i + pagelen;
         }
-        const maxindex = Math.round(PROBLEMS.length / pagelen);
+        console.log(page, i,j)
+        const maxindex = Math.ceil(PROBLEMS.length / pagelen);
         const result : Array<Problem> = PROBLEMS.slice(i,j);
         const response : Response = {
             success: true,

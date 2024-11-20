@@ -42,7 +42,7 @@ const Page = () => {
   }, [page])
 
   return (
-    <div className='bg-gray-900 h-screen w-full pt-16'>
+    <div className='bg-gray-900 h-full w-full'>
       <div className='flex  p-2'>
         <p className='w-24'>sl no</p>
         <p className='w-9/12'>title</p>

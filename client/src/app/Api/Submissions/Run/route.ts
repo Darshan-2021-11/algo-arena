@@ -42,7 +42,7 @@ export async function POST(req: NextApiRequest, res: NextApiResponse) {
                         cpu_time_limit: '2',
                         wall_time_limit: '5',
                     };
-                    console.log(code)
+                    // console.log(code)
 
                     const { data } = await axios.post<{ token: string }>(judgeurl, submissionBody);
                     const { token } = data;
@@ -52,14 +52,17 @@ export async function POST(req: NextApiRequest, res: NextApiResponse) {
                             const submissionurl = `http://localhost:2358/submissions/${token}`;
                             const { data } = await axios.get(submissionurl);
 
-                            console.log(data)
+                            // console.log(data)
                             if (data.error) {
                                 clearInterval(id);
                                 reject(data.error);
                             } else if (data.time) {
-                                clearInterval(id);
-                                resolve(data);
-                                datas.push(data);
+                                if(data.status !== 2){
+                                    clearInterval(id);
+                                    resolve(data);
+                                    datas.push(data);
+                                }
+                                
                             }
                         } catch (error) {
                             clearInterval(id);
@@ -73,7 +76,6 @@ export async function POST(req: NextApiRequest, res: NextApiResponse) {
         });
 
         await Promise.all(proms);
-        console.log(datas)
         return NextResponse.json({ success: true, data: datas });
     } catch (err) {
         console.log(err)

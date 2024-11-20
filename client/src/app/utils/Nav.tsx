@@ -70,7 +70,7 @@ const Nav: React.FC = () => {
           </h6>
         </div>
         <div className={[style.e].join(" ")}>
-          <h6>Explore</h6>
+        <Link href={"/Explore"}>Explore</Link>
         </div>
       </div>
       <div className={style.left}>
@@ -90,8 +90,14 @@ const Nav: React.FC = () => {
             </div>
           ) : (
             <div className={style.left}>
-              <div className={[style.e].join(" ")}>
-              {userName ? (<div className={style.left}>
+              <div className={[style.e].join(" ")}
+             
+              >
+              {userName ? (<div className={style.left}
+               onClick={
+                router.push('/User/Dashboard')
+              }
+              >
                 <img className={[style.im].join(" ")} src="/person.png" alt="Profile_Picture" />
           <span className="text-blue-600 text-sm"> {userName} </span>
           </div>

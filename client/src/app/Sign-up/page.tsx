@@ -55,9 +55,9 @@ const SignUp: React.FC = () =>  {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900">
+    <div className="h-4/5 flex items-center justify-center ">
       <div className="bg-gray-800 p-10 rounded-lg shadow-xl w-96">
-      <h2 className="text-3xl font-bold mb-5 pb-6 text-center text-red-800 mb-4">
+      <h2 className="text-3xl font-bold mb-5 pb-6 text-center text-red-800 ">
             AlgoArena
           </h2>
         {/* <h1 className="text-white text-2xl mb-5">Sign Up</h1> */}

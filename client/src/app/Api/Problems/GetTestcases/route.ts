@@ -14,6 +14,7 @@ export async function GET(request : NextRequest){
     try{
         const params = new URL(request.url).searchParams;
         const id : number | null = Number(params.get('id'));
+        console.log(id);
         if(!id){
 
         }
@@ -32,6 +33,7 @@ export async function GET(request : NextRequest){
                 j=m-1;
             }
         }
+        console.log(result)
         const response : Response = {
             success: true,
             test_cases:result?.hidden_testcases,

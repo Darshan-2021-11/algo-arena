@@ -1,14 +1,16 @@
 const { requests_list, waiting_lock } = require("../data_models");
 const connect = require("./connect");
 
-function startMatch(userdata){
+function startMatch(socket,userdata){
     try {
-        const data = {...userdata, socket_id:this.socket.id};
+        const data = {...userdata, socket_id:socket.id};
+        // console.log(waiting_lock,data)
         if(waiting_lock){
             requests_list.push(data);
         }else{
             connect(data);
         }
+        
         // eventemmiter.emit('unlock');
     } catch (error) {
         
@@ -23,4 +25,4 @@ when 2 people check for waiting player in an empty list 1st one will check for p
 
 */
 
-module.exports = startMatch
+module.exports = {startMatch}

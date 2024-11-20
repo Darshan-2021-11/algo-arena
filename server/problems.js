@@ -1,6 +1,5 @@
-import { Problem, HIDDEN_TESTCASE } from '../../src/app/Api/models/problemModel';
 
-export const HIDDEN: Array<HIDDEN_TESTCASE> = [
+const HIDDEN = [
     {
         id: 1,
         hidden_testcases: [
@@ -397,7 +396,7 @@ YES`
             },
 
             {
-                id:14,
+                id:13,
                 hidden_testcases:[
                     {
                         question: `60`,
@@ -448,7 +447,7 @@ YES`
 
 ]
 
-export const PROBLEMS: Array<Problem> =
+const PROBLEMS =
     [
         {
             id: 1,
@@ -841,3 +840,8 @@ Print one integer: the answer for the task.
 
 
     ]
+
+module.exports = {
+    PROBLEMS,
+    HIDDEN
+}

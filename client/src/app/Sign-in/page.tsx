@@ -51,7 +51,7 @@ const SignIn = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900">
+    <div className="h-full flex items-center justify-center">
       <div className="bg-gray-800 p-10 rounded-lg shadow-xl w-96">
       <h2 className="text-3xl font-bold mb-2 pb-3 text-center text-red-800 mb-4">
             AlgoArena

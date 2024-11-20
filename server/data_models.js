@@ -5,7 +5,7 @@ player will be stored here when starting the match
 
 const requests_list = [];
 
-const ongoing_matches_list = [];
+const ongoing_matches_list = new Map();
 /*
 current matches
 */
