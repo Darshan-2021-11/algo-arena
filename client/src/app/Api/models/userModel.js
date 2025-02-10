@@ -6,6 +6,14 @@ const userSchema = new Schema({
 		type: String,
 		required: true,
 	},
+	name: {
+		type: String,
+		required: true,
+	},
+	password: {
+		type: String,
+		required: true,
+	},
 	totalQuestionSolved: {
 		type: Number,
 		default: 0,
@@ -36,5 +44,6 @@ const userSchema = new Schema({
 	},
 });
 
-const User = model("User", userSchema);
-export default User;
+// const User = model("User", userSchema);
+// export default  User;
+export default mongoose.models.User || mongoose.model('User', UserSchema);
