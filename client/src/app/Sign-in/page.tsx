@@ -1,53 +1,27 @@
 'use client'
 import { useState } from 'react';
-import {useSignInWithEmailAndPassword} from 'react-firebase-hooks/auth'
-import {auth, firestore} from '@/app/Firebase/config'
 import { useRouter } from 'next/navigation';
-import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
-import { onAuthStateChanged } from 'firebase/auth';
-import { User } from 'firebase/auth';
+import axios from 'axios';
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
-  const [signInWithEmailAndPassword] = useSignInWithEmailAndPassword(auth);
   const router = useRouter()
 
-  const handleSignIn = async () => {
+  const loginUser = async (): Promise<void> => {
     try {
-
-        const res = await signInWithEmailAndPassword(email, password);
-        console.log({res});
-        const user = res.user;
-        if(user.emailVerified){
-          const signupData = localStorage.getItem("signupData")
-          
-          const {
-            name =""
-          }= signupData ? JSON.parse(signupData) : {};
-          const userDoc = await getDoc(doc(firestore,'users',user.uid));
-
-              if(!userDoc.exists()){
-               await setDoc(doc(firestore, 'users', user.uid), {
-                       name,
-                       email : user.email,
-                       createdAt: new Date().toISOString()
-               });
-        }
-        sessionStorage.setItem('user', true)
-          setEmail('');
-          setPassword('');
-          router.push('/Problems')
-
-        } else{
-          alert("verify your email first")
-        }
-       
-       
-    }catch(e){
-        console.error(e)
+      const url = 'Api/Authentication/Login';
+      const { data } = await axios.post(url, { email, password });
+      alert(data.message);
+      router.push('/Problems')
+    } catch (error) {
+      alert(error.response?.data?.error || 'Login failed');
     }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await loginUser();
   };
 
   return (
@@ -72,7 +46,7 @@ const SignIn = () => {
           className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
         />
         <button 
-          onClick={handleSignIn}
+          onClick={handleSubmit}
           className="w-full p-3 bg-indigo-600 rounded text-white hover:bg-indigo-500"
         >
           Log In

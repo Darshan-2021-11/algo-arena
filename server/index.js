@@ -15,12 +15,12 @@ const eventemmiter = require('./event');
 const app = express();
 const port = process.env.PORT||9310; 
 app.use(cors({
-    origin: process.env.ORIGIN
+    origin: "*"
 }));
 const server = createServer(app);
 module.exports.io = new Server(server,{
     cors:{
-        origin: process.env.ORIGIN, 
+        origin: '*', 
         methods: ["GET", "POST"],
         allowedHeaders: ["my-custom-header"],
         credentials: true

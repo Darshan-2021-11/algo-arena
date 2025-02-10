@@ -22,7 +22,7 @@ const Page = () => {
 
     const socket = useRef<Socket | null>();
     useEffect(() => {
-        socket.current = io('http://localhost:9310')
+        socket.current = io('http://localhost:3000')
         let soc = socket.current
         soc.on('connect', () => {
             soc.emit('startMatch')

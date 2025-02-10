@@ -1,11 +1,8 @@
 'use client'
 import { useState } from 'react';
 import Link from "next/link";
-import {useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth'
-import { sendEmailVerification } from 'firebase/auth';
-import {auth,firestore} from '@/app/Firebase/config'
 import { useRouter } from 'next/navigation';
-import { getFirestore, doc, setDoc } from "firebase/firestore";
+import axios from 'axios';
 
 const SignUp: React.FC = () =>  {
   const [name, setName] = useState('');
@@ -14,44 +11,28 @@ const SignUp: React.FC = () =>  {
   const [passwordTwo, setPasswordTwo] = useState("");
   // const [error,setError]=useState<string | null>(null);
   // const [message,setMessage]=useState<string | null>(null);
-  const [createUserWithEmailAndPassword] = useCreateUserWithEmailAndPassword(auth);
+  // const [createUserWithEmailAndPassword] = useCreateUserWithEmailAndPassword(auth);
   const router = useRouter()
   // const db = getFirestore(); 
-  const handleSignUp = async () => {
-   
+  const registerUser = async (): Promise<void> => {
     try {
-      if (password === passwordTwo){
-        const res = await createUserWithEmailAndPassword(email, password);
-        // console.log({res})
-        const user= res.user;
-        await sendEmailVerification(user)
-        if (res?.user) {
-          // Save user data to Firestore
-          // await setDoc(doc(firestore, 'users', res.user.uid), {
-          //   name,
-          //   email,
-          //   createdAt: new Date().toISOString(),
-          // });
-        localStorage.setItem("signupData",
-          JSON.stringify({name,email})
-        )
-
-          // sessionStorage.setItem('user', true);
-          setName('');
-          setEmail('');
-          setPassword('');
-          setPasswordTwo('');
-          alert("Registration Successfull! Please check your email for Verification")
-          router.push('/Sign-in');}
-          else{
-            alert("already email")
-          }
-      }else{
-        alert("Passwords do not match");
-      }
-    } catch(e){
-        console.error(e)
+      console.log("hello")
+      const url = 'Api/Authentication/Register';
+      const { data } = await axios.post(url, { name, email, password });
+      alert(data.message);
+      router.push('/Problems')
+    } catch (error) {
+      alert(error.response?.data?.error || "Registration failed");
     }
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (password !== passwordTwo) {
+      alert("Passwords do not match");
+      return;
+    }
+    await registerUser();
   };
 
   return (
@@ -90,7 +71,7 @@ const SignUp: React.FC = () =>  {
           className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
         />
         <button 
-          onClick={handleSignUp}
+          onClick={handleSubmit}
           className="w-full p-3 bg-indigo-600 rounded text-white hover:bg-indigo-500"
         >
           Sign Up
