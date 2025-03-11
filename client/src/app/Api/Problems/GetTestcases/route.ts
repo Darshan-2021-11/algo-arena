@@ -16,13 +16,14 @@ export async function GET(request : NextRequest){
         const id : number | null = Number(params.get('id'));
         console.log(id);
         if(!id){
-
+            return NextResponse.json({success:false, error:"no id found"},{status:404})
         }
         let result;
         let i = 0, j = HIDDEN.length;
-        while(i <j){
+        while(i <=j){
             const m = Math.floor((i+j)/2);
             const test = HIDDEN[m];
+            console.log(test.id,id)
             if(test.id === id){
                 result = HIDDEN[m];
                 break;
@@ -33,7 +34,7 @@ export async function GET(request : NextRequest){
                 j=m-1;
             }
         }
-        console.log(result)
+        console.log("result founds",result)
         const response : Response = {
             success: true,
             test_cases:result?.hidden_testcases,

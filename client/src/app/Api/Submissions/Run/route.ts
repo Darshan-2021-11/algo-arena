@@ -6,6 +6,8 @@ import axios from "axios";
 import { NextApiRequest, NextApiResponse } from "next";
 import {  NextResponse } from "next/server";
 
+const maxtime = 4000;
+
 export async function POST(req: NextApiRequest, res: NextApiResponse) {
     try {
         const reader = req.body?.getReader();
@@ -18,13 +20,13 @@ export async function POST(req: NextApiRequest, res: NextApiResponse) {
             body += decoder.decode(value, { stream: true });
         }
 
-        const { id, code } = JSON.parse(body);
+        const { id, code, lang } = JSON.parse(body);
         const url = `http://localhost:3000/Api/Problems/GetTestcases?id=${id}`;
         const { data } = await axios.get(url);
 
         const { test_cases } = data;
         if (!test_cases) {
-            return res.status(400).json({ success: false, message: 'No test cases found' });
+            return NextResponse.json({success:false,message:"No test cases found"},{status:400})
         }
 
         // store.dispatch(starttest(10))
@@ -34,36 +36,74 @@ export async function POST(req: NextApiRequest, res: NextApiResponse) {
             return new Promise(async (resolve, reject) => {
                 try {
                     const judgeurl = 'http://localhost:2358/submissions/';
+
                     const submissionBody = {
                         source_code: code,
                         language_id: 71,
                         stdin: test_case.question,
                         expected_output: test_case.answer,
-                        cpu_time_limit: '2',
-                        wall_time_limit: '5',
+                        cpu_time_limit: '1',
+                        wall_time_limit: '1',
+                        
                     };
-                    // console.log(code)
 
+                    switch(lang){
+                        case "javascript":
+                            submissionBody.language_id = 63;
+                            break;
+                        case "python":
+                            submissionBody.language_id = 71;
+                            break;
+                        case "go":
+                            submissionBody.language_id=60;
+                            break;
+                        case "cpp":
+                            submissionBody.language_id = 54;
+                            break;
+                        case "c":
+                            submissionBody.language_id = 48;
+                            break;
+                        case "java":
+                            submissionBody.language_id = 62;
+                            break;
+                    }
                     const { data } = await axios.post<{ token: string }>(judgeurl, submissionBody);
                     const { token } = data;
+                    let currtime = 0;
 
                     const id = setInterval(async () => {
                         try {
-                            const submissionurl = `http://localhost:2358/submissions/${token}`;
+                            if(currtime >= maxtime){
+                                throw new Error("server Timeout")                                
+                            }
+                            currtime +=1000;
+                            const submissionurl = `http://localhost:2358/submissions/${token}?base64_encoded=true&wait=false`;
                             const { data } = await axios.get(submissionurl);
-
-                            // console.log(data)
-                            if (data.error) {
+                            if(data.status.id != 2){
                                 clearInterval(id);
-                                reject(data.error);
-                            } else if (data.time) {
-                                if(data.status !== 2){
+                                let resdata : any = data ;
+                                if(data.status.id != 3){
+                                    const arraybuffer = Uint8Array.from(atob(data.compile_output),c=>c.charCodeAt(0));
+                                    const jsondata  = new TextDecoder().decode(arraybuffer);
+                                    console.log(data,jsondata)
+                                    throw new Error(data.status.description)
+                                }
+                          
+                            console.log(data,resdata)
+                            
+                            if (resdata.error) {
+                                clearInterval(id);
+                                reject(resdata.error);
+                            } else if (resdata.time) {
+                                if(resdata.status !== 2){
                                     clearInterval(id);
-                                    resolve(data);
-                                    datas.push(data);
+                                    resolve(resdata);
+                                    datas.push(resdata);
                                 }
                                 
                             }
+                            }
+
                         } catch (error) {
                             clearInterval(id);
                             reject(error);
@@ -79,6 +119,6 @@ export async function POST(req: NextApiRequest, res: NextApiResponse) {
         return NextResponse.json({ success: true, data: datas });
     } catch (err) {
         console.log(err)
-        return NextResponse.json({ success: false, err }, { status: 500 });
+        return NextResponse.json({ success: false, err:err?.message }, { status: 500 });
     }
 }

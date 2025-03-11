@@ -22,34 +22,34 @@ const Nav: React.FC = () => {
   
   // const db = getFirestore();
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const currentUser = auth.currentUser;
+  // useEffect(() => {
+  //   const fetchUserData = async () => {
+  //     const currentUser = auth.currentUser;
 
-      if (currentUser) {
-        try {
-          const userDoc = await getDoc(doc(firestore, 'users', currentUser.uid));
-          if (userDoc.exists()) {
-            setUserName(userDoc.data().name);
-          }
-        } catch (error) {
-          console.error("Error fetching user data:", error);
-        }
-      }
-    };
+  //     if (currentUser) {
+  //       try {
+  //         const userDoc = await getDoc(doc(firestore, 'users', currentUser.uid));
+  //         if (userDoc.exists()) {
+  //           setUserName(userDoc.data().name);
+  //         }
+  //       } catch (error) {
+  //         console.error("Error fetching user data:", error);
+  //       }
+  //     }
+  //   };
 
-    // Listen for authentication state changes
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        fetchUserData();
-      } else {
-        setUserName(null); // Reset if the user logs out
-        router.push('/')
-      }
-    });
+  //   // Listen for authentication state changes
+  //   const unsubscribe = onAuthStateChanged(auth, (user) => {
+  //     if (user) {
+  //       fetchUserData();
+  //     } else {
+  //       setUserName(null); // Reset if the user logs out
+  //       router.push('/')
+  //     }
+  //   });
 
-    return () => unsubscribe(); // Cleanup the listener
-  }, [auth, firestore]);
+  //   return () => unsubscribe(); // Cleanup the listener
+  // }, [auth, firestore]);
 
   useEffect(() => {
   	if (typeof window !== 'undefined' && userName != null)
