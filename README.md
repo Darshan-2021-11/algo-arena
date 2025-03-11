@@ -5,6 +5,7 @@ Algo Arena is an interactive platform designed for algorithm enthusiasts to prac
 ## Table of Contents
 
 - [Introduction](#introduction)
+- [File Strucutre](#file%structure)
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
@@ -15,6 +16,74 @@ Algo Arena is an interactive platform designed for algorithm enthusiasts to prac
 ## Introduction
 
 Welcome to Algo Arena! This platform is designed to help you improve your algorithmic problem-solving skills. Whether you're preparing for coding interviews, participating in coding competitions, or just want to sharpen your skills, Algo Arena offers a variety of challenges to suit your needs.
+
+## File Structure
+```
+./
+├── frontend/
+└── backend/
+```
+### Frontend
+```
+frontend/
+├── public/                # Static files (images, fonts, etc.)
+│   └── ...
+├── src/                   # Application source code
+│   ├── components/        # Reusable UI components
+│   │   └── ...
+│   ├── containers/        # Container components (stateful)
+│   │   └── ...
+│   ├── pages/             # Next.js page components
+│   │   └── ...
+│   ├── layouts/           # Layout components
+│   │   └── ...
+│   ├── hooks/             # Custom hooks
+│   │   └── ...
+│   ├── services/          # Service classes for API calls, etc.
+│   │   └── ...
+│   ├── stores/            # State management (e.g., Redux)
+│   │   └── ...
+│   ├── styles/            # Global styles and Tailwind configurations
+│   │   └── ...
+│   ├── utils/             # Utility functions
+│   │   └── ...
+│   ├── types/             # TypeScript types and interfaces
+│   │   └── ...
+│   ├── api/               # Backend API routes (Next.js API)
+│   │   ├── controllers/   # API route controllers
+│   │   ├── models/        # Database models
+│   │   ├── routes/        # API route definitions
+│   │   ├── services/      # Business logic and services
+│   │   └── utils/         # Backend utility functions
+│   └── editor/            # Custom editor implementation
+│       └── ...
+├── .env                   # Environment variables
+├── .eslintrc.js           # ESLint configuration
+├── .prettierrc            # Prettier configuration
+├── next.config.js         # Next.js configuration
+├── package.json           # Project dependencies and scripts
+├── tsconfig.json          # TypeScript configuration
+└── README.md              # Project documentation
+```
+### Backend:
+```
+backend/
+├── src/                   # Backend source code
+│   ├── sockets/           # Socket.io related code for duel matches
+│   │   ├── controllers/   # Socket event controllers
+│   │   ├── services/      # Business logic and services
+│   │   ├── middlewares/   # Middleware for socket.io
+│   │   └── utils/         # Utility functions for socket.io
+│   └── server.ts          # Entry point for the backend server
+├── .env                   # Environment variables
+├── .eslintrc.js           # ESLint configuration
+├── .prettierrc            # Prettier configuration
+├── tsconfig.json          # TypeScript configuration
+├── package.json           # Project dependencies and scripts
+└── README.md              # Project documentation
+
+
+```
 
 ## Features
 
@@ -110,6 +179,103 @@ We welcome contributions from the community! To contribute to Algo Arena, please
     git push origin feature/your-feature-name
     ```
 7. **Create a Pull Request**: Open a pull request to the main repository.
+
+## Contribution Guidelines
+
+Welcome to the **AlgoArena** project! We're excited to have you on board. To ensure smooth collaboration and maintain high standards, please follow these guidelines:
+
+### Code Formatting
+- **Prettier**:
+  - Use Prettier for consistent code formatting across the project.
+  - Set up Prettier to run on every commit using a pre-commit hook (e.g., Husky).
+- **ESLint**:
+  - Use ESLint to identify and fix problematic patterns in your code.
+  - Extend ESLint configuration with Airbnb or other industry-standard style guides.
+  - Enable TypeScript-specific ESLint rules using `@typescript-eslint`.
+- **Indentation**:
+  - Use 2 spaces for indentation in JavaScript/TypeScript, HTML, and CSS files.
+  - Configure editors to enforce the indentation style.
+
+### Naming Conventions
+- **Variables and Functions**:
+  - Use **camelCase** for variable names and function names (e.g., `fetchUserData`).
+- **Classes and Components**:
+  - Use **PascalCase** for class names and React component names (e.g., `UserProfile`).
+- **Constants**:
+  - Use **UPPER_SNAKE_CASE** for constant values (e.g., `MAX_USER_COUNT`).
+
+### Code Comments
+- **General Comments**:
+  - Write clear, concise, and meaningful comments for complex logic and important sections of the code.
+- **Function Documentation**:
+  - Use JSDoc or TypeScript to document functions, including descriptions, parameters, and return types.
+
+```typescript
+/**
+ * Fetches user data from the API.
+ * @param {string} userId - The ID of the user.
+ * @returns {Promise<User>} The user data.
+ */
+async function fetchUserData(userId: string): Promise<User> {
+  // Function implementation
+}
+```
+
+### File and Folder Structure
+- Follow the proposed folder structure for clear separation of concerns.
+- Group related files together (e.g., a component’s styles, tests, and related files).
+
+### Git and Version Control
+- **Branching Strategy**:
+  - Use a branching strategy such as GitFlow or GitHub Flow.
+  - Create separate branches for features, bug fixes, and hotfixes.
+- **Commit Messages**:
+  - Write descriptive commit messages following a standard format (e.g., Conventional Commits).
+  - Example: `feat(auth): add user login functionality`
+- **Code Reviews**:
+  - Conduct thorough code reviews before merging to the main branch.
+  - Use tools like GitHub Pull Requests for code reviews and discussions.
+
+### Code Quality
+- **Unit Testing**:
+  - Write unit tests for critical functions and components.
+  - Use testing frameworks like Jest and React Testing Library.
+- **Integration Testing**:
+  - Write integration tests to verify the interaction between different parts of the application.
+- **Static Code Analysis**:
+  - Use tools like SonarQube for static code analysis to identify code smells and security vulnerabilities.
+
+### Best Practices
+- **SOLID Principles**:
+  - Follow SOLID principles for object-oriented programming and design.
+- **DRY and KISS**:
+  - Avoid code duplication (DRY - Don’t Repeat Yourself) and keep code simple and straightforward (KISS - Keep It Simple, Stupid).
+- **Type Safety**:
+  - Use TypeScript to enforce type safety and catch errors at compile time.
+  - Avoid using `any` type; always specify explicit types.
+
+### Environment Configuration
+- **Environment Variables**:
+  - Store environment-specific settings in `.env` files.
+- **Security**:
+  - Never commit sensitive information (e.g., API keys, passwords) to version control.
+  - Use secrets management tools like AWS Secrets Manager or Azure Key Vault.
+
+### Code Reviews
+- **Constructive Feedback**:
+  - Provide constructive feedback during code reviews.
+  - Focus on code quality, readability, and adherence to coding standards.
+- **Knowledge Sharing**:
+  - Encourage knowledge sharing and mentorship within the team.
+  - Discuss best practices and architectural decisions during code reviews.
+
+### Communication
+- **Team Communication**:
+  - Use communication tools like Slack or Microsoft Teams for quick discussions and updates.
+  - Conduct regular stand-up meetings to track progress and address any blockers.
+
+Thank you for contributing to AlgoArena! Let's build something amazing together. 🚀
+
 
 ## License
 
