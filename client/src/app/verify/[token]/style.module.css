@@ -1,0 +1,8 @@
+.verifypage{
+    width: 100dvw;
+    height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(2rem, 3vh, 3rem);
+}

@@ -11,11 +11,15 @@
   "dependencies": {
     "@monaco-editor/react": "^4.6.0",
     "@reduxjs/toolkit": "^2.2.7",
-    "axios": "^1.7.7",
+    "axios": "^1.8.2",
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.2",
     "firebase": "^11.0.2",
+    "jsonwebtoken": "^9.0.2",
     "monaco-languageclient": "^8.8.3",
     "mongoose": "^8.8.1",
     "next": "14.2.7",
+    "nodemailer": "^6.10.0",
     "react": "^18",
     "react-dom": "^18",
     "react-firebase-hooks": "^5.1.1",
@@ -27,7 +31,9 @@
     "vscode-ws-jsonrpc": "^3.3.2"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^20",
+    "@types/nodemailer": "^6.4.17",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",

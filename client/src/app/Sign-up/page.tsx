@@ -6,51 +6,88 @@ import { sendEmailVerification } from 'firebase/auth';
 import {auth,firestore} from '@/app/Firebase/config'
 import { useRouter } from 'next/navigation';
 import { getFirestore, doc, setDoc } from "firebase/firestore";
+import axios from "axios";
 
 const SignUp: React.FC = () =>  {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordTwo, setPasswordTwo] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   // const [error,setError]=useState<string | null>(null);
   // const [message,setMessage]=useState<string | null>(null);
-  const [createUserWithEmailAndPassword] = useCreateUserWithEmailAndPassword(auth);
+ 
   const router = useRouter()
   // const db = getFirestore(); 
-  const handleSignUp = async () => {
+  // const handleSignUp = async () => {
    
+  //   try {
+  //     if (password === passwordTwo){
+  //       // const res = await createUserWithEmailAndPassword(email, password);
+  //       // console.log({res})
+  //       // const user= res.user;
+  //       // await sendEmailVerification(user)
+  //       // if (res?.user) {
+  //       //   // Save user data to Firestore
+  //       //   // await setDoc(doc(firestore, 'users', res.user.uid), {
+  //       //   //   name,
+  //       //   //   email,
+  //       //   //   createdAt: new Date().toISOString(),
+  //       //   // });
+  //       // localStorage.setItem("signupData",
+  //       //   JSON.stringify({name,email})
+  //       // )
+
+  //         // sessionStorage.setItem('user', true);
+  //         setName('');
+  //         setEmail('');
+  //         setPassword('');
+  //         setPasswordTwo('');
+  //         alert("Registration Successfull! Please check your email for Verification")
+  //         router.push('/Sign-in');}
+  //         else{
+  //           alert("already email")
+  //         }
+  //     }else{
+  //       alert("Passwords do not match");
+  //     }
+  //   } catch(e){
+  //       console.error(e)
+  //   }
+  // };
+
+  const handleSignUp = async (e) => {
+    e.preventDefault();
+    setError(""); // Reset error state
+    setSuccess(""); // Reset success state
+
     try {
       if (password === passwordTwo){
-        const res = await createUserWithEmailAndPassword(email, password);
-        // console.log({res})
-        const user= res.user;
-        await sendEmailVerification(user)
-        if (res?.user) {
-          // Save user data to Firestore
-          // await setDoc(doc(firestore, 'users', res.user.uid), {
-          //   name,
-          //   email,
-          //   createdAt: new Date().toISOString(),
-          // });
-        localStorage.setItem("signupData",
-          JSON.stringify({name,email})
-        )
+      console.log(name, email, password)
 
-          // sessionStorage.setItem('user', true);
-          setName('');
-          setEmail('');
-          setPassword('');
-          setPasswordTwo('');
-          alert("Registration Successfull! Please check your email for Verification")
-          router.push('/Sign-in');}
-          else{
-            alert("already email")
-          }
-      }else{
-        alert("Passwords do not match");
+
+      const response = await axios.post("/Api/Auth/Register", {
+        name,
+        email,
+        password,
+      });
+      console.log(response)
+      if (response.status === 201) {
+        setSuccess("User registered successfully!");
+        setName("");
+        setEmail("");
+        setPassword("");
       }
-    } catch(e){
-        console.error(e)
+    }else{
+              alert("Passwords do not match");
+             }
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(err.response.data.message); // Display server error message
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
     }
   };
 
