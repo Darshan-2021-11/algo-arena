@@ -3,14 +3,9 @@ import React, { useEffect, useState, useRef } from "react";
 import style from "./Nav.module.css";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth,firestore } from "@/app/Firebase/config";
 import { signOut } from 'firebase/auth';
-import { onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
 
 const Nav: React.FC = () => {
-  const [user] = useAuthState(auth);
   const router = useRouter()
   const userSession  = useRef<string|null>(null);
 
@@ -75,7 +70,7 @@ const Nav: React.FC = () => {
       </div>
       <div className={style.left}>
         <div>
-          {!user && !userSession.current ? (
+          {/* {!user && !userSession.current ? (
             <div className={style.left}>
               <div className={[style.s].join(" ")}>
                 <h6>
@@ -106,14 +101,14 @@ const Nav: React.FC = () => {
         )}
               </div >
               <button className="text-red-600 ml-5 pl-1 text-sm" onClick={() => {
-        signOut(auth)
+        // signOut(auth)
         sessionStorage.removeItem('user')
         router.push('/Home')
         }}>
         Log out
       </button>
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </div>
