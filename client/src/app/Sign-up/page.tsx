@@ -1,11 +1,7 @@
 'use client'
 import { useState } from 'react';
 import Link from "next/link";
-import {useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth'
-import { sendEmailVerification } from 'firebase/auth';
-import {auth,firestore} from '@/app/Firebase/config'
 import { useRouter } from 'next/navigation';
-import { getFirestore, doc, setDoc } from "firebase/firestore";
 import axios from "axios";
 
 const SignUp: React.FC = () =>  {
