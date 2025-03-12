@@ -1,52 +1,41 @@
 'use client'
 import { useState } from 'react';
-import {useSignInWithEmailAndPassword} from 'react-firebase-hooks/auth'
-import {auth, firestore} from '@/app/Firebase/config'
 import { useRouter } from 'next/navigation';
-import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
-import { onAuthStateChanged } from 'firebase/auth';
-import { User } from 'firebase/auth';
+import axios from "axios";
+
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   
-  const [signInWithEmailAndPassword] = useSignInWithEmailAndPassword(auth);
   const router = useRouter()
 
-  const handleSignIn = async () => {
+  const handleSignIn = async (e) => {
+    e.preventDefault();
+    setError(""); // Clear previous error message
+    setLoading(true); // Show loading state
+
     try {
+      const response = await axios.post("/Api/Auth/Login", { email, password });
 
-        const res = await signInWithEmailAndPassword(email, password);
-        console.log({res});
-        const user = res.user;
-        if(user.emailVerified){
-          const signupData = localStorage.getItem("signupData")
-          
-          const {
-            name =""
-          }= signupData ? JSON.parse(signupData) : {};
-          const userDoc = await getDoc(doc(firestore,'users',user.uid));
-
-              if(!userDoc.exists()){
-               await setDoc(doc(firestore, 'users', user.uid), {
-                       name,
-                       email : user.email,
-                       createdAt: new Date().toISOString()
-               });
-        }
-        sessionStorage.setItem('user', true)
-          setEmail('');
-          setPassword('');
-          router.push('/Problems')
-
-        } else{
-          alert("verify your email first")
-        }
-       
-       
-    }catch(e){
-        console.error(e)
+      if (response.status === 200) {
+        // Handle successful login
+        console.log("Login successful:", response.data);
+        localStorage.setItem("token", response.data.token); // Store token in localStorage or cookies
+        alert("Login successful!");
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        router.push("/Problems")
+      }
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(err.response.data.message); // Server error message
+      } else {
+        setError("An error occurred. Please try again.");
+      }
+    } finally {
+      setLoading(false); // End loading state
     }
   };
 

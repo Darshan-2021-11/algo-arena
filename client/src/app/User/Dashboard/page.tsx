@@ -1,9 +1,10 @@
 'use client'
 import React, { useRef, useEffect, useState } from 'react';
-import Nav from '../../utils/Nav';
+import { useRouter } from "next/navigation";
 import { FaUserCircle } from "react-icons/fa";
 
 const Page: React.FC = () => {
+	const router = useRouter();
 	const [userName, setUserName] = useState<String | null>('John Doe');
 	useEffect(() => {
 		if (typeof window !== null) {
@@ -31,6 +32,22 @@ const Page: React.FC = () => {
 					<div>Duet Lost: 0</div>
 					<div>Duet Draw: 0</div>
 				</div>
+			</div>
+			<div
+			style={{
+				display: "flex",
+				justifyContent: "center",
+				alignItems: "center", // Light grey background for visualization
+			  }}>
+			<button 
+			style = {{
+				padding: "1.5rem",
+				backgroundColor: "darkgray",
+				borderRadius: "0.5rem"
+			}}
+			onClick={()=>{
+				router.push("/LeaderBoard")
+			}}>View LeaderBoard</button>
 			</div>
 		</>
 	);

@@ -3,7 +3,7 @@ const axios = require('axios');
 const { ongoing_matches_list } = require("../data_models");
 const { io } = require('..');
 const endMatch = require('./endMatch');
-const { HIDDEN } = require('../problems');
+const { PROBLEMS } = require('../problems');
 
 async function submit(socket,d){
     try {
@@ -11,14 +11,15 @@ async function submit(socket,d){
    
     const { roomid, code } = d;
     const room = ongoing_matches_list.get(roomid);
-    if(room.winner){
-        return;
-    }
+    // console.log(ongoing_matches_list)
+    // if(room.winner){
+    //     return;
+    // }
 
     const id = ongoing_matches_list.get(roomid).question;
 
-        const { hidden_testcases } = HIDDEN[id];
-        if (!hidden_testcases) {
+        const { sample_testcases } = PROBLEMS[id];
+        if (!sample_testcases) {
             // return res.status(400).json({ success: false, message: 'No test cases found' });
         }
 
@@ -26,9 +27,10 @@ async function submit(socket,d){
 
         // store.dispatch(starttest(10))
         let passed = true;
-        const proms = hidden_testcases.map((test_case) => {
+        const proms = sample_testcases.map((test_case) => {
             return new Promise(async (resolve, reject) => {
                 try {
+                    // console.log(test_case)
                     const judgeurl = 'http://localhost:2358/submissions/';
                     const submissionBody = {
                         source_code: code,
@@ -51,10 +53,10 @@ async function submit(socket,d){
                                 clearInterval(id);
                                 reject(data.error);
                             } else if (data.time) {
-                                console.log(data)
+                                // console.log(data)
                                 clearInterval(id);
                                 resolve(data);
-                                if(data.status.id !== 3) passed = false;
+                                if(data.status.description !== "Accepted") passed = false;
                             }
                         } catch (error) {
                             clearInterval(id);
@@ -69,7 +71,8 @@ async function submit(socket,d){
 
         await Promise.all(proms);
         if(passed){
-            if(room.users[0].id === this.socket.id){
+            console.log(room,socket)
+            if(room.users[0].socket_id === socket.id){
                 room.winner = room.users[0];
             }else{
                 room.winner = room.users[1];

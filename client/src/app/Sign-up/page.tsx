@@ -75,9 +75,12 @@ const SignUp: React.FC = () =>  {
       console.log(response)
       if (response.status === 201) {
         setSuccess("User registered successfully!");
+        alert("Registeration successful!,Check Your mail to verify");
+        router.push("/Sign-in")
         setName("");
         setEmail("");
         setPassword("");
+        setPasswordTwo("");
       }
     }else{
               alert("Passwords do not match");

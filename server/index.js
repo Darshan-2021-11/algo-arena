@@ -20,7 +20,7 @@ app.use(cors({
 const server = createServer(app);
 module.exports.io = new Server(server,{
     cors:{
-        origin: process.env.ORIGIN, 
+        origin: "*", 
         methods: ["GET", "POST"],
         allowedHeaders: ["my-custom-header"],
         credentials: true

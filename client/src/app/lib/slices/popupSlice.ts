@@ -1,6 +1,6 @@
 'use client'
 import { createSlice } from "@reduxjs/toolkit"
-import { RootState } from "@/app/store";
+import { RootState } from "@/app/lib/store";
 import {v4 as uuidv4} from 'uuid';
 
 export interface MESSAGE{

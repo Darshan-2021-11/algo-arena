@@ -1,12 +1,12 @@
 'use server'
 
 import { starttest } from "@/app/Problems/[id]/problemslice";
-import store from "@/app/store";
+import store from "@/app/lib/store";
 import axios from "axios";
 import { NextApiRequest, NextApiResponse } from "next";
 import {  NextResponse } from "next/server";
 
-const maxtime = 4000;
+const maxtime = 4000000;
 
 export async function POST(req: NextApiRequest, res: NextApiResponse) {
     try {
@@ -79,17 +79,24 @@ export async function POST(req: NextApiRequest, res: NextApiResponse) {
                             currtime +=1000;
                             const submissionurl = `http://localhost:2358/submissions/${token}?base64_encoded=true&wait=false`;
                             const { data } = await axios.get(submissionurl);
-                            if(data.status.id != 2){
+                            if(data.status.description !== "Processing" && data.status.description !== "In Queue" ){
                                 clearInterval(id);
                                 let resdata : any = data ;
-                                if(data.status.id != 3){
-                                    const arraybuffer = Uint8Array.from(atob(data.compile_output),c=>c.charCodeAt(0));
-                                    const jsondata  = new TextDecoder().decode(arraybuffer);
-                                    console.log(data,jsondata)
+                                if(data.status.description != "Accepted"){
+                                    const jsondata = atob(data.compile_output);
+                                    // const jsondata  = new TextDecoder().decode(arraybuffer);
+                                    console.log("decodeddata",data,jsondata)
                                     throw new Error(data.status.description)
                                 }
+
+                                if(data.stdout){
+                                    const arraybuffer = Uint8Array.from(atob(data.stdout),c=>c.charCodeAt(0));
+                                    const jsondata  = new TextDecoder().decode(arraybuffer);
+                                    console.log("decodeddata",jsondata)
+                                    // throw new Error(data.status.description)
+                                }
                           
-                            console.log(data,resdata)
+                            // console.log(data,resdata)
                             
                             if (resdata.error) {
                                 clearInterval(id);

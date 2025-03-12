@@ -31,6 +31,7 @@ console.log(email)
     if (existingUser) {
       return NextResponse.json({ success: false, message: "Email already in use" }, { status: 400 });
     }
+    console.log(existingUser)
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -40,7 +41,7 @@ console.log(email)
 
     const newUser = await User.create({
       name,
-      _id:email,
+      email,
       password: hashedPassword,
       verificationToken,
     });
