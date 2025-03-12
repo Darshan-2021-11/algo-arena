@@ -18,6 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    <StoreProvider>
     <html lang="en">
       <head>
       <link
@@ -32,5 +33,6 @@ export default function RootLayout({
         {children}
       </body>
     </html>
+    </StoreProvider>
   );
 }

@@ -20,12 +20,11 @@ function connect(userdata){
         socket.join(roomid);
         socket2.join(roomid);
         // const question = getquestion();
-        // const question = PROBLEMS[Math.floor(Math.random() * PROBLEMS.length)];
-        const question = PROBLEMS[1];
+        const question = PROBLEMS[Math.floor(Math.random() * PROBLEMS.length)];
         const timeid = setTimeout(() => {
             endMatch(roomid)
             clearTimeout(timeid);
-        }, 180000);
+        }, 1800);
         const room = {
             users:[data,userdata],
             question:1,

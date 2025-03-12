@@ -2,10 +2,21 @@
 import React, { useEffect, useState, useRef } from "react";
 import style from "./Nav.module.css";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter } from 'next/navigation';
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth,firestore } from "@/app/Firebase/config";
+import { signOut } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
 
 const Nav: React.FC = () => {
-  const router = useRouter();
+  const [user] = useAuthState(auth);
+  const router = useRouter()
+  const userSession  = useRef<string|null>(null);
+
+  useEffect(()=>{
+    userSession.current = sessionStorage.getItem('user');
+  },[])
 
   const [userName, setUserName] = useState<string | null>();
 
@@ -74,7 +85,7 @@ const Nav: React.FC = () => {
       </div>
       <div className={style.left}>
         <div>
-          {!userName ? (
+          {!user && !userSession.current ? (
             <div className={style.left}>
               <div className={[style.s].join(" ")}>
                 <h6>
@@ -89,37 +100,30 @@ const Nav: React.FC = () => {
             </div>
           ) : (
             <div className={style.left}>
-              <div className={[style.e].join(" ")}>
-                {userName ? (
-                  <div
-                    className={style.left}
-                    onClick={()=>router.push("/User/Dashboard")}
-                  >
-                    <img
-                      className={[style.im].join(" ")}
-                      src="/person.png"
-                      alt="Profile_Picture"
-                    />
-                    <span className="text-blue-600 text-sm"> {userName} </span>
-                  </div>
-                ) : (
-                  <a href="/Sign-in" className="text-blue-400">
-                    Log in
-                  </a>
-                )}
-              </div>
-              <button
-                className="text-red-600 ml-5 pl-1 text-sm"
-                onClick={() => {
-                  setUserName(null);
-                  localStorage.removeItem("user");
-                  router.push("/Home");
-                }}
+              <div className={[style.e].join(" ")}
+             
               >
-                Log out
-              </button>
+              {userName ? (<div className={style.left}
+               onClick={
+                router.push('/User/Dashboard')
+              }
+              >
+                <img className={[style.im].join(" ")} src="/person.png" alt="Profile_Picture" />
+          <span className="text-blue-600 text-sm"> {userName} </span>
+          </div>
+        ) : (
+          <a href="/Sign-in" className="text-blue-400">Log in</a>
+        )}
+              </div >
+              <button className="text-red-600 ml-5 pl-1 text-sm" onClick={() => {
+        signOut(auth)
+        sessionStorage.removeItem('user')
+        router.push('/Home')
+        }}>
+        Log out
+      </button>
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </div>

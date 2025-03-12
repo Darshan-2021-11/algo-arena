@@ -10,11 +10,11 @@ async function submit(socket,d){
         
    
     const { roomid, code } = d;
+    // console.log(code)
     const room = ongoing_matches_list.get(roomid);
-    // console.log(ongoing_matches_list)
-    // if(room.winner){
-    //     return;
-    // }
+    if(room.winner){
+        return;
+    }
 
     const id = ongoing_matches_list.get(roomid).question;
 
@@ -32,6 +32,7 @@ async function submit(socket,d){
                 try {
                     // console.log(test_case)
                     const judgeurl = 'http://localhost:2358/submissions/';
+                    console.log(judgeurl)
                     const submissionBody = {
                         source_code: code,
                         language_id: 71,
@@ -83,7 +84,7 @@ async function submit(socket,d){
             socket.emit('status','wrong answer')
         }
         
-        // console.log(datas)
+        console.log(datas)
         // return NextResponse.json({ success: true, data: datas });
     } catch (error) {
         console.log(error)
