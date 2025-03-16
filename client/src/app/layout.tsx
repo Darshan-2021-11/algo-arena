@@ -1,9 +1,10 @@
 'use client'
-import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Nav from "./utils/Nav";
-import StoreProvider from "./StoreProvider";
+import SocketProvider from "./lib/contexts/socketContext";
+import EditorProvider from "./lib/contexts/editorContext";
+// import StoreProvider from "./StoreProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,7 +19,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <StoreProvider>
+    <SocketProvider>
+      <EditorProvider>
     <html lang="en">
       <head>
       <link
@@ -33,6 +35,7 @@ export default function RootLayout({
         {children}
       </body>
     </html>
-    </StoreProvider>
+    </EditorProvider>
+    </SocketProvider>
   );
 }

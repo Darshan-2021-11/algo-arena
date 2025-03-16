@@ -26,7 +26,7 @@ function connect(userdata){
         const timeid = setTimeout(() => {
             endMatch(roomid)
             clearTimeout(timeid);
-        }, 2000000);
+        }, 20000);
         const room = {
             users:[data,userdata],
             question:0,
@@ -35,7 +35,7 @@ function connect(userdata){
             processing:false,
             timeid
         }
-        console.log(roomid)
+        console.log(room)
         io.to(roomid).emit('matchstart',{problemid:question.id,roomid, users:[data.name,userdata.name], time: room.expireat });
         ongoing_matches_list.set(roomid,room);
     }

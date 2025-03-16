@@ -25,4 +25,4 @@ when 2 people check for waiting player in an empty list 1st one will check for p
 
 */
 
-module.exports = {startMatch}
+module.exports = startMatch
