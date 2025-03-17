@@ -1,7 +1,7 @@
 'use server'
 
 import { NextRequest, NextResponse } from "next/server";
-import { Problem } from '../../models/problemModel';
+import { Problem } from '../../../lib/api/problemModel';
 import { PROBLEMS } from "../../../../../public/assets/problems";
 
 export interface Response {

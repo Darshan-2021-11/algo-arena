@@ -22,7 +22,6 @@ const SignIn = () => {
 
       if (response.status === 200) {
         // Handle successful login
-        console.log("Login successful:", response.data);
         localStorage.setItem("token", response.data.token); // Store token in localStorage or cookies
         alert("Login successful!");
         localStorage.setItem("user", JSON.stringify(response.data.user));
@@ -35,7 +34,7 @@ const SignIn = () => {
         setError("An error occurred. Please try again.");
       }
     } finally {
-      setLoading(false); // End loading state
+      setLoading(false);
     }
   };
 

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import Link from 'next/link';
-import { Problem } from '../Api/models/problemModel';
+import { Problem } from '../lib/api/problemModel';
 import { v4 as uuidv4 } from 'uuid';
 
 const Page = () => {

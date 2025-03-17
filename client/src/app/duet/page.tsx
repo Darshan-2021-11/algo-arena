@@ -3,7 +3,7 @@ import React from 'react'
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { v4 as uuidv4 } from 'uuid';
 import { useSocket } from '../lib/contexts/socketContext';
-import CodeEditor from '../Problems/[id]/Editor';
+import CodeEditor from '../utils/Editor';
 import { useEditor } from '../lib/contexts/editorContext';
 
 const Page = () => {

@@ -3,8 +3,8 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
-import User from "../../models/userModel";
-import dbConnect from "../../models/databaseConnect";
+import User from "../../models/User/userModel";
+import dbConnect from "../../../lib/api/databaseConnect";
 
 export async function POST(request: NextRequest, res: NextResponse) {
 

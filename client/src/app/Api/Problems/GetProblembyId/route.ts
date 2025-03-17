@@ -1,6 +1,6 @@
 'use server'
 
-import { Problem } from "@/app/Api/models/problemModel";
+import { Problem } from "@/app/lib/api/problemModel";
 import { NextRequest, NextResponse } from "next/server";
 import { PROBLEMS } from "../../../../../public/assets/problems";
 

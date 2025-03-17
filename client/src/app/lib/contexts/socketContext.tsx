@@ -1,4 +1,4 @@
-import { Problem } from "@/app/Api/models/problemModel";
+import { Problem } from "@/app/lib/api/problemModel";
 import axios from "axios";
 import React, { createContext, ReactNode, useContext, useEffect, useRef, useState } from "react";
 import { io, Socket } from 'socket.io-client';

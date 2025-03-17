@@ -1,8 +1,8 @@
 "use server"
 import { NextApiRequest, NextApiResponse } from "next";
 import { NextResponse } from "next/server";
-import dbConnect from "../models/databaseConnect";
-import User from "../models/userModel";
+import dbConnect from "../../lib/api/databaseConnect";
+import User from "../models/User/userModel";
 
 export async function GET(req:NextApiRequest, res:NextApiResponse){
     try {
