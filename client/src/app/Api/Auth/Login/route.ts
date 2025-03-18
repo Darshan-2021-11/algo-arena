@@ -1,59 +1,136 @@
 'use server';
-
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
 import User from "../../models/User/userModel";
 import dbConnect from "../../../lib/api/databaseConnect";
+import { fail } from "@/app/lib/api/response";
+
+interface reqbody {
+  identifier:string
+  password:string
+  rememberme?:boolean
+}
+
+interface validateoutput {
+  query:{
+    email?:string
+    username?: string
+  }
+  success:boolean
+  message:string
+}
+
+
+const validateInput =(data:reqbody) :validateoutput =>{
+  const op = {
+    success:false,
+    message:"",
+    query:{},
+  }
+  try {
+    const {identifier, password} = data;
+    
+    if (!identifier || !password) {
+      op.message = "All fields are required"
+      return op;
+    }
+  
+    const isemail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (isemail.test(identifier)) {
+      if(identifier.length < 3 || identifier.length > 254){
+        op.message = "Invalid email."
+        return op;
+      }
+      op.query = { email: identifier };
+    } else {
+      if(identifier.length < 3 || identifier.length > 12){
+        op.message = "username size must be between 3 to 12"
+        return op;
+      }
+      op.query = { username: identifier };
+    }
+
+    const ispassword = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/;
+  
+    if(!ispassword.test(password)){
+      op.message = "invalid password"
+      return op;
+    }
+  
+    op.success = true;
+    op.message = "";
+    return op;
+  } catch (error:any) {
+    console.log(error);
+    op.message =  "Invalid input."
+    return op;
+  }
+ 
+}
 
 export async function POST(request: NextRequest, res: NextResponse) {
-
   try {
     
-    const {  email, password } = await request.json();
+    const data : reqbody = await request.json();
     
+
+    if(!data){
+      return fail( "body is required.",400);
+    }
     
-    if (!email || !password) {
-      return NextResponse.json({ success: false, message: "All fields are required" }, { status: 400 });
+    const {query, success, message} = validateInput(data);
+
+    if(!success){
+      return fail(message,400);
     }
 
     await dbConnect();
-    console.log(email)
-  
-    const existingUser = await User.findOne({ email });
+
+    const existingUser = await User.findOne(query).select("username password verified");
     if (!existingUser) {
-      return NextResponse.json({ success: false, message: "Email not in use" }, { status: 400 });
+      return fail("Invalid username or password.",400);
     }
 
+    if (!existingUser.verified) {
+      return fail("Invalid username or password.",403);
+    }
 
-      // Verify the password
-      const isPasswordValid = await bcrypt.compare(password, existingUser.password);
-      if (!isPasswordValid) {
-        return NextResponse.json({ success: false, message: "Invalid Password" }, { status: 401 });
-      }
+    const isPasswordValid = await bcrypt.compare(data.password, existingUser.password);
+    if (!isPasswordValid) {
+      return fail("Invalid username or password.",403);
+    }
 
-    // Generate JWT
+    const expiry = Number(process.env.EXPIRES_IN);
+
     const token = jwt.sign(
-      { id: existingUser._id, email: existingUser.email }, // Payload
-      "secret",             // Secret key
-      { expiresIn: process.env.JWT_EXPIRES_IN || "24h" } // Expiration time
-    
+      { id: existingUser._id, email: existingUser.email, },
+      process.env.JWT_SECRET || "fallbackSecret",
+      { expiresIn: expiry ? expiry : 24 * 60 * 60 }
     );
-    // Return success response with token
-    return NextResponse.json({
+
+
+    const response = NextResponse.json({
       success: true,
       message: "User Login successfully",
-      token,
       user: {
         id: existingUser._id,
-        name: existingUser.name,
+        name: existingUser.username,
       },
     }, { status: 200 });
 
-  } catch (error) {
-    console.error("Login Error:", error);
+    response.cookies.set("token", token, {
+      httpOnly: true,
+      maxAge: 24 * 60 * 60,
+      path: "/",
+      secure:process.env.NODE_ENV === "production",
+      sameSite:"strict",
+    });
 
-    // Handle server error
+    return response;
+
+  } catch (error: any) {
+
     return NextResponse.json({
       success: false,
       message: "Server error occurred",

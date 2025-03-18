@@ -23,6 +23,8 @@ const DuelSchema = new Schema({
     },
     duration:{
         type:Number,
+        min:[10,"minimum duration is 10 min."],
+        max:[300,"maximum duration is 300 minutes."],
         default:60
     },
     status: {
@@ -33,6 +35,8 @@ const DuelSchema = new Schema({
     },
     winnerCode:{
         type:String,
+        minLength: [10, "Code must be at least 10 characters long."],
+        maxLength: [50000, "Code must be at most 50,000 characters long."],
         required:false
     }
 })

@@ -1,4 +1,5 @@
 import mongoose, { model, Schema } from "mongoose";
+import { validate } from "uuid";
 
 const activitySchema = new Schema({
     user:{
@@ -17,6 +18,12 @@ const activitySchema = new Schema({
             submissions: {
               type: Number,
               default: 0,
+              validate:{
+                validator:function(val: number){
+                  return val >= 0;
+                },
+                message:"Activity can not go below 0"
+              }
             },
           },
     
