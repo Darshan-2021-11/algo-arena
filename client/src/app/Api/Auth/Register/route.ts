@@ -6,7 +6,6 @@ import User from "../../models/User/userModel";
 import handleEmailVerification from "../../../lib/api/emailVerification";
 import dbConnect from "../../../lib/api/databaseConnect";
 import { fail, success } from "@/app/lib/api/response";
-import { Original_Surfer } from "next/font/google";
 
 export const validateUserInput = (username: string, email: string, password: string) => {
   const errors: string[] = [];
@@ -57,13 +56,15 @@ export async function POST(request: NextRequest) {
     const tokenExpiry = Number(process.env.TOKEN_EXPIRY) ;
     const verificationToken = jwt.sign({ username, email }, secretKey, { expiresIn: tokenExpiry ? tokenExpiry : "24h" });
     
-
     const newuser = await User.create({
       username,
       email,
       password,
       verificationToken,
     });
+
+    newuser.save();
+
 
     try {
       const url = `${origin}/verify/${verificationToken}`;
@@ -73,10 +74,9 @@ export async function POST(request: NextRequest) {
       await handleEmailVerification("Email Verification", text, email, text);
     } catch (emailError) {
       console.error("Email sending failed:", emailError);
-      return fail("Failed to send verification email. Please try again.", 500);
+      // return fail("Failed to send verification email. Please try again.", 500);
     }
 
-    newuser.save();
 
     
 

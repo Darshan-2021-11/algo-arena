@@ -29,7 +29,7 @@ const userSchema = new Schema({
 		type:String,
 		required:[true,"password is required."],
 		minLength:[8,"password must be at least 8 charcters long."],
-		maxLength:[20,"password must be at most 20 charcters long."],
+		maxLength:[60,"password must be at most 60 charcters long."],
 		validate: {
 			validator:function(v:string){
 			return /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).*$/.test(v);
@@ -38,7 +38,6 @@ const userSchema = new Schema({
 	}},
 	verificationToken:{
 		type: String,
-        required: [true, 'verification token is missing'],
         match: [/^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.[A-Za-z0-9-_.+/=]*$/, 'invalid token'],
 	},
 	verified:{
@@ -52,6 +51,14 @@ const userSchema = new Schema({
 	isdeleted:{
 		type:Boolean,
 		default:false
+	},
+	resetToken:{
+		type: String,
+        match: [/^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.[A-Za-z0-9-_.+/=]*$/, 'invalid token'],
+	},
+	resetTokenExpires:{
+		type: Date,
+        default: () => Date.now() + 24 * 60 * 60 * 1000,
 	}
 });
 

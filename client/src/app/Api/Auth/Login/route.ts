@@ -80,7 +80,6 @@ export async function POST(request: NextRequest, res: NextResponse) {
     }
     
     const {query, success, message} = validateInput(data);
-
     if(!success){
       return fail(message,400);
     }
@@ -88,6 +87,7 @@ export async function POST(request: NextRequest, res: NextResponse) {
     await dbConnect();
 
     const existingUser = await User.findOne(query).select("username password verified");
+    console.log(existingUser)
     if (!existingUser) {
       return fail("Invalid username or password.",400);
     }
