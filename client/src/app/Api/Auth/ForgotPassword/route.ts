@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
       return fail("User with this email does not exist.", 404);
     }
 
-    const secretKey = process.env.JWT_SECRET || "fallbackSecret";
+    const secretKey = process.env.NEXT_PUBLIC_NEXT_PUBLIC_JWT_SECRET || "fallbackSecret";
     const resetToken = jwt.sign(
       { email: existingUser.email, id: existingUser._id },
       secretKey,
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     existingUser.resetTokenExpires = Date.now() + 60 * 60 * 1000; 
     await existingUser.save();
 
-    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+    const resetLink = `${process.env.NEXT_PUBLIC_FRONTEND_URL}/reset-password?token=${resetToken}`;
 
 
 

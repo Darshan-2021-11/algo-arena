@@ -81,7 +81,7 @@ const SignUp: React.FC = () =>  {
     }else{
               alert("Passwords do not match");
              }
-    } catch (err) {
+    } catch (err:any) {
       if (err.response && err.response.data && err.response.data.message) {
         setError(err.response.data.message); // Display server error message
       } else {

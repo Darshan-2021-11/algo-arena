@@ -13,7 +13,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
       return fail("Invalid token", 401);
     }
 
-    const secretKey = process.env.SECRET_KEY;
+    const secretKey = process.env.NEXT_PUBLIC_SECRET_KEY;
     if (!secretKey) {
       return fail("Missing server configuration", 500);
     }

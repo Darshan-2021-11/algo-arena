@@ -30,8 +30,8 @@ export const validateUserInput = (username: string, email: string, password: str
 
 export async function POST(request: NextRequest) {
   try {
-    const secretKey = process.env.SECRET_KEY;
-    const origin = process.env.ORIGIN;
+    const secretKey = process.env.NEXT_PUBLIC_SECRET_KEY;
+    const origin = process.env.NEXT_PUBLIC_ORIGIN;
     if (!secretKey || !origin ) {
       return fail("Missing server configuration", 500);
     }
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
       return fail("Email already in use", 400);
     }
 
-    const tokenExpiry = Number(process.env.TOKEN_EXPIRY) ;
+    const tokenExpiry = Number(process.env.NEXT_PUBLIC_TOKEN_EXPIRY) ;
     const verificationToken = jwt.sign({ username, email }, secretKey, { expiresIn: tokenExpiry ? tokenExpiry : "24h" });
     
     const newuser = await User.create({

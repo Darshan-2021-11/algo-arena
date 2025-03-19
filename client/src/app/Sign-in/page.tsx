@@ -1,14 +1,19 @@
 'use client'
-import { useState } from 'react';
+import {  useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from "axios";
 import { LuLoaderCircle } from "react-icons/lu";
+import { useDispatch } from 'react-redux';
+import { login } from '../lib/slices/authSlice';
+import { generateHeader } from '../lib/customHeader';
 
 
 const SignIn = () => {
   const [e_error, sete_Error] = useState<string | null>(null);
   const [p_error, setp_Error] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const dispatch = useDispatch();
 
   const router = useRouter();
 
@@ -23,62 +28,81 @@ const SignIn = () => {
     { test: /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/, msg: "Invalid email" },
   ]
 
+  const validateInput = (objectdata: { identifier: string | undefined, password: string | undefined }): boolean | undefined => {
+    try {
+      const email = objectdata.identifier;
+      if (!email) {
+        sete_Error("Email is required");
+        return;
+      }
+      if (email.length < 3 || email.length > 254) {
+        sete_Error("password must be between 3 to 254 letters.")
+      }
+      for (let i = 0; i < emailTests.length; i++) {
+        if (!emailTests[i].test.test(email)) {
+          sete_Error(emailTests[i].msg);
+          return;
+        }
+      }
+
+      const password = objectdata.password;
+      if (!password) {
+        setp_Error("Password is required");
+        return;
+      }
+      if (password.length < 6 || password.length > 12) {
+        setp_Error("password must be between 6 to 12 letters.")
+      }
+      for (let i = 0; i < passwordTests.length; i++) {
+        if (!passwordTests[i].test.test(password)) {
+          setp_Error(passwordTests[i].msg);
+          return;
+        }
+      }
+
+      return true;
+    } catch (error) {
+      console.log(error);
+    }
+
+
+  }
+
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     try {
-    e.preventDefault();
-    setLoading(true);
-    sete_Error(null);
-    setp_Error(null);
+      e.preventDefault();
+      setLoading(true);
+      sete_Error(null);
+      setp_Error(null);
 
-    const data = new FormData(e.currentTarget);
-    const objectdata = {
-      email: data.get("email")?.toString(),
-      password: data.get("password")?.toString()
-    };
+      const data = new FormData(e.currentTarget);
+      const objectdata = {
+        identifier: data.get("email")?.toString(),
+        password: data.get("password")?.toString()
+      };
 
-    const email = objectdata.email;
-    if (!email) {
-      sete_Error("Email is required");
-      return;
-    }
-    if (email.length < 3 || email.length > 254) {
-      sete_Error("password must be between 3 to 254 letters.")
-    }
-    for (let i = 0; i < emailTests.length; i++) {
-      if (!emailTests[i].test.test(email)) {
-        sete_Error(emailTests[i].msg);
+      const headers = await generateHeader();
+      if (!validateInput(objectdata)) {
         return;
       }
-    }
 
-    const password = objectdata.password;
-    if (!password) {
-      setp_Error("Password is required");
-      return;
-    }
-    if (password.length < 6 || password.length > 12) {
-      setp_Error("password must be between 6 to 12 letters.")
-    }
-    for (let i = 0; i < passwordTests.length; i++) {
-      if (!passwordTests[i].test.test(password)) {
-        setp_Error(passwordTests[i].msg);
-        return;
-      }
-    }
-
-      const response = await axios.post("/Api/Auth/Login", data);
+      const response = await axios.post(
+        "/Api/Auth/Login", 
+        objectdata,
+        {
+         headers
+        }
+      );
 
       if (response.status === 200) {
-        localStorage.setItem("token", response.data.token); 
-        alert("Login successful!");
-        localStorage.setItem("user", JSON.stringify(response.data.user));
+        dispatch(login(response.data.user.name));
         router.push("/Problems")
       }
-    } catch (err:any) {
+    } catch (err: any) {
       if (err.response && err.response.data && err.response.data.message) {
-        // setError(err.response.data.message); // Server error message
+        setError(err.response.data.message);
       } else {
-        // setError("An error occurred. Please try again.");
+        setError("Unable to login.");
       }
     } finally {
       setLoading(false);
@@ -120,9 +144,15 @@ const SignIn = () => {
               <div className='h-8 w-1'></div>
           }
           {
+            error ?
+              <div className=' text-xs text-red-700 mt-4 flex items-center justify-center'>{error}</div>
+              :
+              <div className='h-8 w-1'></div>
+          }
+          {
             loading ?
               <div
-              className='w-full p-3 bg-indigo-600 rounded text-white hover:bg-indigo-500 flex items-center justify-center'
+                className='w-full p-3 bg-indigo-600 rounded text-white hover:bg-indigo-500 flex items-center justify-center'
               >
                 <LuLoaderCircle
                   className=' animate-spin'

@@ -6,7 +6,6 @@ import { NextRequest, NextResponse } from "next/server";
 import User from "../../models/User/userModel";
 import dbConnect from "../../../lib/api/databaseConnect";
 import { fail } from "@/app/lib/api/response";
-import { cookies } from "next/headers";
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,9 +16,7 @@ export async function POST(request: NextRequest) {
       return fail("Token and newPassword are required.", 400);
     }
 
-    console.log(token)
-
-    const secretKey = process.env.JWT_SECRET || "fallbackSecret";
+    const secretKey = process.env.NEXT_PUBLIC_JWT_SECRET || "fallbackSecret";
     let decodedToken;
     try {
       decodedToken = jwt.verify(token, secretKey) as { email: string, id: string };

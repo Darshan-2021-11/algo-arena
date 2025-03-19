@@ -69,10 +69,9 @@ const validateInput =(data:reqbody) :validateoutput =>{
  
 }
 
-export async function POST(request: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest, res: NextResponse) {
   try {
-    
-    const data : reqbody = await request.json();
+    const data : reqbody = await req.json();
     
 
     if(!data){
@@ -87,7 +86,6 @@ export async function POST(request: NextRequest, res: NextResponse) {
     await dbConnect();
 
     const existingUser = await User.findOne(query).select("username password verified");
-    console.log(existingUser)
     if (!existingUser) {
       return fail("Invalid username or password.",400);
     }
@@ -101,11 +99,11 @@ export async function POST(request: NextRequest, res: NextResponse) {
       return fail("Invalid username or password.",403);
     }
 
-    const expiry = Number(process.env.EXPIRES_IN);
-
+    const expiry = Number(process.env.NEXT_PUBLIC_EXPIRES_IN);
+    console.log(req.headers.get("User-Agent"))
     const token = jwt.sign(
-      { id: existingUser._id, email: existingUser.email, },
-      process.env.JWT_SECRET || "fallbackSecret",
+      { id: existingUser._id, email: existingUser.email, userAgent:req.headers.get("User-Agent") },
+      process.env.NEXT_PUBLIC_JWT_SECRET || "fallbackSecret",
       { expiresIn: expiry ? expiry : 24 * 60 * 60 }
     );
 

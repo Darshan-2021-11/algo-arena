@@ -82,7 +82,7 @@ export async function POST(request: NextRequest, res: NextResponse) {
       return fail("Verification token is still valid. Please check your email.", 400);
     }
 
-    const secretKey = process.env.JWT_SECRET || "fallbackSecret";
+    const secretKey = process.env.NEXT_PUBLIC_JWT_SECRET || "fallbackSecret";
     const newVerificationToken = jwt.sign(
       { email: existingUser.email, username: existingUser.username },
       secretKey,

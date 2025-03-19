@@ -3,11 +3,11 @@ import nodemailer from 'nodemailer';
 
 
 let transporter = nodemailer.createTransport({
-    service: process.env.MAIL_SERVICE,
+    service: process.env.NEXT_PUBLIC_MAIL_SERVICE,
     host: "smtp.gmail.com",
     auth: {
-        user: process.env.SERVER_MAIL,
-        pass: process.env.SERVER_MAIL_PASS,
+        user: process.env.NEXT_PUBLIC_SERVER_MAIL,
+        pass: process.env.NEXT_PUBLIC_SERVER_MAIL_PASS,
     }
 });
 
@@ -15,7 +15,7 @@ let transporter = nodemailer.createTransport({
 async function handleEmailVerification(sub: string, text: string, email:string, htmlContent:string){
     try {
     let mailOptions = {
-        from:  process.env.SERVER_MAIL,
+        from:  process.env.NEXT_PUBLIC_SERVER_MAIL,
         to: email,
         subject: sub,
         html:htmlContent

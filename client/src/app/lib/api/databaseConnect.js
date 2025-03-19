@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/algo-arena"; // Ensure this e
+const MONGO_URI = process.env.NEXT_PUBLIC_MONGO_URI || "mongodb://127.0.0.1:27017/algo-arena"; // Ensure this e
 
 // export default async function dbConnect() {
 //   try {
