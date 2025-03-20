@@ -2,9 +2,10 @@
 import style from "./Nav.module.css";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { logout, useAuth } from "../lib/slices/authSlice";
+import { login, logout, useAuth } from "../lib/slices/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
+import axios from "axios";
 
 const Nav: React.FC = () => {
   const router = useRouter();
@@ -16,11 +17,17 @@ const Nav: React.FC = () => {
 
   useEffect(()=>{
     (async()=>{
-      console.log("hiiiiiiiiiiiiiiiiiiiiiiii");
-      // create csrf token 
-      // create custom request id
-      //  for each requst disable the token that it has been  used 
-      // 
+      try {
+        const {data} = await axios.get("/Api/Auth/VerifyCookie");
+        if(data.success){
+          dispatch(login(data.user.name))
+
+        }
+        console.log(data)
+      } catch (error) {
+        console.log(error);
+      }
+     
     })()
   },[])
 

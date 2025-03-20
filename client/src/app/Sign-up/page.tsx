@@ -3,137 +3,208 @@ import { useState } from 'react';
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import axios from "axios";
+import { LuLoaderCircle } from 'react-icons/lu';
+import { generateHeader } from '../lib/customHeader';
 
-const SignUp: React.FC = () =>  {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [passwordTwo, setPasswordTwo] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  // const [error,setError]=useState<string | null>(null);
-  // const [message,setMessage]=useState<string | null>(null);
- 
+interface body {
+  email: string | undefined,
+  password: string | undefined,
+  username: string | undefined,
+  confirmpassword: string | undefined,
+}
+
+const SignUp: React.FC = () => {
+  const [e_error, sete_Error] = useState<string | null>(null);
+  const [u_error, setu_Error] = useState<string | null>(null);
+  const [p_error, setp_Error] = useState<string | null>(null);
+  const [p2_error, setp2_Error] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const router = useRouter()
-  // const db = getFirestore(); 
-  // const handleSignUp = async () => {
-   
-  //   try {
-  //     if (password === passwordTwo){
-  //       // const res = await createUserWithEmailAndPassword(email, password);
-  //       // console.log({res})
-  //       // const user= res.user;
-  //       // await sendEmailVerification(user)
-  //       // if (res?.user) {
-  //       //   // Save user data to Firestore
-  //       //   // await setDoc(doc(firestore, 'users', res.user.uid), {
-  //       //   //   name,
-  //       //   //   email,
-  //       //   //   createdAt: new Date().toISOString(),
-  //       //   // });
-  //       // localStorage.setItem("signupData",
-  //       //   JSON.stringify({name,email})
-  //       // )
 
-  //         // sessionStorage.setItem('user', true);
-  //         setName('');
-  //         setEmail('');
-  //         setPassword('');
-  //         setPasswordTwo('');
-  //         alert("Registration Successfull! Please check your email for Verification")
-  //         router.push('/Sign-in');}
-  //         else{
-  //           alert("already email")
-  //         }
-  //     }else{
-  //       alert("Passwords do not match");
-  //     }
-  //   } catch(e){
-  //       console.error(e)
-  //   }
-  // };
+  const passwordTests = [
+    { test: /[A-Z]/, msg: "Capital letter must be present." },
+    { test: /\d/, msg: "Number must be present." },
+    { test: /[a-z]/, msg: "Lower letter must be present." },
+    { test: /[!@#$%^&*(),.?":{}|<>]/, msg: "Special character must be present." },
+  ]
 
-  const handleSignUp = async (e) => {
-    e.preventDefault();
-    setError(""); // Reset error state
-    setSuccess(""); // Reset success state
-
+  const validateInput = (data: body): boolean | undefined => {
     try {
-      if (password === passwordTwo){
-      console.log(name, email, password)
-
-
-      const response = await axios.post("/Api/Auth/Register", {
-        name,
-        email,
-        password,
-      });
-      console.log(response)
-      if (response.status === 201) {
-        setSuccess("User registered successfully!");
-        alert("Registeration successful!,Check Your mail to verify");
-        router.push("/Sign-in")
-        setName("");
-        setEmail("");
-        setPassword("");
-        setPasswordTwo("");
+      const username = data.username;
+      if (!username) {
+        setu_Error("username is required");
+        return;
+      } else if (username.length < 3 || username.length > 12) {
+        setu_Error("username must be in between 3 to 12.")
+        return;
       }
-    }else{
-              alert("Passwords do not match");
-             }
-    } catch (err:any) {
+
+      const email = data.email;
+      if (!email) {
+        sete_Error("email is required.");
+        return;
+      } else if (email.length < 3 || email.length > 254) {
+        sete_Error("Invalid email");
+        return;
+      }
+
+      const password = data.password;
+      if (!password) {
+        setp_Error("password is required");
+        return;
+      } else if (password.length < 6 || password.length > 12) {
+        setp_Error("password length should be in between 6 to 12.");
+        return;
+      } else {
+        for (let i = 0; i < passwordTests.length; i++) {
+          if (!passwordTests[i].test.test(password)) {
+            setp_Error(passwordTests[i].msg);
+            return;
+          }
+        }
+      }
+
+      if (password !== data.confirmpassword) {
+        setp2_Error("password must be same");
+        return;
+      }
+      return true;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
+    try {
+      e.preventDefault();
+      setError(null);
+      setLoading(true);
+      sete_Error(null);
+      setu_Error(null);
+      setp2_Error(null);
+      setp_Error(null);
+
+      const formdata = new FormData(e.currentTarget);
+
+      const objectdata = {
+        email: formdata.get("username")?.toString(),
+        password: formdata.get("password")?.toString(),
+        username: formdata.get("username")?.toString(),
+        confirmpassword: formdata.get('confirmpassword')?.toString()
+      }
+      const valid = validateInput(objectdata);
+      if (!valid) {
+        return;
+      }
+
+      delete objectdata.confirmpassword;
+      const headers = await generateHeader();
+      console.log(headers)
+
+      const response = await axios.post("/Api/Auth/Register", objectdata, { headers }) as { message: string, success: boolean };
+      if (response.success === true) {
+        router.push("/Sign-in")
+      } else {
+        alert("Passwords do not match");
+      }
+    } catch (err: any) {
       if (err.response && err.response.data && err.response.data.message) {
-        setError(err.response.data.message); // Display server error message
+        setError(err.response.data.message); 
       } else {
         setError("Something went wrong. Please try again.");
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="h-4/5 flex items-center justify-center ">
       <div className="bg-gray-800 p-10 rounded-lg shadow-xl w-96">
-      <h2 className="text-3xl font-bold mb-5 pb-6 text-center text-red-800 ">
-            AlgoArena
-          </h2>
+        <h2 className="text-3xl font-bold mb-5 pb-6 text-center text-red-800 ">
+          AlgoArena
+        </h2>
         {/* <h1 className="text-white text-2xl mb-5">Sign Up</h1> */}
-        <input
-      type="text"
-      placeholder="Name"
-      value={name}
-      onChange={(e) => setName(e.target.value)}
-      className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
-    />
-        <input 
-          type="email" 
-          placeholder="Email" 
-          value={email} 
-          onChange={(e) => setEmail(e.target.value)} 
-          className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
-        />
-        <input 
-          type="password" 
-          placeholder="Password" 
-          value={password} 
-          onChange={(e) => setPassword(e.target.value)} 
-          className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
-        />
-         <input 
-          type="password" 
-          placeholder="Confirm Password" 
-          value={passwordTwo} 
-          onChange={(e) => setPasswordTwo(e.target.value)} 
-          className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
-        />
-        <button 
-          onClick={handleSignUp}
-          className="w-full p-3 bg-indigo-600 rounded text-white hover:bg-indigo-500"
+        <form
+          onSubmit={(e) => {
+            // e.preventDefault();
+            handleSignUp(e);
+          }}
         >
-          Sign Up
-        </button>
+
+          <input
+            type="text"
+            placeholder="Name"
+            name='username'
+            className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
+          />
+          {
+            u_error ?
+              <div className='mb-4 text-xs text-red-700'>{u_error}</div>
+              :
+              <div className='h-8 w-1 '></div>
+          }
+          <input
+            type="email"
+            placeholder="Email"
+            name='email'
+            className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
+          />
+          {
+            e_error ?
+              <div className='mb-4 text-xs text-red-700'>{e_error}</div>
+              :
+              <div className='h-8 w-1 '></div>
+          }
+          <input
+            type="password"
+            placeholder="Password"
+            name='password'
+            className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
+          />
+          {
+            p_error ?
+              <div className='mb-4 text-xs text-red-700'>{p_error}</div>
+              :
+              <div className='h-8 w-1 '></div>
+          }
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            name='confirmpassword'
+            className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
+          />
+          {
+            p2_error ?
+              <div className='mb-4 text-xs text-red-700'>{p2_error}</div>
+              :
+              <div className='h-8 w-1 '></div>
+          }
+          {
+            loading ?
+              <div
+                className='w-full p-3 bg-indigo-600 rounded text-white hover:bg-indigo-500 flex items-center justify-center'
+              >
+                <LuLoaderCircle
+                  className=' animate-spin'
+
+                />
+              </div>
+              :
+              <input type="submit" value="Sign Up" className="w-full p-3 bg-indigo-600 rounded text-white hover:bg-indigo-500" />
+          }
+          {
+            error ?
+              <div className='mb-4 text-xs text-red-700'>{error}</div>
+              :
+              <div className='h-8 w-1 '></div>
+          }
+        </form>
         <div className='mt-5 ml-3'><Link className="text-sm  pt-5 ml-8 text-right" href={"/Sign-in"}>
-            Already have an account? <span className="underline text-red-700">Login</span>
-          </Link></div>
+          Already have an account? <span className="underline text-red-700">Login</span>
+        </Link></div>
       </div>
     </div>
   );

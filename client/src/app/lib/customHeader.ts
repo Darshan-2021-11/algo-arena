@@ -1,9 +1,9 @@
-import { generateCustomToken } from "./api/GenerateToken";
+import { currentId, generateId } from "./api/tokenStore";
 
 export const generateHeader =async()=>{
-     const token = await generateCustomToken();
+    generateId()
     const headers = {
-        "X-Request-Token":token
+        "X-Request-Id":currentId
     }
     return headers;
 }

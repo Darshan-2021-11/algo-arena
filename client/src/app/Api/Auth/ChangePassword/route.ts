@@ -3,7 +3,7 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
-import User from "../../models/User/userModel";
+import User from "../../../lib/api/models/User/userModel";
 import dbConnect from "../../../lib/api/databaseConnect";
 import { fail } from "@/app/lib/api/response";
 

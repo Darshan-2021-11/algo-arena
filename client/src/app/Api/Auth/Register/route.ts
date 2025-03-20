@@ -2,10 +2,10 @@
 
 import jwt from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
-import User from "../../models/User/userModel";
 import handleEmailVerification from "../../../lib/api/emailVerification";
 import dbConnect from "../../../lib/api/databaseConnect";
 import { fail, success } from "@/app/lib/api/response";
+import User from "@/app/lib/api/models/User/userModel";
 
 export const validateUserInput = (username: string, email: string, password: string) => {
   const errors: string[] = [];

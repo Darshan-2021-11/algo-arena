@@ -2,9 +2,10 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
-import User from "../../models/User/userModel";
+import User from "../../../lib/api/models/User/userModel";
 import dbConnect from "../../../lib/api/databaseConnect";
 import { fail } from "@/app/lib/api/response";
+import { generateCustomToken } from "@/app/lib/api/GenerateToken";
 
 interface reqbody {
   identifier:string
@@ -71,6 +72,11 @@ const validateInput =(data:reqbody) :validateoutput =>{
 
 export async function POST(req: NextRequest, res: NextResponse) {
   try {
+    const secret = process.env.JWT_SECRET;
+    if(!secret){
+      return fail("Server is not working")
+    }
+
     const data : reqbody = await req.json();
     
 
@@ -99,13 +105,21 @@ export async function POST(req: NextRequest, res: NextResponse) {
       return fail("Invalid username or password.",403);
     }
 
-    const expiry = Number(process.env.NEXT_PUBLIC_EXPIRES_IN);
-    console.log(req.headers.get("User-Agent"))
+   
+    const expiry = data.rememberme 
+    ? Number(process.env.NEXT_PUBLIC_EXPIRES_IN_30D) ? Number(process.env.NEXT_PUBLIC_EXPIRES_IN_30D) : 24 * 60 * 60 * 30 
+    : Number(process.env.NEXT_PUBLIC_EXPIRES_IN_24H) ? Number(process.env.NEXT_PUBLIC_EXPIRES_IN_24H) : 24 * 60 * 60 ;
+    
     const token = jwt.sign(
-      { id: existingUser._id, email: existingUser.email, userAgent:req.headers.get("User-Agent") },
-      process.env.NEXT_PUBLIC_JWT_SECRET || "fallbackSecret",
-      { expiresIn: expiry ? expiry : 24 * 60 * 60 }
+      { id: existingUser._id, name: existingUser.username },
+       secret,
+      { expiresIn: expiry}
     );
+    const crefToken = await generateCustomToken(req.headers.get("user-agent"));
+
+    if(!crefToken){
+      return fail("Server is not working")
+    }
 
 
     const response = NextResponse.json({
@@ -118,6 +132,14 @@ export async function POST(req: NextRequest, res: NextResponse) {
     }, { status: 200 });
 
     response.cookies.set("token", token, {
+      httpOnly: true,
+      maxAge: 24 * 60 * 60,
+      path: "/",
+      secure:process.env.NODE_ENV === "production",
+      sameSite:"strict",
+    });
+
+    response.cookies.set("x-cref-token", crefToken, {
       httpOnly: true,
       maxAge: 24 * 60 * 60,
       path: "/",
