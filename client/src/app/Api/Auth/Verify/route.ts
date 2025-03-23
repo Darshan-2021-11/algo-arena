@@ -18,49 +18,27 @@ export async function GET(req: NextRequest, res: NextResponse) {
       return fail("Missing server configuration", 500);
     }
 
-    const decodedtoken = await jwt.verify(token, secretKey) as { email: string, username: string }
-    if (!decodedtoken || !decodedtoken.email || !decodedtoken.username) {
-      return fail("Invalid token", 401);
+    let decodedtoken;
+
+    try {
+      decodedtoken = jwt.verify(token, secretKey) as { email: string, username: string }
+    } catch (error) {
+      return fail("Invalid or expired token",401);
     }
+    
     const currentTime = Date.now();
     const user = await User.findOneAndUpdate({
       email: decodedtoken.email,
       verificationToken:token,
       tokenExpires: { $gt: currentTime },
-    }, { verified: true }).select("verified")
+    }, 
+    { verified: true, verificationToken: null, tokenExpires: null },
+    {new:true,fields:"_id verified"}
+  ).select("")
 
     if (!user) {
       return fail("Invalid request.", 500);
     }
-
-    // if (Date.now() > user.tokenExpires) {
-
-    //   const verificationToken = jwt.sign(
-    //     { fullname: user.fullname, email: user.email },
-    //     secretKey,
-    //     { expiresIn: "24h" }
-    //   );
-    //   let text = `visit this link to verify your mail link`;
-    //   handleEmailVerification(
-    //     "verification of email",
-    //     text,
-    //     decodedtoken.email,
-    //     text
-    //   );
-    //   await User.updateOne(
-    //     { email: decodedtoken.email },
-    //     { verificationToken, tokenExpires: Date.now() + 24 * 60 * 60 * 1000 }
-    //   );
-    //   throw new BadRequest("token expired resending link to user");
-    // }
-
-    if (!user.verified) {
-      await User.updateOne(
-        { email: decodedtoken.email },
-        { isverified: true, verificationToken: null, tokenExpires: null }
-      );
-    }
-
     return NextResponse.json(
       {
         success: true,

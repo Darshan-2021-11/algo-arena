@@ -55,7 +55,7 @@ const ProblemSchema = new Schema({
     ],
     default: [],
   },
-  testCases: [
+  testcases: [
     {
       input: { 
         type: String, 
@@ -69,6 +69,12 @@ const ProblemSchema = new Schema({
         minLength: [1, "Output must be at least 1 character long."], 
         maxLength: [1000, "Output must be at most 1000 characters long."] 
       },
+      validate:{
+        validator: function (constraints:string[]) {
+          return constraints.every((constraint) => constraint.length >= 3 && constraint.length <= 25); // Each constraint's length
+        },
+        message: "Each constraint must be between 3 and 25 characters long.",
+      }
     },
   ],
   author: {

@@ -91,7 +91,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     await dbConnect();
 
-    const existingUser = await User.findOne(query).select("username password verified");
+    const existingUser = await User.findOne(query).select("username password verified admin");
     if (!existingUser) {
       return fail("Invalid username or password.",400);
     }
@@ -121,14 +121,19 @@ export async function POST(req: NextRequest, res: NextResponse) {
       return fail("Server is not working")
     }
 
+    const user : {id:string, name:string, admin?:boolean} = {
+      id: existingUser._id,
+      name: existingUser.username
+    };
+    
+    if(existingUser.admin){
+      user.admin = true;
+    }
 
     const response = NextResponse.json({
       success: true,
       message: "User Login successfully",
-      user: {
-        id: existingUser._id,
-        name: existingUser.username,
-      },
+      user: user,
     }, { status: 200 });
 
     response.cookies.set("token", token, {
@@ -139,13 +144,13 @@ export async function POST(req: NextRequest, res: NextResponse) {
       sameSite:"strict",
     });
 
-    response.cookies.set("x-cref-token", crefToken, {
-      httpOnly: true,
-      maxAge: 24 * 60 * 60,
-      path: "/",
-      secure:process.env.NODE_ENV === "production",
-      sameSite:"strict",
-    });
+    // response.cookies.set("x-cref-token", crefToken, {
+    //   httpOnly: true,
+    //   maxAge: 24 * 60 * 60,
+    //   path: "/",
+    //   secure:process.env.NODE_ENV === "production",
+    //   sameSite:"strict",
+    // });
 
     return response;
 

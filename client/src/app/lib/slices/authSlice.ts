@@ -2,21 +2,20 @@ import { RootState } from "@/app/lib/store";
 import { createSlice } from "@reduxjs/toolkit";
 
 
-type UserRole = 'guardian' | 'child';
-
-
 export interface value{
     username:string | null,
-    type:UserRole | null,
+    admin:boolean,
     loggedIn:boolean,
     rememberme:boolean,
+    id:string | null
 }
 
 const initialState : value ={
     username: null,
-    type:null,
+    admin:false,
     loggedIn:false,
     rememberme:true,
+    id:null
 }
 
 const authSlice = createSlice({
@@ -24,7 +23,8 @@ const authSlice = createSlice({
     initialState,
     reducers:{
         login(state, action){
-            state.username = action.payload;
+            state.username = action.payload.name;
+            state.id = action.payload.id;
             state.loggedIn = true;
             
         },

@@ -21,28 +21,35 @@ export async function POST(request: NextRequest) {
     try {
       decodedToken = jwt.verify(token, secretKey) as { email: string, id: string };
     } catch (err) {
+      console.log(err)
       return fail("Invalid or expired token.", 400);
     }
 
     await dbConnect();
 
+    
+    const currtime =  Date.now()
+
     const user = await User.findOne({
-      _id: decodedToken.id,
-      token: token,
-      tokenExpires: { $gt: Date.now() },
-    });
+      email: decodedToken.email,
+      resetToken: token,
+      resetTokenExpires: { $gt: currtime},
+    }).select("password");
 
     if (!user) {
       return fail("Invalid or expired reset token.", 400);
     }
 
-    // Hash new password
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    user.password = hashedPassword;
-    user.token = null; // Clear reset token
-    user.tokenExpires = null;
-    await user.save();
+    const result = await bcrypt.compare(user.password,newPassword);
+    if(result){
+      return fail("please give a new password.")
+    }
 
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await User.findOneAndUpdate({
+      email:decodedToken.email
+    },{password:hashedPassword,resetToken:null,resetTokenExpires:null})
+    
     return NextResponse.json({
       success: true,
       message: "Password successfully reset.",

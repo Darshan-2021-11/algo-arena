@@ -3,6 +3,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Problem } from '../../../lib/api/problemModel';
 import { PROBLEMS } from "../../../../../public/assets/problems";
+import { cookies } from "next/headers";
+import { fail } from "@/app/lib/api/response";
 
 export interface Response {
     success: boolean,
@@ -16,6 +18,12 @@ export interface Response {
 
 export async function GET(request : NextRequest){
     try{
+        const cookieStore = cookies();
+        const token = cookieStore.get("token")?.value;
+        if(!token){
+            return fail("Unauthorised access",403);
+        }
+        
         const params = new URL(request.url).searchParams;
         const page : number = Number(params.get('page')) || 1;
         const pagelen = 10;
@@ -24,7 +32,6 @@ export async function GET(request : NextRequest){
             i = (pagelen * page) - pagelen;
             j = i + pagelen;
         }
-        console.log(page, i,j)
         const maxindex = Math.ceil(PROBLEMS.length / pagelen);
         const result : Array<Problem> = PROBLEMS.slice(i,j);
         const response : Response = {

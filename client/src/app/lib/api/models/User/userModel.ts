@@ -24,7 +24,8 @@ const userSchema = new Schema({
 			return /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/.test(v);
 		},
 		message:(props:{value:string})=>`${props.value} is not a valid email.`
-	}},
+	}
+},
 	password:{
 		type:String,
 		required:[true,"password is required."],
@@ -46,7 +47,7 @@ const userSchema = new Schema({
 	},
 	tokenExpires:{
 		type: Date,
-        default: () => Date.now() + 24 * 60 * 60 * 1000,
+        default: () => Date.now() + 24 * 60 * 60 * 1000 ,
 	},
 	isdeleted:{
 		type:Boolean,
@@ -55,10 +56,11 @@ const userSchema = new Schema({
 	resetToken:{
 		type: String,
         match: [/^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.[A-Za-z0-9-_.+/=]*$/, 'invalid token'],
+		default:null
 	},
 	resetTokenExpires:{
 		type: Date,
-        default: () => Date.now() + 24 * 60 * 60 * 1000,
+		default:null
 	}
 });
 

@@ -3,8 +3,8 @@ import { fail } from "@/app/lib/api/response";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import jwt from 'jsonwebtoken';
-import { generateCustomToken } from "@/app/lib/api/GenerateToken";
 import User from "@/app/lib/api/models/User/userModel";
+import dbConnect from "@/app/lib/api/databaseConnect";
 
 
 export const GET = async (req: NextRequest, res: NextResponse) => {
@@ -16,6 +16,7 @@ export const GET = async (req: NextRequest, res: NextResponse) => {
         const token = cookieStore.get("token")?.value;
         if (!token) return fail("Invalid request.", 400);
         const data = jwt.verify(token, secretkey) as { name: string, id: string };
+        await dbConnect();
         const user = await User.findOne({ username: data.name }).select("isdeleted");
         if (!user || user.isdeleted) return fail("User not found.");
 
@@ -41,6 +42,7 @@ export const GET = async (req: NextRequest, res: NextResponse) => {
         //     sameSite: "strict",
         // });
 
+        console.log(response)
         return response
 
     } catch (error: any) {

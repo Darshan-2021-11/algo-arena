@@ -9,6 +9,10 @@ import handleEmailVerification from "@/app/lib/api/emailVerification";
 
 export async function POST(request: NextRequest) {
   try {
+    const origin = process.env.NEXT_PUBLIC_ORIGIN;
+    if (!origin) {
+      return fail("Missing server configuration", 500);
+    }
     const { email } = await request.json();
 
     if (!email) {
@@ -17,9 +21,19 @@ export async function POST(request: NextRequest) {
 
     await dbConnect();
 
-    const existingUser = await User.findOne({ email }).select("email username");
+    const existingUser = await User.findOne({ email }).select("email username resetTokenExpires");
     if (!existingUser) {
       return fail("User with this email does not exist.", 404);
+    }
+
+
+
+    const date = Date.now();
+    if (existingUser.resetTokenExpires && date < existingUser.resetTokenExpires) {
+      return NextResponse.json({
+        success: true,
+        message: "Password reset email has already been sent, please check your email",
+      }, { status: 200 });
     }
 
     const secretKey = process.env.NEXT_PUBLIC_NEXT_PUBLIC_JWT_SECRET || "fallbackSecret";
@@ -30,10 +44,10 @@ export async function POST(request: NextRequest) {
     );
 
     existingUser.resetToken = resetToken;
-    existingUser.resetTokenExpires = Date.now() + 60 * 60 * 1000; 
+    existingUser.resetTokenExpires = Date.now() + (24 * 60 * 60 * 1000 );
     await existingUser.save();
 
-    const resetLink = `${process.env.NEXT_PUBLIC_FRONTEND_URL}/reset-password?token=${resetToken}`;
+    const resetLink = `${origin}/Changepassword/${resetToken}`;
 
 
 

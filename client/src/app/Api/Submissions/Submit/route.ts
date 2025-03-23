@@ -1,0 +1,9 @@
+/*
+admin panel 
+store problem
+store in bulk
+store with json file
+get problem
+run
+submit
+*/

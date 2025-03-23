@@ -2,108 +2,60 @@
 
 import jwt from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
-import User from "../../../../lib/api/models/User/userModel";
-import dbConnect from "../../../../lib/api/databaseConnect";
 import { fail } from "@/app/lib/api/response";
 import handleEmailVerification from "@/app/lib/api/emailVerification";
+import User from "@/app/lib/api/models/User/userModel";
+import dbConnect from "@/app/lib/api/databaseConnect";
 
-interface reqbody {
-  email: string; 
-}
 
-interface validateoutput {
-  query: {
-    email: string;
-  };
-  success: boolean;
-  message: string;
-}
 
-const validateInput = (data: reqbody): validateoutput => {
-  const op = {
-    success: false,
-    message: "",
-    query: {email:""},
-  };
-
+export async function POST(req: NextRequest, res: NextResponse) {
   try {
-    const { email } = data;
-
-    if (!email) {
-      op.message = "email is required.";
-      return op;
+    const secretKey = process.env.NEXT_PUBLIC_SECRET_KEY;
+    if (!secretKey) {
+      return fail("Missing server configuration", 500);
     }
 
+    const { email }: { email: string } = await req.json();
     const isemail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (isemail.test(email)) {
-      if (email.length < 3 || email.length > 254) {
-        op.message = "Invalid email.";
-        return op;
-      }
-      op.query = { email };
-    } 
-
-    op.success = true;
-    op.message = "";
-    return op;
-  } catch (error: any) {
-    console.log(error);
-    op.message = "Invalid input.";
-    return op;
-  }
-};
-
-export async function POST(request: NextRequest, res: NextResponse) {
-  try {
-    const data: reqbody = await request.json();
-
-    if (!data) {
-      return fail("Body is required.", 400);
-    }
-
-    const { query, success, message } = validateInput(data);
-    if (!success) {
-      return fail(message, 400);
+    if (!isemail.test(email)) {
+      return fail("This is not a valid email.");
     }
 
     await dbConnect();
 
-    const existingUser = await User.findOne(query).select("email username verified verificationToken tokenExpires");
-    if (!existingUser) {
-      return fail("User not found.", 404);
+    const user = await User.findOne({ email }).select("verified tokenExpires username");
+
+    if (!user) {
+      return fail("No such user exists.", 404);
     }
 
-    if (existingUser.verified) {
-      return fail("User is already verified.", 400);
+    if (user.verified) {
+      return fail("user is already verified.");
     }
 
-    const currentTime = Date.now();
-    if (existingUser.tokenExpires && currentTime < existingUser.tokenExpires) {
-      return fail("Verification token is still valid. Please check your email.", 400);
+    const date = Date.now();
+    if (date < user.tokenExpires) {
+      return fail("verification request is already generated please wait.");
     }
 
-    const secretKey = process.env.NEXT_PUBLIC_JWT_SECRET || "fallbackSecret";
-    const newVerificationToken = jwt.sign(
-      { email: existingUser.email, username: existingUser.username },
-      secretKey,
-      { expiresIn: "24h" }
-    );
+    const tokenExpiry = Number(process.env.NEXT_PUBLIC_TOKEN_EXPIRY);
+    const verificationToken = jwt.sign({ username:user.username, email }, secretKey, { expiresIn: tokenExpiry ? tokenExpiry : "24h" });
+    const tokenExpires = Date.now() + (24*60*60*1000)
 
-    existingUser.verificationToken = newVerificationToken;
-    existingUser.tokenExpires = currentTime + 24 * 60 * 60 * 1000; 
-    await existingUser.save();
+    await User.updateOne({email},{verificationToken,tokenExpires});
 
-    
-        try {
-          const url = `${origin}/verify/${newVerificationToken}`;
+     try {
+          const url = `${origin}/Verify/${verificationToken}`;
           const encodeurl = encodeURI(url);
-          const text = `Visit this link: ${encodeurl} to verify your email.`;
+          const text = `Visit this link: ${encodeurl} to verify your email. 
+          If link expires please visit this link - ${origin}/Reverify/
+          `;
     
-          await handleEmailVerification("Email Verification", text, query.email, text);
+          await handleEmailVerification("Email Verification", text, email, text);
         } catch (emailError) {
           console.error("Email sending failed:", emailError);
         }
-
 
     return NextResponse.json({
       success: true,

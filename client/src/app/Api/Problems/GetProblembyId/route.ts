@@ -3,38 +3,46 @@
 import { Problem } from "@/app/lib/api/problemModel";
 import { NextRequest, NextResponse } from "next/server";
 import { PROBLEMS } from "../../../../../public/assets/problems";
+import { fail } from "@/app/lib/api/response";
+import { cookies } from "next/headers";
 
 interface Response {
     success: boolean,
-    problem:Problem,
+    problem: Problem,
 }
 
 
-export async function GET(request : NextRequest){
-    const params = new URL(request.url).searchParams;
-    const id : number | null = Number(params.get('id'));
-    if(!id){
-        return NextResponse.json({
-            success:false,
-            err:"Please provide valid id"
-        },
-    {status:500})
+export async function GET(request: NextRequest) {
+    const cookieStore = cookies();
+    const token = cookieStore.get("token")?.value;
+    if (!token) {
+        return fail("Unauthorised access", 403);
     }
-    let result : Problem;
-    for(let i=0;i<PROBLEMS.length;i++){
-        if(PROBLEMS[i].id === id){
+
+    const params = new URL(request.url).searchParams;
+    const id: number | null = Number(params.get('id'));
+    if (!id) {
+        return NextResponse.json({
+            success: false,
+            err: "Please provide valid id"
+        },
+            { status: 500 })
+    }
+    let result: Problem;
+    for (let i = 0; i < PROBLEMS.length; i++) {
+        if (PROBLEMS[i].id === id) {
             result = PROBLEMS[i];
-            const response : Response = {
+            const response: Response = {
                 success: true,
-                problem:result,
+                problem: result,
             }
-            return NextResponse.json({response},{status:200})
+            return NextResponse.json({ response }, { status: 200 })
         }
     }
 
     return NextResponse.json({
-        success:false,
-        err:"Question does not exist anymore."
+        success: false,
+        err: "Question does not exist anymore."
     },
-    {status:500})
+        { status: 500 })
 }

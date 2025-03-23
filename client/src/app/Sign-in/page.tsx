@@ -6,13 +6,14 @@ import { LuLoaderCircle } from "react-icons/lu";
 import { useDispatch } from 'react-redux';
 import { login } from '../lib/slices/authSlice';
 import { generateHeader } from '../lib/customHeader';
-
+import Link from 'next/link';
 
 const SignIn = () => {
   const [e_error, sete_Error] = useState<string | null>(null);
   const [p_error, setp_Error] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setsuccess] = useState<string | null>(null);
   const dispatch = useDispatch();
 
   const router = useRouter();
@@ -74,6 +75,8 @@ const SignIn = () => {
       setLoading(true);
       sete_Error(null);
       setp_Error(null);
+      setsuccess(null);
+      setError(null);
 
       const data = new FormData(e.currentTarget);
       const objectdata = {
@@ -93,12 +96,14 @@ const SignIn = () => {
          headers
         }
       );
-
-      if (response.status === 200) {
-        dispatch(login(response.data.user.name));
+      console.log(response.data.success)
+      if (response.data.success) {
+        setsuccess(response.data.message);
+        dispatch(login({name:response.data.user.name,id:response.data.user._id}));
         router.push("/Problems")
       }
     } catch (err: any) {
+      console.log(err)
       if (err.response && err.response.data && err.response.data.message) {
         setError(err.response.data.message);
       } else {
@@ -110,10 +115,10 @@ const SignIn = () => {
   };
 
   return (
-    <div className="h-full flex items-center justify-center">
-      <div className="bg-gray-800 p-10 rounded-lg shadow-xl w-96">
+    <div className="h-screen flex items-center justify-center">
+      <div className="bg-gray-800 p-10 rounded-3xl w-96 bg-opacity-50 mt-5 shadow-gray-600 shadow-xl">
         <h2 className="text-3xl font-bold pb-3 text-center text-white mb-4">
-          AlgoArena
+          Log in
         </h2>
 
         <form
@@ -143,11 +148,14 @@ const SignIn = () => {
               :
               <div className='h-8 w-1'></div>
           }
-          {
+            {
+            error || success ?
             error ?
-              <div className=' text-xs text-red-700 mt-4 flex items-center justify-center'>{error}</div>
+              <div className='mb-4 text-xs text-red-700'>{error}</div>
               :
-              <div className='h-8 w-1'></div>
+              <div className='mb-4 text-xs text-green-700'>{success}</div>
+              :
+              <div className='h-8 w-1 '></div>
           }
           {
             loading ?
@@ -164,7 +172,13 @@ const SignIn = () => {
           }
 
         </form>
-
+        
+        <div className='mt-5 ml-3'><Link className="text-sm  pt-5 ml-8 text-right" href={"/Sign-up"}>
+          Create a new account? <span className="underline text-red-700">Signup</span>
+        </Link></div>
+        <div className='mt-5 ml-3'><Link className="text-sm  pt-5 ml-8 text-right" href={"/Forgotpassword"}>
+          Forgot password? <span className="underline text-red-700">ForgotPassword</span>
+        </Link></div>
       </div>
     </div>
   );

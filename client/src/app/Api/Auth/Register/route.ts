@@ -55,21 +55,22 @@ export async function POST(request: NextRequest) {
 
     const tokenExpiry = Number(process.env.NEXT_PUBLIC_TOKEN_EXPIRY) ;
     const verificationToken = jwt.sign({ username, email }, secretKey, { expiresIn: tokenExpiry ? tokenExpiry : "24h" });
-    
     const newuser = await User.create({
       username,
       email,
       password,
-      verificationToken,
+      verificationToken
     });
 
     newuser.save();
 
 
     try {
-      const url = `${origin}/verify/${verificationToken}`;
+      const url = `${origin}/Verify/${verificationToken}`;
       const encodeurl = encodeURI(url);
-      const text = `Visit this link: ${encodeurl} to verify your email.`;
+      const text = `Visit this link: ${encodeurl} to verify your email. 
+      If link expires please visit this link - ${origin}/Reverify/
+      `;
 
       await handleEmailVerification("Email Verification", text, email, text);
     } catch (emailError) {

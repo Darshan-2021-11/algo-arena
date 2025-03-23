@@ -1,5 +1,4 @@
 'use server'
-
 import { NextRequest, NextResponse } from "next/server";
 import { HIDDEN } from "../../../../../public/assets/problems";
 
@@ -14,7 +13,6 @@ export async function GET(request : NextRequest){
     try{
         const params = new URL(request.url).searchParams;
         const id : number | null = Number(params.get('id'));
-        console.log(id);
         if(!id){
             return NextResponse.json({success:false, error:"no id found"},{status:404})
         }

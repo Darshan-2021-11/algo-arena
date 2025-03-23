@@ -15,6 +15,7 @@ interface body {
 
 const SignUp: React.FC = () => {
   const [e_error, sete_Error] = useState<string | null>(null);
+  const [success, setsuccess] = useState<string | null>(null);
   const [u_error, setu_Error] = useState<string | null>(null);
   const [p_error, setp_Error] = useState<string | null>(null);
   const [p2_error, setp2_Error] = useState<string | null>(null);
@@ -85,11 +86,12 @@ const SignUp: React.FC = () => {
       setu_Error(null);
       setp2_Error(null);
       setp_Error(null);
+      setsuccess(null);
 
       const formdata = new FormData(e.currentTarget);
 
       const objectdata = {
-        email: formdata.get("username")?.toString(),
+        email: formdata.get("email")?.toString(),
         password: formdata.get("password")?.toString(),
         username: formdata.get("username")?.toString(),
         confirmpassword: formdata.get('confirmpassword')?.toString()
@@ -101,15 +103,15 @@ const SignUp: React.FC = () => {
 
       delete objectdata.confirmpassword;
       const headers = await generateHeader();
-      console.log(headers)
-
-      const response = await axios.post("/Api/Auth/Register", objectdata, { headers }) as { message: string, success: boolean };
-      if (response.success === true) {
-        router.push("/Sign-in")
+      
+      const response = await axios.post("/Api/Auth/Register", objectdata, { headers }) as { data:{message: string, success: boolean} };
+      if (response.data.success === true) {
+        setsuccess(response.data.message)
       } else {
-        alert("Passwords do not match");
+        setError("something went wrong")
       }
     } catch (err: any) {
+      console.log(err)
       if (err.response && err.response.data && err.response.data.message) {
         setError(err.response.data.message); 
       } else {
@@ -121,10 +123,10 @@ const SignUp: React.FC = () => {
   };
 
   return (
-    <div className="h-4/5 flex items-center justify-center ">
-      <div className="bg-gray-800 p-10 rounded-lg shadow-xl w-96">
-        <h2 className="text-3xl font-bold mb-5 pb-6 text-center text-red-800 ">
-          AlgoArena
+    <div className="h-screen flex items-center justify-center">
+      <div className="bg-gray-800 p-10 rounded-3xl w-96 bg-opacity-60 shadow-gray-600 shadow-xl ">
+        <h2 className="text-3xl font-bold mb-5 pb-6 text-center text-white ">
+          Sign Up
         </h2>
         {/* <h1 className="text-white text-2xl mb-5">Sign Up</h1> */}
         <form
@@ -138,7 +140,7 @@ const SignUp: React.FC = () => {
             type="text"
             placeholder="Name"
             name='username'
-            className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
+            className={` ${u_error&& 'border-red-600 border'} w-full p-3 bg-gray-700 rounded outline-none text-white placeholder-gray-500`}
           />
           {
             u_error ?
@@ -150,7 +152,7 @@ const SignUp: React.FC = () => {
             type="email"
             placeholder="Email"
             name='email'
-            className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
+            className={`${e_error&& 'border-red-600 border'} w-full p-3 bg-gray-700 rounded outline-none text-white placeholder-gray-500`}
           />
           {
             e_error ?
@@ -162,7 +164,7 @@ const SignUp: React.FC = () => {
             type="password"
             placeholder="Password"
             name='password'
-            className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
+            className={`${e_error&& 'border-red-600 border'} w-full p-3 bg-gray-700 rounded outline-none text-white placeholder-gray-500`}
           />
           {
             p_error ?
@@ -174,11 +176,20 @@ const SignUp: React.FC = () => {
             type="password"
             placeholder="Confirm Password"
             name='confirmpassword'
-            className="w-full p-3 mb-4 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
+            className={` ${p2_error&& 'border-red-600 border'} w-full p-3 bg-gray-700 rounded outline-none text-white placeholder-gray-500`}
           />
           {
             p2_error ?
               <div className='mb-4 text-xs text-red-700'>{p2_error}</div>
+              :
+              <div className='h-8 w-1 '></div>
+          }
+           {
+            error || success ?
+            error ?
+              <div className='mb-4 text-xs text-red-700'>{error}</div>
+              :
+              <div className='mb-4 text-xs text-green-700'>{success}</div>
               :
               <div className='h-8 w-1 '></div>
           }
@@ -195,12 +206,7 @@ const SignUp: React.FC = () => {
               :
               <input type="submit" value="Sign Up" className="w-full p-3 bg-indigo-600 rounded text-white hover:bg-indigo-500" />
           }
-          {
-            error ?
-              <div className='mb-4 text-xs text-red-700'>{error}</div>
-              :
-              <div className='h-8 w-1 '></div>
-          }
+         
         </form>
         <div className='mt-5 ml-3'><Link className="text-sm  pt-5 ml-8 text-right" href={"/Sign-in"}>
           Already have an account? <span className="underline text-red-700">Login</span>
