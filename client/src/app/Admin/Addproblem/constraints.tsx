@@ -33,7 +33,7 @@ const Constraints: React.FC<constraintstype> = ({ constraints, setconstraints })
                     onClick={() => {
                         if (inputRef.current) {
                             const input = inputRef.current;
-                            if (input.value.length >= 3 && constraints.length<10) {
+                            if (input.value.length >= 1 && constraints.length<10) {
                                 const allconstraints = [...constraints];
                                 allconstraints.push(input.value);
                                 setconstraints(allconstraints);

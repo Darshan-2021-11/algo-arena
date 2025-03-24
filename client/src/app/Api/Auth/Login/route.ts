@@ -130,6 +130,8 @@ export async function POST(req: NextRequest, res: NextResponse) {
       user.admin = true;
     }
 
+    console.log(user)
+
     const response = NextResponse.json({
       success: true,
       message: "User Login successfully",

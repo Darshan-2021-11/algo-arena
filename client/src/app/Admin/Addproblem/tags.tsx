@@ -32,7 +32,7 @@ const Tags: React.FC<tagstype> = ({ tags, settags }) => {
                     onClick={() => {
                         if (inputRef.current) {
                             const input = inputRef.current;
-                            if (input.value.length >= 3 && tags.length<10) {
+                            if (input.value.length >= 1 && tags.length<10) {
                                 const alltags = [...tags];
                                 alltags.push(input.value);
                                 settags(alltags);

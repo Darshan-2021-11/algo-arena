@@ -4,8 +4,6 @@ import { useState } from "react"
 import Tags from "./tags"
 import Constraints from "./constraints";
 import Testcases from "./testcases";
-import { useDispatch, useSelector } from "react-redux";
-import { logout, useAuth } from "@/app/lib/slices/authSlice";
 import axios from "axios";
 import { LuLoaderCircle } from "react-icons/lu";
 
@@ -23,7 +21,6 @@ interface body {
     testcases: { input: string, output: string }[]
     timeLimit: number
     spaceLimit: number
-    author: string
 }
 
 const Page = () => {
@@ -41,14 +38,8 @@ const Page = () => {
     const [loading, setLoading] = useState(false);
 
 
-    const { id } = useSelector(useAuth);
-    const dispatch = useDispatch();
 
     const validateInput = (e: React.FormEvent<HTMLFormElement>): body | undefined => {
-        if (!id) {
-            dispatch(logout());
-            return;
-        }
         seterr(null);
         setterr(null);
         setderr(null);
@@ -65,17 +56,17 @@ const Page = () => {
         const description = formdata.get("description")?.toString() || "";
 
 
-        if (tags.length < 3) {
-            settagerr("there must be atleast 3 tags.")
+        if (tags.length < 1) {
+            settagerr("there must be atleast 1 tag.")
             return;
         }
-        if (constraints.length < 3) {
-            setcerr("there must be atleast 3 constraints.")
+        if (constraints.length < 1) {
+            setcerr("there must be atleast 1 constraint.")
             return;
         }
 
-        if (testcases.length < 3) {
-            settesterr("there must be atleast 3 testcases.")
+        if (testcases.length < 1) {
+            settesterr("there must be atleast 1 testcase.")
             return;
         }
 
@@ -89,7 +80,6 @@ const Page = () => {
             testcases,
             timeLimit: Number(formdata.get("timeLimit")?.toString()),
             spaceLimit: Number(formdata.get("spaceLimit")?.toString()),
-            author: ""
         }
 
         return body;
@@ -111,12 +101,12 @@ const Page = () => {
             if (data.success) {
                 setsuccess(data.message || "Problem is successfully created.");
             } else {
-                setsuccess("something went wrong.");
+                seterr("something went wrong.");
             }
 
         } catch (error: any) {
             console.log(error)
-            seterr(error.response.data.message)
+            seterr(error.response.data.message || "Unable to add problem.")
         }finally{
             setLoading(false)
         }
@@ -240,9 +230,9 @@ const Page = () => {
                 {
                     error || success ?
                         error ?
-                            <div className='mb-4 text-xs text-red-700'>{error}</div>
+                            <div className='mt-4 text-xs text-red-700'>{error}</div>
                             :
-                            <div className='mb-4 text-xs text-green-700'>{success}</div>
+                            <div className='mt-4 text-xs text-green-700'>{success}</div>
                         :
                         <div className='h-8 w-1 '></div>
                 }

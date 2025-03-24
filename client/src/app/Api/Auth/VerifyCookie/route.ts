@@ -17,7 +17,7 @@ export const GET = async (req: NextRequest, res: NextResponse) => {
         if (!token) return fail("Invalid request.", 400);
         const data = jwt.verify(token, secretkey) as { name: string, id: string };
         await dbConnect();
-        const user = await User.findOne({ username: data.name }).select("isdeleted");
+        const user = await User.findOne({ username: data.name }).select("isdeleted admin");
         if (!user || user.isdeleted) return fail("User not found.");
 
         // const crefToken = await generateCustomToken(req.headers.get('userAgent'));
@@ -28,7 +28,8 @@ export const GET = async (req: NextRequest, res: NextResponse) => {
         const response = NextResponse.json({
             user: {
                 id:user._id,
-                name:data.name
+                name:data.name,
+                admin:user.admin
             },
             message: "successffully information fetched.",
             success: true
@@ -42,7 +43,6 @@ export const GET = async (req: NextRequest, res: NextResponse) => {
         //     sameSite: "strict",
         // });
 
-        console.log(response)
         return response
 
     } catch (error: any) {

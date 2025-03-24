@@ -49,7 +49,7 @@ const Testcases: React.FC<testcasestype> = ({ testcases, settestcases }) => {
                         if (inputRef.current && outputRef.current) {
                             const input = inputRef.current;
                             const output = outputRef.current;
-                            if (input.value.length >= 3 && output.value.length >=3 && testcases.length<10) {
+                            if (input.value.length >= 1 && output.value.length >=1 && testcases.length<10) {
                                 const alltestcases = [...testcases];
                                 alltestcases.push({input:input.value,output:output?.value});
                                 settestcases(alltestcases);

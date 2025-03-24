@@ -96,10 +96,9 @@ const SignIn = () => {
          headers
         }
       );
-      console.log(response.data.success)
       if (response.data.success) {
         setsuccess(response.data.message);
-        dispatch(login({name:response.data.user.name,id:response.data.user._id}));
+        dispatch(login({name:response.data.user.name,id:response.data.user.id,admin:response.data.user.admin}));
         router.push("/Problems")
       }
     } catch (err: any) {

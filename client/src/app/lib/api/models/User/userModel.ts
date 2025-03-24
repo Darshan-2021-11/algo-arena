@@ -61,6 +61,10 @@ const userSchema = new Schema({
 	resetTokenExpires:{
 		type: Date,
 		default:null
+	},
+	admin:{
+		type:Boolean,
+		default:null
 	}
 });
 
@@ -82,3 +86,4 @@ userSchema.pre("save",async function (next) {
 
 const User = mongoose.models.User || model("User", userSchema);
 export default User;
+//Admin1 Rohit@1 admin@admin.ad

@@ -15,7 +15,7 @@ interface typebody {
     testcases: { input: string, output: string }[]
     timeLimit: number
     spaceLimit: number
-    author: string
+    author?: string
 }
 
 export async function POST(req: NextRequest) {
@@ -34,15 +34,17 @@ export async function POST(req: NextRequest) {
 
         const { id, name, admin } = jwt.verify(cookie,secret) as {id:string, name:string,admin:boolean};
 
-        const body = await req.json() as typebody;
-
-        body.author = id;
+        const body = await req.json() as typebody[];
+       
+        body.map((b)=>{
+            b.author = id;
+        })
 
         await dbConnect();
 
-        await Problem.create(body);
+        await Problem.insertMany(body);
 
-        return success("Problem created successfully.",201);
+        return success("Problems added successfully.",201);
 
     } catch (error: any) {
         console.log(error)

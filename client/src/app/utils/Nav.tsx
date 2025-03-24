@@ -11,49 +11,49 @@ const Nav: React.FC = () => {
   const router = useRouter();
   const route = usePathname();
 
-  const {loggedIn, username, admin} = useSelector(useAuth);
+  const { loggedIn, username, admin } = useSelector(useAuth);
   const dispatch = useDispatch();
 
-  const protectedUri = ['/Explore','/Problems','/User','/LeaderBoard','/duet'];
+  const protectedUri = ['/Explore', '/Problems', '/User', '/LeaderBoard', '/duet', "/Admin"];
 
-  useEffect(()=>{
-    if(!loggedIn){
-      for(let i=0;i<protectedUri.length;i++){
-        if(route.startsWith(protectedUri[i])){
+  useEffect(() => {
+    if (!loggedIn) {
+      for (let i = 0; i < protectedUri.length; i++) {
+        if (route.startsWith(protectedUri[i])) {
           router.push("/Sign-up")
           return;
         }
       }
     }
 
-    // if(!admin){
-    //   if(route.startsWith("/Admin")){
-    //     router.push('/')
-    //   }
-    // }
+    if (!admin) {
+      if (route.startsWith("/Admin")) {
+        router.push('/')
+      }
+    }
 
-  },[route,loggedIn]);
+  }, [route, loggedIn]);
 
-  useEffect(()=>{
-    (async()=>{
+  useEffect(() => {
+    (async () => {
       try {
-        const {data} = await axios.get("/Api/Auth/VerifyCookie");
-        if(data.success){
-          dispatch(login({name:data.user.name,id:data.user._id}))
-
+        const { data } = await axios.get("/Api/Auth/VerifyCookie");
+        if (data.success) {
+          dispatch(login({ name: data.user.name, id: data.user.id, admin: data.user.admin }))
+          router.push("/")
         }
         console.log(data)
       } catch (error) {
         console.log(error);
       }
-     
-    })()
-  },[])
 
-  const logout =async()=>{
+    })()
+  }, [])
+
+  const logout = async () => {
     try {
-      const {data} = await axios.get("/Api/Auth/Logout");
-      if(data.success){
+      const { data } = await axios.get("/Api/Auth/Logout");
+      if (data.success) {
         dispatch(logoutSlice());
       }
     } catch (error) {
@@ -69,19 +69,41 @@ const Nav: React.FC = () => {
           {/* <img className={[style.img].join(" ")} src="/algoarena.png" alt="AlgoArena logo" /> */}
         </Link>
         {
-          loggedIn && 
+          loggedIn &&
           <>
-           <div className={[style.p].join(" ")}>
-          <h6>
-            <Link href={"/Problems"}>Practice</Link>
-          </h6>
-        </div>
-        <div className={[style.e].join(" ")}>
-          <Link href={"/Explore"}>Explore</Link>
-        </div>
+            {
+              admin ?
+                <>
+                 <div className={[style.p].join(" ")}>
+                    <h6>
+                      <Link href={"/Admin/Addproblem"}>add</Link>
+                    </h6>
+                  </div>
+                  <div className={[style.p].join(" ")}>
+                    <h6>
+                      <Link href={"/Admin/Addproblems"}>upload</Link>
+                    </h6>
+                  </div>
+                  <div className={[style.e].join(" ")}>
+                    <Link href={"/Explore"}>list</Link>
+                  </div>
+                </>
+                :
+                <>
+                  <div className={[style.p].join(" ")}>
+                    <h6>
+                      <Link href={"/Problems"}>Practice</Link>
+                    </h6>
+                  </div>
+                  <div className={[style.e].join(" ")}>
+                    <Link href={"/Explore"}>Explore</Link>
+                  </div>
+                  </>
+            }
+
           </>
         }
-       
+
       </div>
       <div className={style.left}>
         <div>
@@ -98,13 +120,20 @@ const Nav: React.FC = () => {
                 </h6>
               </div>
             </div>
-          ) : (
+          ) : <>
+            {
+              admin ?
+                <></>
+                :
+                <>
+                </>
+            }
             <div className={style.left}>
               <div className={[style.e].join(" ")}>
-                {username ? (
+                {username && (
                   <div
                     className={style.left}
-                    onClick={()=>router.push("/User/Dashboard")}
+                    onClick={() => router.push("/User/Dashboard")}
                   >
                     <img
                       className={[style.im].join(" ")}
@@ -113,10 +142,6 @@ const Nav: React.FC = () => {
                     />
                     <span className="text-blue-600 text-sm"> {username} </span>
                   </div>
-                ) : (
-                  <a href="/Sign-in" className="text-blue-400">
-                    Log in
-                  </a>
                 )}
               </div>
               <button
@@ -128,7 +153,8 @@ const Nav: React.FC = () => {
                 Log out
               </button>
             </div>
-          )}
+          </>
+          }
         </div>
       </div>
     </div>

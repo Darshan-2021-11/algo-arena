@@ -826,18 +826,4 @@ Print one integer: the answer for the task.
 
             
         },
-
-
-
-
-
-
-       
-
-
-           
-
-
-
-
     ]
