@@ -12,7 +12,7 @@ interface obj {
     output: string
 }
 
-interface body {
+export interface body {
     title: string
     description: string
     difficulty: string

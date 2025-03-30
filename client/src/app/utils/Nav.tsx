@@ -62,6 +62,7 @@ const Nav: React.FC = () => {
   }
 
   return (
+    <>
     <div className={[style.bg].join(" ")}>
       <div className={style.left}>
         <Link href={"/"} className={[style.img].join(" ")}>
@@ -140,7 +141,7 @@ const Nav: React.FC = () => {
                       src="/person.png"
                       alt="Profile_Picture"
                     />
-                    <span className="text-blue-600 text-sm"> {username} </span>
+                    <span className="text-blue-600 text-sm"> {username.length > 5 ? username.substring(0,6)+"..." : username} </span>
                   </div>
                 )}
               </div>
@@ -158,6 +159,8 @@ const Nav: React.FC = () => {
         </div>
       </div>
     </div>
+    <div className="h-16 w-screen"></div>
+    </>
   );
 };
 

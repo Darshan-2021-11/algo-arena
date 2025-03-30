@@ -7,7 +7,7 @@ const problemSchema = new Schema({
         index:true,
         unique:true
     },
-    submissions:{
+    submission:{
         type:Number,
         default:0,
         min: [0, "Submissions cannot be negative."]

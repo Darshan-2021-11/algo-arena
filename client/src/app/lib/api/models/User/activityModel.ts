@@ -1,5 +1,21 @@
 import mongoose, { model, Schema } from "mongoose";
-import { validate } from "uuid";
+
+const dateSchema = new Schema({
+  date: {
+    type: Date,
+    required: true,
+  },
+  submissions: {
+    type: Number,
+    default: 1,
+    validate:{
+      validator:function(val: number){
+        return val >= 0;
+      },
+      message:"Activity can not go below 0"
+    }
+  },
+},{_id:false})
 
 const activitySchema = new Schema({
     user:{
@@ -8,26 +24,16 @@ const activitySchema = new Schema({
         index:true,
         unique:true
     },
-  
+    start:{
+      type:Date,
+      default:Date.now()
+    },
     activity:
         {
-            date: {
-              type: Date,
-              required: true,
-            },
-            submissions: {
-              type: Number,
-              default: 0,
-              validate:{
-                validator:function(val: number){
-                  return val >= 0;
-                },
-                message:"Activity can not go below 0"
-              }
-            },
-          },
+          type:[dateSchema],
+        },
     
 })
 
-const UserProblem = mongoose.models.UserProblem || model("Activity",activitySchema);
-export default UserProblem;
+const Activity = mongoose.models.Activity || model("Activity",activitySchema);
+export default Activity;

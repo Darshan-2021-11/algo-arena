@@ -14,14 +14,10 @@ const submissionSchema = new Schema(
       required: true,
       index:true
     },
-    submissionTime: {
-      type: Date,
-      default: Date.now,
-    },
     result: {
       type: String,
-      enum: [1,2,3,4,5],
-        // "Accepted", "Wrong Answer", "Runtime Error", "Compilation Error", "Time Limit Exceeded"
+      default:"Pending",
+      // enum: ["Accepted", "Wrong Answer", "Runtime Error", "Compilation Error", "Time Limit Exceeded","pending"],
       required: true,
     },
     language: {
@@ -46,6 +42,6 @@ const submissionSchema = new Schema(
 submissionSchema.index({user:1,language:1});
 submissionSchema.index({user:1,problem:1});
 
-const Submission = mongoose.model("Submission", submissionSchema);
+const Submission = mongoose.models.Submission || mongoose.model("Submission", submissionSchema);
 
 export default Submission;

@@ -1,5 +1,20 @@
 import mongoose, { Schema } from "mongoose";
 
+const testcaseSchema = new Schema({
+  input: {
+    type: String,
+    required: [true,"input is required."],
+    minLength: 1,
+    maxLength: 1000,
+  },
+  output: {
+    type: String,
+    required: [true,"output is required."],
+    minLength: 1,
+    maxLength: 1000,
+  },
+},{_id:false})
+
 const ProblemSchema = new Schema(
   {
     title: {
@@ -32,7 +47,6 @@ const ProblemSchema = new Schema(
           "Tags must each be between 1 and 15 characters long, and you cannot have more than 10 tags.",
       },
       default: [],
-      index: true,
     },
     constraints: {
       type: [String],
@@ -50,23 +64,15 @@ const ProblemSchema = new Schema(
       },
       default: [],
     },
-    testcases: [
+    testcases: 
       {
-        input: {
-          type: String,
-          required: true,
-          minLength: [1, "Input must be at least 1 character long."],
-          maxLength: [1000, "Input must be at most 1000 characters long."],
-        },
-        output: {
-          type: String,
-          required: true,
-          minLength: [1, "Output must be at least 1 character long."],
-          maxLength: [1000, "Output must be at most 1000 characters long."],
-        },
+        type:[testcaseSchema],
+        validate:{
+          validator: function(constraints:any[]) {
+            return constraints.length <= 10
+          }
+        }
       },
-      {_id:false}
-    ],
     author: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -99,6 +105,11 @@ const ProblemSchema = new Schema(
   },
   { timestamps: true }
 );
+
+ProblemSchema.index({ title: 1 });
+ProblemSchema.index({ difficulty: 1 });
+ProblemSchema.index({ author: 1 });
+ProblemSchema.index({ tags: 1 });
 
 const Problem =
   mongoose.models.Problem || mongoose.model("Problem", ProblemSchema);

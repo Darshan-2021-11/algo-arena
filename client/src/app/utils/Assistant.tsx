@@ -86,10 +86,14 @@ const Assistant : React.FC<{Problem:Problem|undefined}> = ({Problem})=>{
     return(
         <>
           {
-        show ?
+        show &&
           <div
             ref={aiRef}
-            className={` w-80 h-80 overflow-hidden fixed bottom-0 left-0 border-2 `}
+            className={` z-10 w-80 h-80 overflow-hidden fixed border-2 `}
+            style={{
+              left:pos.current.l,
+              bottom:pos.current.b
+            }}
           >
             <div
               className="w-full h-5 bg-white text-black flex justify-between items-center pr-1 pl-1"
@@ -164,14 +168,24 @@ const Assistant : React.FC<{Problem:Problem|undefined}> = ({Problem})=>{
             </textarea>
 
           </div>
-          :
-          <div
-            className=" cursor-pointer text-black ml-4 bg-gray-400 w-8 h-8 flex items-center justify-center rounded-md"
-            onClick={() => setshow((state) => !state)}
+          // :
+          // <div
+          //   className=" relative cursor-pointer text-black ml-4 z-20 bg-gray-400 w-8 h-8 flex items-center justify-center rounded-md"
+          //   onClick={() => setshow((state) => !state)}
+          // >
+          //   AI
+          // </div>
+      }
+       <div
+            className=" cursor-pointer  text-black ml-4 bg-gray-400 w-8 h-8 flex items-center justify-center rounded-md"
+            onClick={() => {
+              pos.current = {l:0,b:0}
+              setshow((state) => !state)
+            }}
           >
             AI
+            
           </div>
-      }
         </>
     )
 }

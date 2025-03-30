@@ -1,6 +1,6 @@
 export interface TESTCASE {
-    question:string,
-    answer:string
+    input:string,
+    output:string
 }
 
 export interface HIDDEN_TESTCASE {
@@ -10,11 +10,11 @@ export interface HIDDEN_TESTCASE {
 
 
 export interface Problem {
-    id:number,
+    _id:number,
+    description:string,
     title:string,
-    difficulty:number,
-    topics:Array<string>,
-    question:string,
+    difficulty:string,
+    tags:Array<string>,
     constraints:Array<string>,
-    sample_testcases:Array<TESTCASE>,
+    testcases:Array<TESTCASE>,
 }

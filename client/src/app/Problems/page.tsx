@@ -10,16 +10,18 @@ const Page = () => {
   const [page, setpage] = useState(1);
   const [problems, setproblems] = useState<Problem[]>([]);
   const [maxpage, setmaxpage] = useState(1);
-  const [lastelem, setelem] = useState(1);
+  const [lastelem, setelem] = useState(0);
+  
 
   const getProblems = async (): Promise<void> => {
     try {
       const url = `Api/Problems/GetAllProblems?page=${page}`;
       const { data } = await axios.get(url);
-      let newdata: Array<any> = data.problems || [];
+      console.log(lastelem)
+      let newdata: Array<any> = data.Problems || [];
       setproblems(newdata);
       setmaxpage(data.maxpage);
-      setelem(data.lastelement);
+      setelem(lastelem+((page-1)*newdata.length))
     } catch (err) {
       console.log(err);
     }
@@ -54,15 +56,15 @@ const Page = () => {
             key={uuidv4()}
             className={`text-white  ${i % 2 ? 'bg-gray-600' : ''} p-2 flex`}
           >
-            <p className='pr-1 pl-1 w-24'>{(lastelem) + i + 1}</p>
+            <p className='pr-1 pl-1 w-24'>{lastelem+i+1 }</p>
           <Link 
-          href={`/Problems/${x.id}`}
+          href={`/Problems/${x._id}`}
           className='  w-9/12 hover:text-blue-800 hover:cursor-pointer overflow-hidden'
           >
             {x.title}
             </Link>
             <p 
-            className={` w-24 ${x.difficulty === 1 ? 'text-green-900' : 'text-orange-600'} `}
+            className={` w-24 font-medium ${x.difficulty === "Easy" ? 'text-green-900' : x.difficulty === "Medium" ? 'text-orange-600' : "text-red-600"} `}
             >{x.difficulty}</p>
           </div>
         ))
