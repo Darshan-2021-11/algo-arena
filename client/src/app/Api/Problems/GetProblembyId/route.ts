@@ -6,6 +6,7 @@ import { fail } from "@/app/lib/api/response";
 import { cookies } from "next/headers";
 import mongoose from "mongoose";
 import Problem from '../../../lib/api/models/Problem/problemModel'
+import dbConnect from "@/app/lib/api/databaseConnect";
 
 interface Response {
     success: boolean,
@@ -33,6 +34,7 @@ export async function GET(request: NextRequest) {
             },
                 { status: 500 })
         }
+        await dbConnect();
         const result = await Problem.aggregate([
             {$match:{_id: new mongoose.Types.ObjectId(id)}},
             {$project:{

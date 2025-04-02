@@ -5,6 +5,7 @@ import { Problem as problemModel } from '../../../lib/api/problemModel';
 import { cookies } from "next/headers";
 import { fail } from "@/app/lib/api/response";
 import Problem from "../../../lib/api/models/Problem/problemModel"
+import dbConnect from "@/app/lib/api/databaseConnect";
 
 export interface Response {
     success: boolean,
@@ -32,6 +33,8 @@ export async function GET(request : NextRequest){
             i = (pagelen * page) - pagelen;
             j = i + pagelen;
         }
+
+        await dbConnect();
 
         const result = await Problem.aggregate([
             {$match:{}},

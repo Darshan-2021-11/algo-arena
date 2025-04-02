@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from "axios";
 import { useParams } from "next/navigation";
 import { Problem } from "@/app/lib/api/problemModel";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4, v4 } from 'uuid';
 import CodeEditor from '../../utils/Editor';
 import { useEditor } from '@/app/lib/contexts/editorContext';
 import Assistant from '../../utils/Assistant';
@@ -230,6 +230,7 @@ export default function IDE() {
                         {
                           Problem.tags.map((elem) => (
                             <span
+
                               key={uuidv4()}
                               className="ml-4"
                             >{elem}</span>
@@ -247,10 +248,12 @@ export default function IDE() {
                     >
                       {
                         Problem.testcases.map(({ input, output }) => (
-                          <>
+                          <div
+                          key={v4()}
+                          >
                             <pre>input : {input}</pre>
                             <p>output : {output}</p>
-                          </>
+                          </div>
                         ))
                       }
                     </div>
@@ -311,9 +314,11 @@ export default function IDE() {
                     </div>
                     {
                       result.map((r, i) => (
-                        <div>
+                        <div
+                        key={uuidv4()}
+                        
+                        >
                           <div
-                            key={uuidv4()}
                             className={`flex text-white w-screen justify-evenly m-1 p-3 ${r?.status?.id ? r.status.id === 3 ? 'bg-green-500' : 'bg-red-700' : "bg-gray-400"}`}>
                             <div style={{
                               width: '20%'

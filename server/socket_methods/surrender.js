@@ -1,19 +1,39 @@
 const { io } = require("..");
-const { ongoing_matches_list } = require("../data_models");
+const { list } = require("../data_models");
 
-const surrender =(socket, roomid)=>{
+const surrender =(roomid)=>{
     try {
-        const room = ongoing_matches_list.get(roomid);
-        clearTimeout(room.timeid)
-        console.log(room.users,socket.id)
-        io.to(roomid).emit('matchEnd',socket.id === room.users[0].socket_id ? room.users[1].socket_id : room.users[0].socket_id);
-        const mem1 = io.sockets.sockets.get(room.users[0].socket_id);
-        mem1.leave(roomid);
-        const mem2 = io.sockets.sockets.get(room.users[1].socket_id);
-        mem2.leave(roomid);
-        ongoing_matches_list.delete(roomid);
+        const callauthorize = authorize.bind(this);
+       if(!callauthorize){
+        return;
+       }
+        if(!roomid){
+            this.emit("server_report",{status:3,message:"Invalid request."});
+            return;
+        }
+        const room = list.get(roomid);
+        list.delete(roomid);
+        if(!room){
+            this.emit("server_report",{status:3.1,message:"Room does not exists anymore."});
+            return;
+        }
+        room.map(({id})=>{
+            if(id === roomid){
+                this.emit("lose");
+                this.leave(roomid);
+            }else{
+                this.emit("win");
+                const socket = io.sockets.sockets.get(roomid);
+                if(socket){
+                    socket.leave(roomid);
+                }
+            }
+            
+        })
+       
     } catch (error) {
         console.log(error)
+        this.emit("server_report",{status:3.1,message:"Unable to surrender."});
     }
 }
 

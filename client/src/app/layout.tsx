@@ -2,7 +2,6 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Nav from "./utils/Nav";
-import SocketProvider from "./lib/contexts/socketContext";
 import EditorProvider from "./lib/contexts/editorContext";
 import StoreProvider from "./StoreProvider";
 
@@ -20,7 +19,6 @@ export default function RootLayout({
 }>) {
   return (
     <StoreProvider>
-    <SocketProvider>
       <EditorProvider>
     <html lang="en">
       <head>
@@ -29,7 +27,6 @@ export default function RootLayout({
             rel="stylesheet"
         />
          <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossOrigin="anonymous"></script>
-         {/* <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossOrigin="anonymous" onLoad={renderMathInElement(document.body)}></script> */}
       </head>
       <body className={inter.className}>
         <Nav />
@@ -37,7 +34,6 @@ export default function RootLayout({
       </body>
     </html>
     </EditorProvider>
-    </SocketProvider>
     </StoreProvider>
   );
 }
