@@ -1,11 +1,10 @@
-const { list, users, userToken } = require("../data_models");
+const { list, users } = require("../data_models");
 const authorize = require("./authorize");
 
-function cancelMatch(roomid) {
+function cancelMatch({roomid,id}) {
     try {
-        console.log("canceling",roomid)
         const callauthorize = authorize.bind(this);
-       if(!callauthorize){
+       if(!callauthorize(id)){
         return;
        }
         if (!roomid) {
@@ -14,25 +13,23 @@ function cancelMatch(roomid) {
         }
 
         const room = list.get(roomid);
-        console.log(room.mems.length)
 
         if (room.mems > 1) {
             this.emit("server_report", {status:3,message:"Match already started can not cancel."});
             return;
         }
-        const user = users.get(this.id);
-        console.log(user.online)
+        const user = users.get(id);
         if(!user.online){
-            users.delete(this.id);
-            userToken.delete(user.id);
+            users.delete(id);
+        }else{
+            user.roomid = null;
+            users.set(this.id, user);
         }
-        users.roomid = null;
-        users.set(this.id, users);
+       
         clearTimeout(room.timeid);
         this.leave(roomid);
         list.delete(roomid);
         this.emit("canceled");
-        console.log('canceled')
     } catch (error) {
         console.log(error)
         this.emit("canceled");

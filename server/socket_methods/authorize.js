@@ -1,8 +1,8 @@
 const { users } = require("../data_models");
 
-function authorize(){
+function authorize(id){
     try {
-        const user = users.get(this.id);
+        const user = users.get(id);
         if(!user){
             this.emit("server_report", { status: 5, message: "Unauthorized access." });
             return false;

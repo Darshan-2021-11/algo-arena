@@ -20,29 +20,41 @@ io.use(async (socket, next) => {
         }
 
         const decodedtoken = jwt.verify(token, secret);
-        const existingUser = userToken.get(decodedtoken.id);
-        if(existingUser){
-            const userdata = users.get(existingUser);
-            if(userdata.online){
+        const existingUser = users.get(decodedtoken.id);
+        if (existingUser) {
+            if (existingUser.online) {
                 throw new Error("Unauthorized access.")
             }
-            userToken.set(decodedtoken.id,socket.id);
+            existingUser.online = true;
+            const oldsocket = existingUser.socketid;
+            existingUser.socketid = socket.id;
+            users.set(decodedtoken.id, existingUser);
             users.delete(existingUser);
-            userdata.online = true;
-            users.set(socket.id,userdata);
-            if(userdata.roomid){
-                const room = list.get(userdata.roomid);
-                if(room.mems.length === 1){
-                    socket.emit("created", { roomid:userdata.roomid, message: "Logged in successfully." });
+            userToken.delete(existingUser.socketid);
+
+            if (existingUser.roomid) {
+                const r = io.sockets.adapter.rooms.get(existingUser.roomid);
+                if (r) {
+                    r.add(socket.id);
+                    r.delete(oldsocket);
+                }
+                const room = list.get(existingUser.roomid);
+                if (!room.problem) {
+                    socket.emit("created", { roomid: existingUser.roomid, message: "Logged in successfully." });
+                } else {
+                    socket.emit("begin", { problem: room.problem, id: existingUser.roomid })
 
                 }
                 socket.emit("login",)
             }
+
+        } else {
+            users.set(decodedtoken.id, { token, name: decodedtoken.name, roomid: null, online: true, pending: [], socketid: socket.id });
         }
-        users.set(socket.id, {token,name:decodedtoken.name,id:decodedtoken.id, roomid:null, online:true, pending:[]});
-        userToken.set(decodedtoken.id,socket.id);
+        userToken.set(socket.id, decodedtoken.id);
         next()
     } catch (error) {
+        console.log(error)
         next(error);
     }
 
@@ -56,12 +68,12 @@ io.on('connection', async (socket) => {
         // get all match available
         socket.on("getlist", listMatch.bind(socket));
 
-         //  cancel match
-         socket.on("cancel", cancelMatch.bind(socket));
-        
+        //  cancel match
+        socket.on("cancel", cancelMatch.bind(socket));
+
         //  join match
         socket.on("join", joinMatch.bind(socket));
-       
+
         // submit code
         socket.on("submit", submit.bind(socket));
 
@@ -69,15 +81,16 @@ io.on('connection', async (socket) => {
         socket.on("surrender", surrender.bind(socket));
 
         //  disconnected 
-        socket.on("disconnect",()=>{
-            const user = users.get(socket.id);
-            console.log(user)
-            if(!user.roomid){
-                users.delete(socket.id);
-                userToken.delete(user.id);
-            }else{
+        socket.on("disconnect", () => {
+            const userid = userToken.get(socket.id);
+            const user = users.get(userid);
+            if (!user.roomid) {
+                users.delete(userid);
+                userToken.delete(socket.id);
+            } else {
                 user.online = false;
-                users.set(socket.id,user);
+                user.socket = null;
+                users.set(userid, user);
             }
         })
 

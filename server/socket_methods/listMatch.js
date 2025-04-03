@@ -1,20 +1,21 @@
 const { list } = require("../data_models");
 const authorize = require("./authorize");
 
-function listMatch({ page = 0, limit = 10 }) {
+function listMatch({ limit = 10, id }) {
     try {
         const callauthorize = authorize.bind(this);
-        if (!callauthorize) {
+        if (!callauthorize(id)) {
             return;
         }
         const l = Array.from(list);
-        let roomlist = l.slice(page * limit, limit);
-        roomlist = roomlist.map((r) => {
-            if (r[1].mems.length == 1) {
-                return { roomid: r[1].roomid, creator: r[1].mems[0].name }
+        const res = [];
+        for(let i=0;i<l.length;i++){
+            if (l[i][1].mems.length == 1) {
+                res.push({roomid: l[i][0], creator: l[i][1].mems[0].name })
             }
-        })
-        this.emit("roomlist", roomlist);
+        }
+      
+        this.emit("roomlist", res);
     } catch (error) {
         console.log(error);
         this.emit("server_report", { status: 3, message: "unable to get rooms." })

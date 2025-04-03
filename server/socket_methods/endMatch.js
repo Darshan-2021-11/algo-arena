@@ -1,29 +1,26 @@
 const { io } = require("..");
 const { list, userToken, users } = require("../data_models");
 
-function endMatch(roomid){
+function endMatch(roomid, draw){
     try {
-        
         if(!roomid){
             return;
         }
         const room = list.get(roomid);
-        const socketroom =  io.sockets.adapter.rooms.get(roomid);
-        socketroom.emit("draw");
         room.mems.map((r)=>{
-            const usertoken = userToken.get(r.id);
-            const user = users.get(usertoken);
+            const user = users.get(r.id);
             if(!user.online){
-                users.delete(usertoken);
-                userToken.delete(r.id);
+                users.delete(r.id);
+                userToken.delete(r.socketid);
             }else{
                 user.roomid = null;
-                users.set(usertoken,user);
+                users.set(r.id,user);
             }
-            io.sockets.sockets.get(r.id).leave(roomid);
+            const socket = io.sockets.sockets.get(user.socketid);
+            draw && socket?.emit("draw")
+            socket?.leave(roomid);
         })
         list.delete(roomid);
-        
     } catch (error) {
         console.log(error);
     }
