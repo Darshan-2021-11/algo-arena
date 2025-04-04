@@ -117,6 +117,7 @@ export async function POST(req: NextRequest) {
             }
             session.commitTransaction();
         } catch (error:any) {
+            console.log(error)
             session.abortTransaction();
             return fail(error.message ? error.message : "Data could not be saved.")
         }
@@ -128,6 +129,7 @@ export async function POST(req: NextRequest) {
 
 
     } catch (err: any) {
+        console.log(err)
         return NextResponse.json({ success: false, err: err.message ? err.message : "something went wrong" }, { status: 500 });
     }
 }

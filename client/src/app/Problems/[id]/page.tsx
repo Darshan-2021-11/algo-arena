@@ -30,7 +30,7 @@ interface sizetype {
 
 export default function IDE() {
 
-  const { lang, value } = useEditor();
+  const { lang, value, setlang, setValue } = useEditor();
 
   const [Problem, setProblem] = useState<Problem>();
   const [result, setresult] = useState<resulttype[]>([]);
@@ -138,7 +138,6 @@ export default function IDE() {
         if (data.status === 200 && problemId.current) {
           const storeResultUrl = `/Api/Problems/StoreResult?pid=${problemId.current}&msg=${data.data.status.description}`
           const d = await axios.get(storeResultUrl);
-          console.log(d);
           const res = { status: { description: data.data.status.description, id: data.data.status.id }, time: data.data.time, memory: data.data.memory, errmsg: data.data.stderr }
           if (d.data.success) {
             const results = [...result];
@@ -362,7 +361,7 @@ export default function IDE() {
               >
 
                 <form className="flex-1 flex flex-col ">
-                  <CodeEditor />
+                  <CodeEditor setValue={setValue} setlang={setlang} lang={lang} value={value} />
 
                   <div className="flex justify-between pt-2">
                     <div className="flex items-center space-x-5"></div>
