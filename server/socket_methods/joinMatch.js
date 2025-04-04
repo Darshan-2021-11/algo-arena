@@ -3,6 +3,7 @@ const { io } = require("..");
 const { list, users, userToken } = require("../data_models");
 const authorize = require("./authorize");
 const endMatch = require("./endMatch");
+const axios = require("axios");
 
 async function joinMatch({roomid, id}) {
     try {
@@ -77,6 +78,25 @@ async function joinMatch({roomid, id}) {
         this.to(roomid).emit("server_report", { status: 1, message: `${user.name} joined the room.` });
         this.to(roomid).emit("begin", {problem:Room.problem,id:null})
         this.emit("begin", {problem:Room.problem, id:roomid})
+
+        try {
+            const url = "http://localhost:3000/Api/Duel/Start";
+            const headers = {
+                headers: {
+                    Cookie: `token=${user.token}`,
+                },
+            }
+            const data = await axios.post(url,{user:Room.mems[0].id,problem:Room.problem._id,duration:30},headers);    
+            if(data.data.success){
+                Room.duelid = data.data.duelid;
+                list.set(roomid, Room);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+
+       
+
 
     } catch (error) {
         console.log(error);

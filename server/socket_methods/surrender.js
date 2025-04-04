@@ -1,8 +1,9 @@
 const { io } = require("..");
 const { list, users } = require("../data_models");
+const completeMatch = require("../utils/completeMatch");
 const authorize = require("./authorize");
 
-function surrender ({roomid,id}) {
+async function surrender ({roomid,id}) {
     try {
         const callauthorize = authorize.bind(this);
        if(!callauthorize(id)){
@@ -18,6 +19,7 @@ function surrender ({roomid,id}) {
             this.emit("server_report",{status:3.2,message:"Room does not exists anymore."});
             return;
         }
+        let token;
         room.mems.map((r)=>{
             const user = users.get(r.id);
             if(!user.online){
@@ -27,7 +29,7 @@ function surrender ({roomid,id}) {
                 user.roomid = null;
                 users.set(r.id,user);
             }
-           
+           token = user.token;
             if(id === r.id){
 
                 this.emit("lose");
@@ -46,7 +48,22 @@ function surrender ({roomid,id}) {
             }
             
         })
+        
         clearTimeout(room.timeid)
+        try {
+            
+            room.duelid && await completeMatch(
+                id, 
+                "lose", 
+                room.mems[1].id === id ? room.mems[0].id : room.mems[1].id, 
+                room.duelid, 
+                null, 
+                null, 
+                token 
+            );
+        } catch (error) {
+            console.log(error)
+        }
        
     } catch (error) {
         this.emit("server_report",{status:3.2,message:"Unable to surrender."});
