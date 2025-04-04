@@ -1,17 +1,28 @@
 const { io } = require("..");
-const { ongoing_matches_list } = require("../data_models");
+const { list, userToken, users } = require("../data_models");
 
-function endMatch (roomid){
+function endMatch(roomid, draw){
     try {
-        const room = ongoing_matches_list.get(roomid);
-        io.to(roomid).emit('matchEnd',{winner:room.winner});
-        const mem1 = io.sockets.sockets.get(room.users[0].socket_id);
-        mem1.leave(roomid);
-        const mem2 = io.sockets.sockets.get(room.users[1].socket_id);
-        mem2.leave(roomid);
-        ongoing_matches_list.delete(roomid);
+        if(!roomid){
+            return;
+        }
+        const room = list.get(roomid);
+        room.mems.map((r)=>{
+            const user = users.get(r.id);
+            if(!user.online){
+                users.delete(r.id);
+                userToken.delete(r.socketid);
+            }else{
+                user.roomid = null;
+                users.set(r.id,user);
+            }
+            const socket = io.sockets.sockets.get(user.socketid);
+            draw && socket?.emit("draw")
+            socket?.leave(roomid);
+        })
+        list.delete(roomid);
     } catch (error) {
-        console.log(error)
+        console.log(error);
     }
 }
 

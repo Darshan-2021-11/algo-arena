@@ -9,7 +9,9 @@ export default function duelLayout({
   }) {
     return (    
       <>
+      <SocketProvider>
       {children}
+      </SocketProvider>
       </>
     )
   }

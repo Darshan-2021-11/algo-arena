@@ -1,4 +1,4 @@
-import { Problem, HIDDEN_TESTCASE } from '../../src/app/Api/models/problemModel';
+import { Problem, HIDDEN_TESTCASE } from '../../src/app/lib/api/problemModel';
 
 export const HIDDEN: Array<HIDDEN_TESTCASE> = [
     {
@@ -826,18 +826,4 @@ Print one integer: the answer for the task.
 
             
         },
-
-
-
-
-
-
-       
-
-
-           
-
-
-
-
     ]

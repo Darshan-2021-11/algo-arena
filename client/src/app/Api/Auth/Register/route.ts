@@ -1,76 +1,90 @@
 'use server';
 
-import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
-import User from "../../models/userModel";
-import handleEmailVerification from "../../models/emailVerification";
-import dbConnect from "../../models/databaseConnect";
+import handleEmailVerification from "../../../lib/api/emailVerification";
+import dbConnect from "../../../lib/api/databaseConnect";
+import { fail, success } from "@/app/lib/api/response";
+import User from "@/app/lib/api/models/User/userModel";
 
-export async function POST(request: NextRequest, res: NextResponse) {
+export const validateUserInput = (username: string, email: string, password: string) => {
+  const errors: string[] = [];
+  
+  if (username.length < 3 || username.length > 12) {
+    errors.push("Username must be between 3 and 12 characters");
+  }
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email) || email.length > 254) {
+    errors.push("Invalid email format");
+  }
+
+  const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,20}$/;
+  if (!passwordRegex.test(password)) {
+    errors.push("Password must be 6-20 characters, include uppercase, lowercase, and a number");
+  }
+
+  return errors;
+};
+
+
+export async function POST(request: NextRequest) {
   try {
-    const secretKey = process.env.SECRET_KEY;
-    if (!secretKey) {
-      throw new Error(
-        "Secret key not found."
-      );
+    const secretKey = process.env.NEXT_PUBLIC_SECRET_KEY;
+    const origin = process.env.NEXT_PUBLIC_ORIGIN;
+    if (!secretKey || !origin ) {
+      return fail("Missing server configuration", 500);
     }
-    
-    const { name, email, password } = await request.json();
-console.log(email)
-    
-    if (!name || !email || !password) {
-      return NextResponse.json({ success: false, message: "All fields are required" }, { status: 400 });
+
+    const { username, email, password } = await request.json();
+    if (!username || !email || !password) {
+      return fail("All fields are required", 400);
+    }
+
+    const errors = validateUserInput(username, email, password);
+    if (errors.length > 0) {
+      return fail(errors.join(", "), 400);
     }
 
     await dbConnect();
 
-  
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email }).select("_id");
     if (existingUser) {
-      return NextResponse.json({ success: false, message: "Email already in use" }, { status: 400 });
+      return fail("Email already in use", 400);
     }
-    console.log(existingUser)
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const verificationToken = jwt.sign({ name, email }, secretKey, {
-      expiresIn: "24h",
-    });
-
-    const newUser = await User.create({
-      name,
+    const tokenExpiry = Number(process.env.NEXT_PUBLIC_TOKEN_EXPIRY) ;
+    const verificationToken = jwt.sign({ username, email }, secretKey, { expiresIn: tokenExpiry ? tokenExpiry : "24h" });
+    const newuser = await User.create({
+      username,
       email,
-      password: hashedPassword,
-      verificationToken,
+      password,
+      verificationToken
     });
 
-    await newUser.save();
+    newuser.save();
 
-    const url = process.env.ORIGIN+"/verify/"+verificationToken;
-    const encodeurl = encodeURI(url);
-    let text = `visit this link:${encodeurl} to verify your mail link`;
-    handleEmailVerification("verification of email", text, email, text);
 
-    // Return success response with token
-    return NextResponse.json({
-      success: true,
-      message: "User registered successfully, Please verify your account",
-      user: {
-        id: newUser._id,
-        name: newUser.name,
-      },
-    }, { status: 201 });
+    try {
+      const url = `${origin}/Verify/${verificationToken}`;
+      const encodeurl = encodeURI(url);
+      const text = `Visit this link: ${encodeurl} to verify your email. 
+      If link expires please visit this link - ${origin}/Reverify/
+      `;
 
-  } catch (error) {
+      await handleEmailVerification("Email Verification", text, email, text);
+    } catch (emailError) {
+      console.error("Email sending failed:", emailError);
+      // return fail("Failed to send verification email. Please try again.", 500);
+    }
+
+
+    
+
+    return success("User registered successfully. Please check your mail to verify account.", {
+    }, 201);
+  } catch (error: unknown) {
     console.error("Registration Error:", error);
-
-    // Handle server error
-    return NextResponse.json({
-      success: false,
-      message: "Server error occurred",
-      error: error.message,
-    }, { status: 500 });
+    return fail("Server error occurred. Please try again.", 500);
   }
 }

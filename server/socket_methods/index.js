@@ -1,13 +1,17 @@
 const cancelMatch = require("./cancelMatch");
-const endMatch  = require("./endMatch");
 const startMatch = require("./startMatch");
 const submit = require("./submit");
 const surrender = require("./surrender");
+const listMatch = require("./listMatch");
+const joinMatch = require("./joinMatch");
+const authorize = require("./authorize");
 
 module.exports = {
     startMatch,
-    endMatch,
     submit,
     cancelMatch,
-    surrender
+    surrender,
+    listMatch,
+    joinMatch,
+    authorize
 }
