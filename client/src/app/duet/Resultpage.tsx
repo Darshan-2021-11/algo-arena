@@ -1,12 +1,15 @@
-import { AiOutlineLoading } from "react-icons/ai";
+import { useEffect } from "react";
 import { useSocket } from "../lib/contexts/socketContext";
 
-const Loading = () => {
-    const { loading, loadmsg, cancelMatch, setLoading } = useSocket();
+const Resultpage = () => {
+    const { winner, setwinner, draw, setdraw } = useSocket();
+    useEffect(() => {
+        console.log(draw)
+    }, [draw])
     return (
         <>
             {
-                loading &&
+                (winner !== null || draw) &&
                 <div
                     className="w-screen bg-zinc-800 flex justify-center flex-col items-center"
                     style={{
@@ -14,12 +17,9 @@ const Loading = () => {
                     }}
                 >
                     <div
-                        className="flex items-center justify-center"
+                        className={` ${ !draw ? winner ? "text-green-700" : "text-red-700" : " text-yellow-400"}  flex items-center justify-center text-xl`}
                     >
-                        <p>{loadmsg}</p>
-                        <AiOutlineLoading
-                            className="animate-spin ml-3"
-                        />
+                        <p>{!draw ?winner ? "Congratulations! you won the match." : "You lost the match. Better luck next time." : "Time out none of you could solve the problem with in time."}</p>
                     </div>
 
                     <button
@@ -27,15 +27,15 @@ const Loading = () => {
                         style={{
                             boxShadow: `6px 7px 10px 2px rgb(0 0 0 / 75%)`
                         }}
-                        onClick={()=>{
-                            setLoading(false)
-                            cancelMatch()
+                        onClick={() => {
+                            setwinner(null);
+                            setdraw(false);
                         }}
-                    >cancel</button>
+                    >back</button>
                 </div>
             }
         </>
     )
 }
 
-export default Loading;
+export default Resultpage;

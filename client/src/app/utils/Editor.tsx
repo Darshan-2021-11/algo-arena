@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import Editor from "@monaco-editor/react";
-import { useEditor } from "@/app/lib/contexts/editorContext";
 
+interface editortype {
+  lang:string
+  value:string
+  setValue:(payload:string)=>void
+  setlang:(payload:string)=>void
+}
 
-const CodeEditor : React.FC =()=>{
-    const {setValue,setlang, lang, value} = useEditor();
+const CodeEditor : React.FC<editortype> =({setValue,setlang, lang, value})=>{
     
 
     const onMount = (editor: any) => {
