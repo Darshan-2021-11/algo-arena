@@ -1,70 +1,110 @@
-import { Problem } from "@/app/Api/models/problemModel";
-import axios from "axios";
-import React, { createContext, ReactNode, useContext, useEffect, useRef, useState } from "react";
+import { Problem } from "@/app/lib/api/problemModel";
+import React, { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import { io, Socket } from 'socket.io-client';
-
-interface matchpayload {
-    problemid: string,
-    roomid: string
-}
+import { useAuth } from "../slices/authSlice";
 
 interface submitPayload {
     roomid: string | null
     code: string
+    lang: string
+    id: string
 }
 
 interface ServerToClientEvents {
-    matching: () => void
-    matchstart: (payload: matchpayload) => void
-    status: (payload: string) => void
-    matchEnd: (payload: string) => void
+    server_report: (payload: { status: number, message: string }) => void
+    created: (payload: { roomid: string, message: string }) => void
+    begin: (payload: { problem: Problem, id: string | null }) => void
+    canceled: () => void
+    roomlist: (payload: { roomid: string, creator: string }[]) => void
+    win: () => void
+    lose: () => void
+    draw: () => void
 }
 
 interface ClientToServerEvents {
-    startMatch: () => void
+    start: (payload: string) => void
     submit: (payload: submitPayload) => void
-    surrenderMatch: (payload:string | null) => void
-    cancelMatch: (payload:string|undefined) => void
+    surrender: (payload: { roomid: string, id: string }) => void
+    cancel: (payload: { roomid: string, id: string }) => void
+    getlist: (payload: { limit: number, id: string }) => void
+    join: (payload: { roomid: string, id: string }) => void
 }
 
 interface SocketContextType {
     initiateSocket: () => void
-    socket: Socket<ServerToClientEvents, ClientToServerEvents> | undefined
     startMatch: () => void
+    setValue: (payload: string) => void
+    setLoading: (payload: boolean) => void
+    setmessage: (payload: string | null) => void
+    setstart: (payload: boolean) => void
+    surrenderMatch: () => void
+    cancelMatch: () => void
+    reset: () => void
+    listMatch: () => void
+    setlimit: (payload: number) => void
+    joinMatch: (payload: string) => void
+    setmsgs: (payload: string[]) => void
+    seterrs: (payload: string[]) => void
+    setloadmsg: (payload: string) => void
+    setwinner: (payload: boolean | null) => void
+    setdraw: (payload: boolean) => void
+    setcode: (payload: string) => void
+    setlang: (payload: string) => void
+    submitMatch: ()=> void
     loading: boolean
     disable: boolean
     Problem: Problem | null
     value: string
     result: boolean
-    winner: string | null
+    winner: boolean | null
+    draw: boolean
     roomid: string | null
     message: string | null
-    setValue: (payload: string) => void
-    setLoading: (payload: boolean) => void
-    setmessage: (payload: string | null) => void
-    setstart: (payload: boolean) => void
     matchStart: boolean
-    surrenderMatch: () => void
-    cancelMatch: () => void
-    reset:()=>void
+    waiting: boolean
+    rooms: { roomid: string, creator: string }[]
+    socket: Socket<ServerToClientEvents, ClientToServerEvents> | null
+    initload: boolean
+    msgs: string[]
+    errs: string[]
+    loadmsg: string
+    lang: string
+    code: string
+
 }
 
 
 const socketContext = createContext<SocketContextType | null>(null);
+
 const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const SocketRef = useRef<Socket<ServerToClientEvents, ClientToServerEvents>>();
+    const SocketRef = useRef<Socket<ServerToClientEvents, ClientToServerEvents> | null>(null);
+    const { id } = useSelector(useAuth);
 
+    const [initload, setinitload] = useState(true);
     const [loading, setLoading] = useState(false);
-    const [disable, setdisable] = useState(false);
-    const [Problem, setProblem] = useState(null);
+    const [waiting, setwaiting] = useState(false);
+    const [rooms, setrooms] = useState<{ roomid: string, creator: string }[]>([]);
+    const [winner, setwinner] = useState<boolean | null>(null);
+    const [draw, setdraw] = useState(false);
+    const [limit, setlimit] = useState(10);
+    const [Problem, setProblem] = useState<Problem | null>(null);
     const [value, setValue] = useState("");
-    const [result, setResult] = useState(false);
-    const [winner, setwinner] = useState<string | null>(null);
     const [roomid, setroomid] = useState<string | null>(null);
-    const [message, setmessage] = useState<string | null>(null);
+    const [disable, setdisable] = useState(false);
     const [matchStart, setstart] = useState(false);
+    const timeoutid = useRef<NodeJS.Timeout | null>(null);
+    const [msgs, setmsgs] = useState<string[]>([]);
+    const [errs, seterrs] = useState<string[]>([]);
+    const [loadmsg, setloadmsg] = useState<string>("Please wait...");
+    const [lang, setlang] = useState("python");
+    const [code, setcode] = useState<string>('');
 
-    const reset =()=>{
+
+    const [message, setmessage] = useState<string | null>(null);
+    const [result, setResult] = useState(false);
+
+    const reset = () => {
         setLoading(false);
         setdisable(false);
         setProblem(null);
@@ -78,19 +118,127 @@ const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
     const initiateSocket = () => {
         try {
-            if (!SocketRef.current) {
-                SocketRef.current = io("http://localhost:9310");
-                console.log(SocketRef.current)
+            if (!SocketRef.current || !SocketRef.current.active) {
+                setinitload(true);
+                closeSocket();
+                SocketRef.current = io("http://localhost:9310", {
+                    withCredentials: true
+                });
+                const soc = SocketRef.current;
+                if (soc) {
+                    soc.on("connect_error", (e) => {
+                        seterrs([...errs, e.message]);
+                    })
+                    soc.on("connect", () => {
+                        setmsgs((prev) => [...prev, "Connected successfully."])
+                        setinitload(false);
+                        listMatch()
+                        timeoutid.current = setInterval(() => {
+                            listMatch();
+                        }, 10 * 1000);
+                    })
+                    soc.on("created", (e) => {
+                        setmsgs((prev) => [...prev, e.message])
+                        setroomid(e.roomid);
+                        setloadmsg("Waiting for opponent...")
+                        setLoading(true);
+                    })
+                    soc.on("begin", (e) => {
+                        setmsgs((prev) => [...prev, "match begun."])
+                        setLoading(false);
+                        setProblem(e.problem);
+                        e.id && setroomid(e.id);
+                        setstart(true);
+                    })
+                    soc.on("canceled", () => {
+                        setmsgs((prev) => [...prev, "match canceled."])
+                        setwaiting(false);
+                        setLoading(false);
+                    })
+                    soc.on("roomlist", (e) => {
+                        setrooms(e)
+                    })
+                    soc.on("win", () => {
+                        setstart(false);
+                        setwinner(true);
+                        setProblem(null)
+                    })
+                    soc.on("lose", () => {
+                        setwinner(false);
+                        setstart(false);
+                        setProblem(null)
+                    })
+                    soc.on("draw", () => {
+                        setstart(false);
+                        setdraw(true);
+                        setProblem(null)
+                    })
+                    soc.on("disconnect", () => {
+                        setinitload(true);
+                    })
+                    soc.on("server_report", (e) => {
+                        switch (e.status) {
+                            case 1:
+                                setmsgs([...msgs, e.message]);
+                                break;
+                            case 3:
+                                seterrs([...errs, e.message]);
+                                break;
+
+                            case 3.1:
+                                seterrs([...errs, e.message]);
+                                setLoading(false);
+                                setroomid(null);
+                                break;
+                                
+                            case 3.2:
+                                seterrs([...errs, e.message]);
+                                setLoading(false);
+                                setroomid(null);
+                                setProblem(null)
+                                setstart(false)
+                                break;
+                        }
+                    })
+                }
             }
         } catch (error) {
             console.log(error);
         }
     }
 
+    useEffect(() => {
+        initiateSocket()
+        return () => {
+            closeSocket();
+        }
+    }, []);
+
+    const closeSocket = () => {
+        const soc = SocketRef.current;
+        if (soc) {
+            soc.off("created")
+            soc.off("begin")
+            soc.off("canceled")
+            soc.off("roomlist")
+            soc.off("win")
+            soc.off("lose")
+            soc.off("server_report")
+            soc.disconnect();
+            SocketRef.current = null;
+            if (timeoutid.current) {
+                clearInterval(timeoutid.current);
+                timeoutid.current = null;
+            }
+
+        }
+    }
+
     const startMatch = () => {
         try {
-            if (SocketRef.current) {
-                SocketRef.current.emit('startMatch')
+            if (SocketRef.current && id) {
+                SocketRef.current.emit('start', id)
+                setloadmsg("Waiting for opponent...")
                 setLoading(true);
 
             }
@@ -101,13 +249,8 @@ const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
     const cancelMatch = () => {
         try {
-            if (matchStart) {
-                // match already started can not cancel match now
-                return;
-            }
-            if (SocketRef.current) {
-                SocketRef.current.emit('cancelMatch',SocketRef.current.id)
-                setLoading(false);
+            if (SocketRef.current && roomid && id) {
+                SocketRef.current.emit('cancel', { roomid, id })
             }
         } catch (error) {
             console.log(error);
@@ -116,65 +259,77 @@ const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
     const surrenderMatch = () => {
         try {
-            if (!matchStart) {
-                return;
-            }
-            if (SocketRef.current) {
-                SocketRef.current.emit('surrenderMatch',roomid)
+            console.log(id, roomid)
+            if (SocketRef.current && id && roomid) {
+                SocketRef.current.emit('surrender', { roomid, id })
             }
         } catch (error) {
             console.log(error);
         }
     }
 
-    useEffect(() => {
-        try {
-            initiateSocket();
-            const soc = SocketRef.current;
-            if (soc) {
-                soc.on("connect", () => {
-                    console.log("connected");
-                })
-                soc.on("matching", () => {
-                    setdisable(true);
-                })
-                soc.on("matchstart", async (d) => {
-                    const url = `/Api/Problems/GetProblembyId?id=${d.problemid}`;
-                    const { data } = await axios.get(url);
-                    setProblem(data.response.problem);
-                    setroomid(d.roomid)
-                    setLoading(false);
-                    setstart(true);
-                })
-                soc.on("status", (d) => {
-                    setmessage(d);
-                })
-                soc.on("matchEnd", (d) => {
-                    if (d) {
-                        console.log(soc.id,d)
-                        if (d === soc.id) {
-                            setwinner('you');
-                        } else {
-                            setwinner('opponent');
-                        }
-                    }
-                    setResult(true);
-                })
-                return () => {
-                    soc.off("matchstart");
-                    soc.off('status');
-                    soc.off('matchEnd');
-                    soc.off('matching');
-                }
-            }
-        } catch (error) {
-            console.log(error);
+    const listMatch = () => {
+        if (SocketRef.current && id) {
+            SocketRef.current.emit("getlist", { limit, id })
         }
+    }
 
-    }, [])
+    const joinMatch = (input: string) => {
+        if (SocketRef.current && id && input) {
+            SocketRef.current.emit("join", { roomid: input, id });
+            setloadmsg("Joining match...")
+            setLoading(true);
+        }
+    }
+
+    const submitMatch = () => {
+        if (SocketRef.current && id) {
+            SocketRef.current.emit("submit", { roomid, lang, id, code });
+        }
+    }
 
     return (
-        <socketContext.Provider value={{ reset, cancelMatch, surrenderMatch, matchStart, setstart, setLoading, setValue, setmessage, loading, disable, Problem, value, result, winner, roomid, message, initiateSocket, socket: SocketRef.current, startMatch }}>
+        <socketContext.Provider value={{
+            listMatch,
+            reset,
+            cancelMatch,
+            surrenderMatch,
+            setstart,
+            setLoading,
+            setValue,
+            setmessage,
+            initiateSocket,
+            startMatch,
+            setlimit,
+            joinMatch,
+            setmsgs,
+            seterrs,
+            setloadmsg,
+            setwinner,
+            setdraw,
+            setcode,
+            setlang,
+            submitMatch,
+            rooms,
+            loading,
+            disable,
+            waiting,
+            matchStart,
+            Problem,
+            value,
+            result,
+            winner,
+            roomid,
+            message,
+            initload,
+            msgs,
+            errs,
+            loadmsg,
+            draw,
+            code,
+            lang,
+            socket: SocketRef.current
+        }}>
             {children}
         </socketContext.Provider>
     )

@@ -1,23 +1,25 @@
-const waiting_list = [];
-/*
-player will be stored here when starting the match
-*/
+const list = new Map();
 
-const requests_list = [];
+const users = new Map();
 
-const ongoing_matches_list = new Map();
-/*
-current matches
-*/
-
-let waiting_lock = false;
-
-const ongoing_matches_lock = false;
+const userToken = new Map();
 
 module.exports = {
-    waiting_list,
-    ongoing_matches_list,
-    requests_list,
-    waiting_lock,
-    ongoing_matches_lock
+    list,
+    users,
+    userToken
 }
+
+/*
+server_report : {status,message}
+status: 
+1 (good)
+2 (announcement)
+3 (err)
+3.1 create room
+3.2 join room
+4 (leave)
+5 (unauth)
+
+created : {roomid,message}
+*/

@@ -1,40 +1,66 @@
 'use server'
 
-import { Problem } from "@/app/Api/models/problemModel";
+import { Problem as problemModel } from "@/app/lib/api/problemModel";
 import { NextRequest, NextResponse } from "next/server";
-import { PROBLEMS } from "../../../../../public/assets/problems";
+import { fail } from "@/app/lib/api/response";
+import { cookies } from "next/headers";
+import mongoose from "mongoose";
+import Problem from '../../../lib/api/models/Problem/problemModel'
+import dbConnect from "@/app/lib/api/databaseConnect";
 
 interface Response {
     success: boolean,
-    problem:Problem,
+    problem: problemModel,
 }
 
 
-export async function GET(request : NextRequest){
-    const params = new URL(request.url).searchParams;
-    const id : number | null = Number(params.get('id'));
-    if(!id){
+export async function GET(request: NextRequest) {
+    try {
+
+
+        const cookieStore = cookies();
+        const token = cookieStore.get("token")?.value;
+        if (!token) {
+            return fail("Unauthorised access", 403);
+        }
+
+        const params = new URL(request.url).searchParams;
+        const id= params.get('id');
+        
+        if (!id) {
+            return NextResponse.json({
+                success: false,
+                err: "Please provide valid id"
+            },
+                { status: 500 })
+        }
+        await dbConnect();
+        const result = await Problem.aggregate([
+            {$match:{_id: new mongoose.Types.ObjectId(id)}},
+            {$project:{
+                title:1,
+                description:1,
+                difficulty:1,
+                tags:1,
+                constraints:1,
+                testcases:{$slice:["$testcases",3]},
+                
+            }}
+        ])
+        if (result.length >0) {
+            return NextResponse.json({
+                success: false,
+                data: result[0],
+                message: "successfully retrieved data."
+            }, { status: 200 })
+        }
+
+        return fail("Question does not exist anymore.", 500);
+    } catch (err:any) {
+        console.log(err);
         return NextResponse.json({
             success:false,
-            err:"Please provide valid id"
-        },
-    {status:500})
+            err
+        },{status:500})
     }
-    let result : Problem;
-    for(let i=0;i<PROBLEMS.length;i++){
-        if(PROBLEMS[i].id === id){
-            result = PROBLEMS[i];
-            const response : Response = {
-                success: true,
-                problem:result,
-            }
-            return NextResponse.json({response},{status:200})
-        }
-    }
-
-    return NextResponse.json({
-        success:false,
-        err:"Question does not exist anymore."
-    },
-    {status:500})
 }

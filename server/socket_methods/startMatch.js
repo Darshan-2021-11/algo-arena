@@ -1,28 +1,46 @@
-const { requests_list, waiting_lock } = require("../data_models");
-const connect = require("./connect");
+const { list, users } = require("../data_models");
+const { v4 } = require("uuid");
+const authorize = require("./authorize");
+const autoCancel = require("./autocancelMatch");
 
-function startMatch(socket,userdata){
+
+
+async function startMatch(id) {
     try {
-        const data = {...userdata, socket_id:socket.id};
-        // console.log(waiting_lock,data)
-        if(waiting_lock){
-            requests_list.push(data);
-        }else{
-            connect(data);
+        const callauthorize = authorize.bind(this);
+       if(!callauthorize(id)){
+        return;
+       }
+       const user = users.get(id);
+       if(user.roomid){
+        this.emit("server_report", {status:3.1,message:"User is already in a match."});
+        return;
+       }
+        const roomid = v4();
+       
+        user.roomid = roomid;
+        users.set(id,user);
+        
+        const tid = setTimeout(() => {
+            autoCancel(id,roomid);
+            clearTimeout(tid);
+        }, ( 5 * 60 * 1000));
+
+
+        const Room = {
+            mems: [{ name:user.name, id }],
+            problem: null,
+            timeid: tid
         }
-        
-        // eventemmiter.emit('unlock');
+
+        this.join(roomid);
+        list.set(roomid, Room)
+        this.emit("created", { roomid, message: "Room created successfully." });
+       
     } catch (error) {
-        
+        console.log(error);
+        this.emit("server_report", { status: 3.1, message: "Unable to create room." });
     }
 }
-/*
-check in waiting list if match found connect them create a room store in match list if not found add to the waiting list
-*/
-
-/*
-when 2 people check for waiting player in an empty list 1st one will check for place and 2nd one will chceck for empty  and then both will get nothing
-
-*/
 
 module.exports = startMatch

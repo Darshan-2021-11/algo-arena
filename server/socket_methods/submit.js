@@ -1,93 +1,113 @@
 const axios = require('axios');
 
-const { ongoing_matches_list } = require("../data_models");
-const { io } = require('..');
+const { users, list } = require('../data_models');
 const endMatch = require('./endMatch');
-const { PROBLEMS } = require('../problems');
-
-async function submit(socket,d){
-    try {
-        
-   
-    const { roomid, code } = d;
-    const room = ongoing_matches_list.get(roomid);
-    // console.log(ongoing_matches_list)
-    // if(room.winner){
-    //     return;
-    // }
-
-    const id = ongoing_matches_list.get(roomid).question;
-
-        const { sample_testcases } = PROBLEMS[id];
-        if (!sample_testcases) {
-            // return res.status(400).json({ success: false, message: 'No test cases found' });
-        }
+const authorize = require('./authorize');
+const completeMatch = require('../utils/completeMatch');
 
 
+const getResult = async (tokens, headers, problemId) => {
 
-        // store.dispatch(starttest(10))
-        let passed = true;
-        const proms = sample_testcases.map((test_case) => {
-            return new Promise(async (resolve, reject) => {
-                try {
-                    // console.log(test_case)
-                    const judgeurl = 'http://localhost:2358/submissions/';
-                    const submissionBody = {
-                        source_code: code,
-                        language_id: 71,
-                        stdin: test_case.question,
-                        expected_output: test_case.answer,
-                        cpu_time_limit: '2',
-                        wall_time_limit: '5',
-                    };
-
-                    const { data } = await axios.post(judgeurl, submissionBody);
-                    const { token } = data;
-
-                    const id = setInterval(async () => {
-                        try {
-                            const submissionurl = `http://localhost:2358/submissions/${token}`;
-                            const { data } = await axios.get(submissionurl);
-                            
-
-                            if (data.error) {
-                                clearInterval(id);
-                                reject(data.error);
-                            } else if (data.time) {
-                                // console.log(data)
-                                clearInterval(id);
-                                resolve(data);
-                                if(data.status.description !== "Accepted") passed = false;
-                            }
-                        } catch (error) {
-                            clearInterval(id);
-                            reject(error);
-                        }
-                    }, 1000);
-                } catch (error) {
-                    reject(error);
+    const newtokens = [];
+    for (let i = 0; i < tokens.length; i++) {
+        try {
+            const submissionurl = `http://localhost:2358/submissions/${tokens[i]}?base64_encoded=false&wait=false`;
+            const data = await axios.get(submissionurl, headers);
+            if (data.status === 200) {
+                const storeResultUrl = `/Api/Problems/StoreResult?pid=${problemId}&msg=${data.data.status.description}`
+                const d = await axios.get(storeResultUrl);
+                if (d.data.success || d.data.status.id !== 3) {
+                    return { passed: false, newtokens };
                 }
-            });
-        });
 
-        await Promise.all(proms);
-        if(passed){
-            console.log(room,socket)
-            if(room.users[0].socket_id === socket.id){
-                room.winner = room.users[0];
-            }else{
-                room.winner = room.users[1];
+            } else {
+                newtokens.push(tokens[i])
             }
-            endMatch(roomid);
-            io.to(roomid).emit('winner',room.winner)
-        }else{
-            socket.emit('status','wrong answer')
+        } catch (error) {
+            console.log(error);
         }
-        
-        // console.log(datas)
-        // return NextResponse.json({ success: true, data: datas });
+    }
+    return { passed: true, newtokens };
+
+}
+
+async function submit({ code, roomid, lang, id }) {
+    const callauthorize = authorize.bind(this);
+    if (!callauthorize(id)) {
+        return;
+    }
+    try {
+        if (!code) {
+            this.emit("server_report", { status: 3.2, message: "Invalid request." });
+            return;
+        }
+        if (code.length === 0) {
+            this.emit("server_report", { status: 3, message: "write some code to run it." });
+            return;
+        }
+
+        const user = users.get(id);
+        this.to(roomid).emit("server_report", { status: 1, message: `${user.name} submitted code.` })
+        this.emit("server_report", { status: 1, message: `Submitted code.` })
+        const url = "http://localhost:3000/Api/Submissions/Run";
+        const headers = {
+            headers: {
+                Cookie: `token=${user.token}`,
+            },
+        }
+
+        const room = list.get(roomid);
+
+        try {
+            const { data } = await axios.post(
+                url,
+                { id: room.problem._id, code, lang },
+                headers
+            )
+
+            if (data.success) {
+                let tokens = data.tokens;
+                const id = setInterval(async () => {
+                    const res = await getResult(tokens, headers, room.problem._id);
+                    if (res.newtokens.length === 0 && !res.passed) {
+                        clearInterval(id);
+                        this.to(roomid).emit("server_report", { status: 3, message: `${user.name}'s code is wrong.` })
+                        this.emit("server_report", { status: 3, message: `Your code is wrong.` });
+                    }
+                    tokens = res.newtokens;
+                    if (res.passed) {
+                        clearInterval(id);
+                        this.emit("win");
+                        this.leave(roomid);
+                        this.to(roomid).emit("lose");
+                        endMatch(roomid);
+                        room.duelid && await completeMatch(
+                            id,
+                            "win",
+                            room.mems[1].id === id ? room.mems[0].id : room.mems[1].id,
+                            room.duelid,
+                            code,
+                            lang,
+                            user.token
+                        )
+                    }
+
+                }, 1000);
+            } else {
+                this.to(roomid).emit("server_report", { status: 3, message: `${user.name}'s code is wrong.` });
+                this.emit("server_report", { status: 3, message: `Your code is wrong.` });
+            }
+        } catch (error) {
+            console.log(error);
+            this.to(roomid).emit("server_report", { status: 3, message: `${user.name}'s code is wrong.` });
+            this.emit("server_report", { status: 3, message: `Your code is wrong.` });
+        }
+
+
+
     } catch (error) {
         console.log(error)
+        this.emit("server_report", { status: 3, message: `Unable to run code.` });
     }
 }
 

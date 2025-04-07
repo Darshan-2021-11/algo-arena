@@ -1,131 +1,135 @@
 'use server'
 
-import { starttest } from "@/app/Problems/[id]/problemslice";
-import store from "@/app/lib/store";
 import axios from "axios";
-import { NextApiRequest, NextApiResponse } from "next";
-import {  NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import Problem from "../../../lib/api/models/Problem/problemModel";
+import { fail } from "@/app/lib/api/response";
+import Submission from "@/app/lib/api/models/User/submissionModel";
+import { cookies } from "next/headers";
+import jwt from 'jsonwebtoken';
+import dbConnect from "@/app/lib/api/databaseConnect";
+import mongoose from "mongoose";
+import UserProblem from "@/app/lib/api/models/User/userProblemModel";
+import Activity from "@/app/lib/api/models/User/activityModel";
 
 const maxtime = 4000000;
 
-export async function POST(req: NextApiRequest, res: NextApiResponse) {
+interface Testcase {
+    input: string
+    output: string
+}
+
+export async function POST(req: NextRequest) {
     try {
-        const reader = req.body?.getReader();
-        const decoder = new TextDecoder();
-        let body = '';
-
-        while (true) {
-            const { done, value } = await reader?.read()!;
-            if (done) break;
-            body += decoder.decode(value, { stream: true });
+        const secret = process.env.JWT_SECRET;
+        if (!secret) {
+            return fail("Server is not working")
+        }
+        const cookieStore = cookies();
+        const token = cookieStore.get("token")?.value;
+        if (!token) {
+            return fail("Unauthorised access", 403);
         }
 
-        const { id, code, lang } = JSON.parse(body);
-        const url = `http://localhost:3000/Api/Problems/GetTestcases?id=${id}`;
-        const { data } = await axios.get(url);
+        const decodedtoken = jwt.verify(token, secret) as { id: string, name: string, admin: boolean };
 
-        const { test_cases } = data;
-        if (!test_cases) {
-            return NextResponse.json({success:false,message:"No test cases found"},{status:400})
+        const { id, code, lang } = await req.json();
+        const { testcases } = await Problem.findById(id).select("testcases") as { testcases: Testcase[] };
+
+        if (testcases.length == 0) {
+            return fail("No test cases found.");
         }
 
-        // store.dispatch(starttest(10))
 
-        const datas: any[] = [];
-        const proms = test_cases.map((test_case) => {
-            return new Promise(async (resolve, reject) => {
-                try {
-                    const judgeurl = 'http://localhost:2358/submissions/';
+        const tokens: string[] = [];
 
-                    const submissionBody = {
-                        source_code: code,
-                        language_id: 71,
-                        stdin: test_case.question,
-                        expected_output: test_case.answer,
-                        cpu_time_limit: '1',
-                        wall_time_limit: '1',
-                        
-                    };
+        const prom = testcases.map((t) => {
+            const judgeurl = 'http://localhost:2358/submissions/';
+            const submissionBody = {
+                source_code: code,
+                language_id: 71,
+                stdin: t.input,
+                expected_output: t.output,
+                cpu_time_limit: 15,
+                wall_time_limit: 20
+            };
 
-                    switch(lang){
-                        case "javascript":
-                            submissionBody.language_id = 63;
-                            break;
-                        case "python":
-                            submissionBody.language_id = 71;
-                            break;
-                        case "go":
-                            submissionBody.language_id=60;
-                            break;
-                        case "cpp":
-                            submissionBody.language_id = 54;
-                            break;
-                        case "c":
-                            submissionBody.language_id = 48;
-                            break;
-                        case "java":
-                            submissionBody.language_id = 62;
-                            break;
-                    }
-                    const { data } = await axios.post<{ token: string }>(judgeurl, submissionBody);
-                    const { token } = data;
-                    let currtime = 0;
+            switch (lang) {
+                case "javascript":
+                    submissionBody.language_id = 63;
+                    break;
+                case "python":
+                    submissionBody.language_id = 71;
+                    break;
+                case "go":
+                    submissionBody.language_id = 60;
+                    break;
+                case "cpp":
+                    submissionBody.language_id = 54;
+                    break;
+                case "c":
+                    submissionBody.language_id = 50;
+                    break;
+                case "java":
+                    submissionBody.language_id = 62;
+                    break;
+            }
 
-                    const id = setInterval(async () => {
-                        try {
-                            if(currtime >= maxtime){
-                                throw new Error("server Timeout")                                
-                            }
-                            currtime +=1000;
-                            const submissionurl = `http://localhost:2358/submissions/${token}?base64_encoded=true&wait=false`;
-                            const { data } = await axios.get(submissionurl);
-                            if(data.status.description !== "Processing" && data.status.description !== "In Queue" ){
-                                clearInterval(id);
-                                let resdata : any = data ;
-                                if(data.status.description != "Accepted"){
-                                    const jsondata = atob(data.compile_output);
-                                    // const jsondata  = new TextDecoder().decode(arraybuffer);
-                                    console.log("decodeddata",data,jsondata)
-                                    throw new Error(data.status.description)
-                                }
 
-                                if(data.stdout){
-                                    const arraybuffer = Uint8Array.from(atob(data.stdout),c=>c.charCodeAt(0));
-                                    const jsondata  = new TextDecoder().decode(arraybuffer);
-                                    console.log("decodeddata",jsondata)
-                                    // throw new Error(data.status.description)
-                                }
-                          
-                            // console.log(data,resdata)
-                            
-                            if (resdata.error) {
-                                clearInterval(id);
-                                reject(resdata.error);
-                            } else if (resdata.time) {
-                                if(resdata.status !== 2){
-                                    clearInterval(id);
-                                    resolve(resdata);
-                                    datas.push(resdata);
-                                }
-                                
-                            }
-                            }
+            return axios.post<{ token: string }>(judgeurl, submissionBody)
+                .then(({ data }) => {
+                    tokens.push(data.token);
+                })
+                .catch((err: any) => {
+                    throw new Error(err.message ? err.message : "Unable to reach Judge0.");
+                })
 
-                        } catch (error) {
-                            clearInterval(id);
-                            reject(error);
-                        }
-                    }, 1000);
-                } catch (error) {
-                    reject(error);
-                }
-            });
-        });
+        })
+        await Promise.all(prom)
+        await dbConnect()
+        const session = await mongoose.startSession();
+        let submission;
+        try {
+            session.startTransaction();
+            submission = await Submission.create({
+                user: decodedtoken.id,
+                problem: id,
+                language: lang,
+                code: code,
+            })
+            const usersubmission = await UserProblem.findOneAndUpdate({ user: decodedtoken.id }, { $inc: { submission: 1 } });
+            if (!usersubmission) {
+                await UserProblem.create({
+                    user: decodedtoken.id,
+                    submission:1
+                })
+            }
+            const targetDate = new Date(); 
+            targetDate.setHours(0, 0, 0, 0)
 
-        await Promise.all(proms);
-        return NextResponse.json({ success: true, data: datas });
-    } catch (err) {
+            const activity = await Activity.findOneAndUpdate({ user: decodedtoken.id, "activity.date": targetDate }, { $inc: { "activity.$.submissions": 1 } })
+            if(!activity){
+                await Activity.updateOne({user:decodedtoken.id},{
+                    $push:{activity:{date:targetDate, submission:1}}
+                },
+                {upsert:true}
+            )
+            }
+            session.commitTransaction();
+        } catch (error:any) {
+            console.log(error)
+            session.abortTransaction();
+            return fail(error.message ? error.message : "Data could not be saved.")
+        }
+
+
+
+
+        return NextResponse.json({ success: true, tokens, message: "successfully sent to run codes.", problemid: submission._id }, { status: 200 });
+
+
+    } catch (err: any) {
         console.log(err)
-        return NextResponse.json({ success: false, err:err?.message }, { status: 500 });
+        return NextResponse.json({ success: false, err: err.message ? err.message : "something went wrong" }, { status: 500 });
     }
 }
