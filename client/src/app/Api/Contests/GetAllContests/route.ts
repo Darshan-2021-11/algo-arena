@@ -1,15 +1,13 @@
 "use server"
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { NextRequest } from "next/server";
-import jwt from 'jsonwebtoken';
-import { fail, success } from "@/app/lib/api/response";
-import contestModel from "@/app/lib/api/models/Contest/contestModel.ts";
+import contestModel from "@/app/lib/api/models/Contest/contestModel";
+import { contestmodel as cm } from "@/app/lib/api/contestModel";
 import dbConnect from "@/app/lib/api/databaseConnect";
 
 export interface Response {
 	success: boolean,
-	problems: Array<contestModel>,
+	problems: Array<cm>,
 	length: number,
 	page: number,
 	maxpage: number,
