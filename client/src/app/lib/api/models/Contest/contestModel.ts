@@ -1,5 +1,5 @@
 import mongoose, { model, Schema } from "mongoose";
-import {contestProblem} from "./problemModel";
+import ContestProblem from "./problemModel.ts";
 
 const contestSchema = new Schema({
 	name: {
@@ -31,7 +31,13 @@ const contestSchema = new Schema({
 			"End time of the contest is required.",
 		],
 	},
-	problems: [contestProblem],
+	problems: {
+		type: [ ContestProblem ],
+		required: [
+			true,
+			"Contest must have at least one question.",
+		],
+	},
 	type: {
 		type: String,
 		enum: [ "ICPC", ],

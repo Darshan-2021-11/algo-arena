@@ -15,7 +15,7 @@ const testcaseSchema = new Schema({
   },
 },{_id:false})
 
-export const ProblemSchema = new Schema(
+const ProblemSchema = new Schema(
   {
     title: {
       type: String,

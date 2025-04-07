@@ -1,14 +1,15 @@
 "use server"
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { contestModel as cm } from "@/app/lib/api/contestModel";
-import contestModel from "@/app/lib/api/models/Contest/contestModel";
+import { NextRequest } from "next/server";
+import jwt from 'jsonwebtoken';
+import { fail, success } from "@/app/lib/api/response";
+import contestModel from "@/app/lib/api/models/Contest/contestModel.ts";
 import dbConnect from "@/app/lib/api/databaseConnect";
-
 
 export interface Response {
 	success: boolean,
-	problems: any,
+	problems: Array<contestModel>,
 	length: number,
 	page: number,
 	maxpage: number,
@@ -57,7 +58,7 @@ export async function GET(request : NextRequest){
 					"problems": {
 						$cond: {
 							if: {
-								$gte: [ "$startTime", "$$NOW" ],
+								$lte: [ "$startTime", "$$NOW" ],
 							},
 							then: "$problems",
 							else: [],
@@ -66,6 +67,7 @@ export async function GET(request : NextRequest){
 				}
 			},
 		])
+
 
 		return NextResponse.json({
 			success: true,
