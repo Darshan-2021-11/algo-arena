@@ -12,8 +12,6 @@ import mongoose from "mongoose";
 import UserProblem from "@/app/lib/api/models/User/userProblemModel";
 import Activity from "@/app/lib/api/models/User/activityModel";
 
-const maxtime = 4000000;
-
 interface Testcase {
     input: string
     output: string
