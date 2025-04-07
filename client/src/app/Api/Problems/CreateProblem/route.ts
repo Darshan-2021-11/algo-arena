@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     try {
 
         const secret = process.env.JWT_SECRET;
-        if (!secret ) {
+        if (!secret) {
             return fail("Server is not working")
         }
 
