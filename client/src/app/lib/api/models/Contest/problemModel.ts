@@ -1,7 +1,7 @@
 import mongoose, { model, Schema } from "mongoose";
-import Problem from "../Problem/problemModel.ts";
+import {ProblemSchema} from "../Problem/problemModel";
 
-const contestProblem = Problem.clone();
+export const contestProblem = new Schema(ProblemSchema.obj);
 contestProblem.add({
 	alias: {
 		type: String,

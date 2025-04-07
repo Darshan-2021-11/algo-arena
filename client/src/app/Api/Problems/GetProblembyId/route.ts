@@ -1,18 +1,11 @@
 'use server'
 
-import { Problem as problemModel } from "@/app/lib/api/problemModel";
 import { NextRequest, NextResponse } from "next/server";
 import { fail } from "@/app/lib/api/response";
 import { cookies } from "next/headers";
 import mongoose from "mongoose";
 import Problem from '../../../lib/api/models/Problem/problemModel'
 import dbConnect from "@/app/lib/api/databaseConnect";
-
-interface Response {
-    success: boolean,
-    problem: problemModel,
-}
-
 
 export async function GET(request: NextRequest) {
     try {
