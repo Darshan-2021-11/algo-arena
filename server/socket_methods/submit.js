@@ -3,6 +3,7 @@ const axios = require('axios');
 const { users, list } = require('../data_models');
 const endMatch = require('./endMatch');
 const authorize = require('./authorize');
+const completeMatch = require('../utils/completeMatch');
 
 
 const getResult = async (tokens, headers, problemId) => {
@@ -40,7 +41,7 @@ async function submit({ code, roomid, lang, id }) {
             this.emit("server_report", { status: 3.2, message: "Invalid request." });
             return;
         }
-        if (code.length == 0) {
+        if (code.length === 0) {
             this.emit("server_report", { status: 3, message: "write some code to run it." });
             return;
         }
@@ -75,10 +76,20 @@ async function submit({ code, roomid, lang, id }) {
                     }
                     tokens = res.newtokens;
                     if (res.passed) {
+                        clearInterval(id);
                         this.emit("win");
                         this.leave(roomid);
                         this.to(roomid).emit("lose");
                         endMatch(roomid);
+                        room.duelid && await completeMatch(
+                            id,
+                            "win",
+                            room.mems[1].id === id ? room.mems[0].id : room.mems[1].id,
+                            room.duelid,
+                            code,
+                            lang,
+                            user.token
+                        )
                     }
 
                 }, 1000);

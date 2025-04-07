@@ -183,14 +183,12 @@ const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
                                 break;
                             case 3:
                                 seterrs([...errs, e.message]);
-                                // show error no change
                                 break;
 
                             case 3.1:
                                 seterrs([...errs, e.message]);
                                 setLoading(false);
                                 setroomid(null);
-                                // exit room
                                 break;
                                 
                             case 3.2:
@@ -199,7 +197,6 @@ const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
                                 setroomid(null);
                                 setProblem(null)
                                 setstart(false)
-                                // exit join room
                                 break;
                         }
                     })
