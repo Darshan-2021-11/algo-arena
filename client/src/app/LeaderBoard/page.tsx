@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 interface LeaderBoardData {
-    totalQuestionSolved:number,
+  submission:number,
     name:string
 }
 
@@ -16,7 +16,7 @@ const Page: React.FC = () => {
 
     const fetchData =async()=>{
         try {
-            const url = "Api/LeaderBoard";
+            const url = "/Api/Auth/LeaderBoard";
             const data = await axios.get(url);
             setusers(data.data.users);
             console.log(data);
@@ -44,7 +44,7 @@ const Page: React.FC = () => {
                 className={`flex w-full  p-2 justify-evenly ${!(i&1) ? "bg-gray-600": "bg-transparent"} `}>
                 <p className='w-24'>{i+1}</p>
                 <p className='w-9/12'>{user.name}</p>
-                <p className='w-9/12'>{user.totalQuestionSolved}</p>
+                <p className='w-9/12'>{user.submission}</p>
     
               </div>
             ))

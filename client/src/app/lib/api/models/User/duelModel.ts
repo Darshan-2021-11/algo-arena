@@ -19,25 +19,25 @@ const DuelSchema = new Schema({
     winner:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"User",
-        required:false
+        default:null
     },
     duration:{
         type:Number,
         min:[10,"minimum duration is 10 min."],
         max:[300,"maximum duration is 300 minutes."],
-        default:60
+        default:30
     },
     status: {
         type: String,
-        enum: [ 1,2,3,4],
-            // "in-progress", "completed", "cancelled","draw"],
+        enum: [ 1,2],
+            // "in-progress", "completed"],
         default: 1,
     },
     winnerCode:{
         type:String,
-        minLength: [10, "Code must be at least 10 characters long."],
-        maxLength: [50000, "Code must be at most 50,000 characters long."],
-        required:false
+        // minLength: [10, "Code must be at least 10 characters long."],
+        maxLength: [50000, "Code can be at most 50,000 characters long."],
+        default:""
     }
 })
 

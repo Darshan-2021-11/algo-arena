@@ -9,6 +9,8 @@ import CodeEditor from '../../utils/Editor';
 import { useEditor } from '@/app/lib/contexts/editorContext';
 import Assistant from '../../utils/Assistant';
 import { AiOutlineLoading } from 'react-icons/ai';
+import ProblemDescription from './Problem';
+import Commentpage from './Comment';
 
 
 interface resulttype {
@@ -24,9 +26,15 @@ interface resulttype {
 interface sizetype {
   width: number
   height?: number
-  w:number
+  w: number
 }
 
+interface msgtype {
+  message:string,
+  _id:string,
+  replies?:msgtype[],
+  user:string
+}
 
 export default function IDE() {
 
@@ -38,15 +46,20 @@ export default function IDE() {
   const idref = useRef(null) as React.MutableRefObject<NodeJS.Timeout | null>;
   const [coderun, setcoderun] = useState(false);
   const problemId = useRef(null) as React.MutableRefObject<string | null>;
+  const [Comment, setComment] = useState<msgtype[]>([]);
+  const [p, setp] = useState("a");
+  const { id } = useParams();
+
+  
 
   // size control
-  const [size, setsize] = useState<sizetype>({ width: 0, height: 0,w:window.innerWidth });
+  const [size, setsize] = useState<sizetype>({ width: 0, height: 0, w: window.innerWidth });
   const [move, setmove] = useState(false);
 
   useEffect(() => {
     const newsize = {
       width: window.innerWidth / 2,
-      w:window.innerWidth
+      w: window.innerWidth
     }
     setsize(newsize);
   }, [])
@@ -65,10 +78,10 @@ export default function IDE() {
       setmove(false);
     }
 
-    const handleresize = ()=>{
+    const handleresize = () => {
       const p = size.width / size.w * 100;
-      const newsize = window.innerWidth*(p/100);
-      setsize({width:newsize,w:window.innerWidth})
+      const newsize = window.innerWidth * (p / 100);
+      setsize({ width: newsize, w: window.innerWidth })
     }
 
     if (move) {
@@ -92,7 +105,6 @@ export default function IDE() {
   }, [move, size])
   // 
 
-  const { id } = useParams();
 
   const [running, setrun] = useState(false);
 
@@ -197,83 +209,54 @@ export default function IDE() {
 
   return (
     <div
-    className={`${move&&"cursor-col-resize"}`}
+      className={`${move && "cursor-col-resize"} transition-all duration-100 overflow-hidden`}
     >
       {
         Problem ?
           <>
             <div className="flex h-full w-full overflow-hidden"
-            style={{
-              maxHeight:'100vh'
-            }}
+              style={{
+                maxHeight: '100vh'
+              }}
             >
-              {
-                Problem ?
-                  <div className=" border  border-zinc-600 rounded-xl m-1 bg-zinc-900 p-4 flex flex-col no-scrollbar overflow-scroll"
-                    style={{
-                      width: size.width,
-                      maxHeight: "85vh"
+              <div
+                className='border overflow-hidden border-zinc-600 rounded-xl m-1 bg-zinc-900'
+                style={{
+                  width: size.width,
+                  maxHeight: "85vh"
 
-                    }}
-                  >
-                    <div
-                      className="flex align-middle justify-between"
-                    >
-                      <p
-                        className={` w-24 font-medium ${Problem.difficulty === "Easy" ? 'text-green-900' : Problem.difficulty === "Medium" ? 'text-orange-600' : "text-red-600"} `}
-
-                      >{Problem.difficulty}</p>
-                      <div
-                        className="text-gray-500"
-                      >
-                        {
-                          Problem.tags.map((elem) => (
-                            <span
-
-                              key={uuidv4()}
-                              className="ml-4"
-                            >{elem}</span>
-                          ))
-                        }
-                      </div>
-                    </div>
-                    <h2
-                      className="text-xl font-bold m-5"
-                    >{Problem.title}</h2>
-                    <p>{Problem.description}</p>
-
-                    <div
-                      className="text-gray-400 border-gray-800 border-2 p-3 rounded-md mt-3"
-                    >
-                      {
-                        Problem.testcases.map(({ input, output }) => (
-                          <div
-                          key={v4()}
-                          >
-                            <pre>input : {input}</pre>
-                            <p>output : {output}</p>
-                          </div>
-                        ))
-                      }
-                    </div>
-
-
-
-                  </div>
-                  :
-                  //loading screen
-                  <div className="w-1/2 p-4 border-r flex flex-col ">
-                    <h2 className="text-xl font-bold"></h2>
-                    <p></p>
-                  </div>
-
-              }
+                }}
+              >
+                <div
+                className='flex p-3 overflow-hidden'
+                >
+                  <p
+                  className='mr-4 bg-black pt-1 pb-1 pl-2 pr-2 rounded-xl cursor-pointer text-gray-50 hover:text-gray-300'
+                  onClick={()=>setp("a")}
+                  >description</p>
+                  <p
+                  className='mr-4 bg-black pt-1 pb-1 pl-2 pr-2 rounded-xl cursor-pointer text-gray-50 hover:text-gray-300'
+                  onClick={()=>setp("b")}
+                  >discussion</p>
+                   {/* <p
+                  className='mr-4 bg-black pt-1 pb-1 pl-2 pr-2 rounded-xl cursor-pointer text-gray-50 hover:text-gray-300'
+                  >submissions</p> */}
+                </div>
+                {
+                  p === "a" && 
+                <ProblemDescription Problem={Problem} />
+                }
+                {
+                  p === "b" && 
+                <Commentpage comments={Comment} setcomments={setComment} id={id}/>
+                }
+              </div>
               <div
                 onMouseDown={() => setmove(true)}
                 className={` relative ${move && "bg-blue-500"}  w-1 cursor-col-resize bg-transparent hover:bg-blue-500 rounded-lg  mr-2 ml-2`}
-               style={{
-                height:'80vh'
-               }}
+                style={{
+                  height: '80vh'
+                }}
               ></div>
 
               {
@@ -314,8 +297,8 @@ export default function IDE() {
                     {
                       result.map((r, i) => (
                         <div
-                        key={uuidv4()}
-                        
+                          key={uuidv4()}
+
                         >
                           <div
                             className={`flex text-white w-screen justify-evenly m-1 p-3 ${r?.status?.id ? r.status.id === 3 ? 'bg-green-500' : 'bg-red-700' : "bg-gray-400"}`}>
