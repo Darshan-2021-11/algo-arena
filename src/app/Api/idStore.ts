@@ -1,1 +1,0 @@
-export const requestIds : Map<string,boolean> = new Map();
