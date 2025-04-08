@@ -17,6 +17,7 @@ interface Testcase {
 	output: string
 }
 
+
 export async function POST(req: NextRequest) {
 	try {
 		const secret = process.env.JWT_SECRET;
@@ -37,7 +38,6 @@ export async function POST(req: NextRequest) {
 		if (testcases.length == 0) {
 			return fail("No test cases found.");
 		}
-
 
 		const tokens: string[] = [];
 
@@ -108,10 +108,10 @@ export async function POST(req: NextRequest) {
 			status: "waiting",
 		};
 
-		const updated = await Participant.findOneAndUpdate(
+		const updated = await participant.findoneandupdate(
 			{
-				userId,
-				contestId,
+				userid,
+				contestid,
 				"problems.alias": alias
 			},
 			{
@@ -121,6 +121,26 @@ export async function POST(req: NextRequest) {
 			},
 			{ new: true }
 		);
+
+		if (!updated) {
+			updated = await Participant.findOneAndUpdate(
+				{ userId, contestId },
+				{
+					$push: {
+						problems: {
+							alias,
+							submissions: [submission]
+						}
+					}
+				},
+				{ new: true }
+			);
+		}
+
+		if (!updated) {
+			console.warn("Participant not found.");
+			return null;
+		}
 
 			);
 			const targetDate = new Date(); 

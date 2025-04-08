@@ -17,5 +17,5 @@ contestProblem.add({
 	},
 });
 
-// const ContestProblem = mongoose.models.contestProblem || model("contestProblem", contestProblem);
-// export default ContestProblem;
+const ContestProblem = mongoose.models.contestProblem || model("contestProblem", contestProblem);
+export default ContestProblem;
