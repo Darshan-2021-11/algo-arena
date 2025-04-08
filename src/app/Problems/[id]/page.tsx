@@ -147,7 +147,7 @@ export default function IDE() {
       try {
         const submissionurl = `http://localhost:2358/submissions/${tokens.current[i]}?base64_encoded=false&wait=false`;
         const data = await axios.get(submissionurl);
-        if (data.status === 200 && problemId.current) {
+        if (data.status === 200 && data.data.status.id !== 2 && data.data.status.id !== 1 && problemId.current) {
           const storeResultUrl = `/Api/Problems/StoreResult?pid=${problemId.current}&msg=${data.data.status.description}`
           const d = await axios.get(storeResultUrl);
           const res = { status: { description: data.data.status.description, id: data.data.status.id }, time: data.data.time, memory: data.data.memory, errmsg: data.data.stderr }
