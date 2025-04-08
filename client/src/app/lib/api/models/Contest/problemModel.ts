@@ -15,6 +15,9 @@ contestProblem.add({
 			"Problem score must be specified.",
 		],
 	},
+	{
+		timestamps: { createdAt: true, updatedAt: false }
+	}
 });
 
 const ContestProblem = mongoose.models.contestProblem || model("contestProblem", contestProblem);
