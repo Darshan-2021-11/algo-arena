@@ -41,7 +41,7 @@ export async function GET(request : NextRequest){
 				$match:{}
 			},
 			{
-				$sort: { field: "createdAt", }
+				$sort: { createdAt: -1 }
 			},
 			{
 				$skip: i
