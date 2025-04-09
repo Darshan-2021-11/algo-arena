@@ -32,6 +32,8 @@ export const contestSchema = new Schema({
 		],
 	},
 	problems: [contestProblem],
+	/*problems: [{ type: mongoose.Schema.Types.ObjectId, ref: "ContestProblem" }]*/
+
 	type: {
 		type: String,
 		enum: [ "ICPC", ],
@@ -40,11 +42,8 @@ export const contestSchema = new Schema({
 			"Contest type is required.",
 		],
 	}
-},
-{
-	_id: false,
 });
-
+/*
 contestSchema.set('toJSON', {
   virtuals: true,
   versionKey: false,
@@ -53,7 +52,7 @@ contestSchema.set('toJSON', {
     delete ret._id;
   }
 });
-
+*/
 contestSchema.index({ name: 1 });
 
 const Contest = mongoose.models.Contest || model("Contest",contestSchema);

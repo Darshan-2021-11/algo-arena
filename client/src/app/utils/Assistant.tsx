@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { GoogleGenerativeAI } from '@google/generative-ai'
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4, v4 } from 'uuid';
 import { Problem } from "@/app/lib/api/problemModel";
 
 
@@ -113,7 +113,9 @@ const Assistant : React.FC<{Problem:Problem|undefined}> = ({Problem})=>{
             <div
               className={`h-full w-full pb-16 overflow-y-scroll no-scrollbar bg-black pl-2 pr-2 pt-2 `}>
               {history.map((chat) => (
-                <>
+                <div
+                key={v4()}
+                >
 
                   <div
                     className=" flex flex-col justify-center mb-3"
@@ -151,7 +153,7 @@ const Assistant : React.FC<{Problem:Problem|undefined}> = ({Problem})=>{
                       </div>
                     </div>
                   </div>
-                </>
+                </div>
               ))}
             </div>
             <textarea

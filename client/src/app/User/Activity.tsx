@@ -75,7 +75,7 @@ const Activity: React.FC = () => {
 
     return (
         <div
-            className="relative w-fit h-fit shadow-md shadow-zinc-900  bg-zinc-900 m-3 pl-2 pr-2"
+            className="relative w-fit h-fit shadow-md shadow-zinc-900  bg-zinc-900 mb-3 mt-3 pl-2 pr-2 overflow-hidden"
         >
             <div
             className="flex"
@@ -86,7 +86,7 @@ const Activity: React.FC = () => {
                 {
                     years.map((y) => (
                         <option
-                            id={v4()}
+                            key={v4()}
                         >
                             {y}
                         </option>

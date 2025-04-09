@@ -4,8 +4,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { Problem as problemModel } from '../../../lib/api/problemModel';
 import { cookies } from "next/headers";
 import { fail } from "@/app/lib/api/response";
-import Problem from "../../../lib/api/models/Problem/problemModel"
 import dbConnect from "@/app/lib/api/databaseConnect";
+import Submission from "@/app/lib/api/models/User/submissionModel";
+import mongoose from "mongoose";
 
 export interface Response {
     success: boolean,
@@ -24,10 +25,16 @@ export async function GET(request : NextRequest){
         if(!token){
             return fail("Unauthorised access",403);
         }
+        const url = new URL(request.url);
         
-        const params = new URL(request.url).searchParams;
-        const page : number = Number(params.get('page')) || 1;
-        const pagelen = Number(params.get('len')) || 10;
+        const params = url.searchParams;
+        const user = url.searchParams.get("u");
+        if(!user){
+            return fail("user is required.")
+        }
+        const page : number = Number(params.get('p')) || 1;
+        const pagelen = Number(params.get('l')) || 10;
+        console.log(pagelen)
         let i = 0, j = pagelen;
         if(page > 1){
             i = (pagelen * page) - pagelen;
@@ -36,18 +43,36 @@ export async function GET(request : NextRequest){
 
         await dbConnect();
 
-        const result = await Problem.aggregate([
-            {$match:{}},
-            {$skip:i},
+       
+
+        const result = await Submission.aggregate([
+            {$match:{user:new mongoose.Types.ObjectId(user)}},
+            {$skip:(page-1)*pagelen},
             {$limit:pagelen},
-            {$project:{"title":1,"difficulty":1,"totalProblems":1}},
+            {$lookup:{
+                localField:"problem",
+                foreignField:"_id",
+                from:"problems",
+                as:"problem"
+            }},
+            {$addFields:{
+                name:{$arrayElemAt:["$problem.title",0]}
+            }},
+            {$project:{
+                name:1,
+                result:1,
+                language:1,
+                createdAt:1,
+                updatedAt:1,
+                code:1
+            }}
         ])
 
         
         return NextResponse.json({
             success:true,
             message:"successfully fetched data",
-            Problems:result,
+            submissions:result,
             end:result?.length < pagelen
         },{status:200})
     }catch(err){

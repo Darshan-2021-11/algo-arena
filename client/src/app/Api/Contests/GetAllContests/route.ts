@@ -70,7 +70,7 @@ export async function GET(request : NextRequest){
 		return NextResponse.json({
 			success: true,
 			message: "Successfully fetched data",
-			Problems: result,
+			Contest: result,
 			end: result?.length < pagelen
 		},{status: 200})
 	}catch(err){

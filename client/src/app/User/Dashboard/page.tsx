@@ -1,14 +1,18 @@
 'use client'
-import React, { useEffect, useState } from 'react';
+import React, {  useState } from 'react';
 import { useRouter } from "next/navigation";
 import { FaUserCircle } from "react-icons/fa";
 import Activity from '../Activity';
 import { useSelector } from 'react-redux';
 import { useAuth } from '@/app/lib/slices/authSlice';
+import Submissions from '../Submissions';
+import { RxCross2 } from "react-icons/rx";
+
 
 const Page: React.FC = () => {
 	const router = useRouter();
 	const {username} = useSelector(useAuth);
+	const [code, setcode] = useState<string|null>(null)
 
 
 	return (
@@ -50,7 +54,31 @@ const Page: React.FC = () => {
 			className='overflow-scroll'
 			>
 			<Activity/>
+			<Submissions setcode={setcode}/>
 			</div>
+			{
+                code &&
+                <div
+                    className=" fixed top-0 left-0 w-screen h-screen bg-black bg-opacity-60 flex items-center justify-center"
+                >
+                    <div
+                        className="  relative w-3/4 h-3/4 overflow-hidden rounded-xl bg-zinc-900 flex"
+                    >
+                        <pre
+						className='bg-zinc-600 rounded-xl w-full p-3 m-3 overflow-scroll'
+						>
+                            {code}
+                        </pre>
+						<button
+                            className="absolute right-0 top-0 m-2 scale-150 text-red-700"
+                            onClick={() => {
+                                setcode(null);
+                            }}
+                        ><RxCross2 /></button>
+                    </div>
+					
+                </div>
+            }
 		</div>
 		</>
 	);

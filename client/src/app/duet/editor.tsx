@@ -178,7 +178,7 @@ const Codeeditor = () => {
                               submitMatch();
                             }}
                           >
-                            Run
+                            Submit
                           </button>
                         </div>
                       </div>

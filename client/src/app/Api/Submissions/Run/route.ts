@@ -32,7 +32,9 @@ export async function POST(req: NextRequest) {
         const decodedtoken = jwt.verify(token, secret) as { id: string, name: string, admin: boolean };
 
         const { id, code, lang } = await req.json();
-        const { testcases } = await Problem.findById(id).select("testcases") as { testcases: Testcase[] };
+        const problem = await Problem.findById(id).select("testcases") as { testcases: Testcase[] };
+        console.log(problem)
+        const { testcases } = problem 
 
         if (testcases.length == 0) {
             return fail("No test cases found.");
@@ -79,6 +81,7 @@ export async function POST(req: NextRequest) {
                     tokens.push(data.token);
                 })
                 .catch((err: any) => {
+                    console.log(err)
                     throw new Error(err.message ? err.message : "Unable to reach Judge0.");
                 })
 
