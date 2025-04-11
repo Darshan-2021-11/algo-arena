@@ -20,7 +20,9 @@ export default function RootLayout({
   return (
     <StoreProvider>
       <EditorProvider>
-    <html lang="en">
+    <html lang="en"
+    className=" select-none"
+    >
       <head>
       <link
             href="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/katex.min.css"
