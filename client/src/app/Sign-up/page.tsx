@@ -104,7 +104,7 @@ const SignUp: React.FC = () => {
       delete objectdata.confirmpassword;
       const headers = await generateHeader();
       
-      const response = await axios.post("/Api/Auth/Register", objectdata, { headers }) as { data:{message: string, success: boolean} };
+      const response = await axios.post("/Api/User/Auth/Register", objectdata, { headers }) as { data:{message: string, success: boolean} };
       if (response.data.success === true) {
         setsuccess(response.data.message)
       } else {

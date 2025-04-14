@@ -64,9 +64,107 @@ const Addproblems = () => {
         }
     }
 
+    const validData = (input: any[]) => {
+        if (!Array.isArray(input)) {
+            return false;
+        }
+
+        for (let i = 0; i < input.length; i++) {
+            const probarr = Object.entries(input[i]);
+            if (probarr.length !== 8) {
+                return false;
+            }
+            for (let j = 0; j < probarr.length; j++) {
+                switch (probarr[j][0]) {
+                    case "title":
+                        {
+                            if (typeof (probarr[j][1]) !== "string") return false;
+                        }
+                        break;
+
+                    case "description":
+                        {
+                            if (typeof (probarr[j][1]) !== "string") return false;
+                        }
+                        break;
+
+                    case "difficulty":
+                        {
+                            if (typeof (probarr[j][1]) !== "string" && (probarr[j][1] === "Easy" || probarr[j][1] === "Medium" || probarr[j][1] === "Hard")) return false;
+                        }
+                        break;
+
+                    case "tags":
+                        {
+                            const p = probarr[j] as Array<[string, Array<string>]>
+                            if (!Array.isArray(p[1])) return false;
+                            for (let t = 0; t < p[1].length; t++) {
+                                if (typeof (p[1][t]) !== "string") {
+                                    return false;
+                                }
+                            }
+                        }
+                        break;
+
+                    case "constraints":
+                        {
+                            const p = probarr[j] as Array<[string, Array<string>]>
+                            if (!Array.isArray(p[1])) return false;
+                            for (let t = 0; t < p[1].length; t++) {
+                                if (typeof (p[1][t]) !== "string") {
+                                    return false;
+                                }
+                            }
+                        }
+                        break;
+
+                    case "testcases":
+                        {
+                            const p = probarr[j] as Array<[string, Array<string>]>
+                            if (!Array.isArray(p[1])) return false;
+                            for (let t = 0; t < p[1].length; t++) {
+                                if (typeof (p[1][t]) !== "object") {
+                                    return false;
+                                }
+                                const tarr = Object.entries(p[1][t]);
+                                if (tarr.length !== 2) {
+                                    return false;
+                                }
+                                if (tarr[0][0] !== "input" || typeof (tarr[0][1]) !== "string" || tarr[1][0] !== "output" || typeof (tarr[1][1]) !== "string") {
+                                    return false;
+                                }
+                            }
+                        }
+                        break;
+
+                    case "timeLimit":
+                        {
+                            console.log("hi")
+                            if (typeof (probarr[j][1]) !== "number") return false;
+                        }
+                        break;
+
+                    case "spaceLimit":
+                        {
+                            console.log("byte")
+                            if (typeof (probarr[j][1]) !== "number") return false;
+                        }
+                        break;
+
+                    default:
+                        return false;
+                        break;
+                }
+            }
+
+        }
+        return true;
+    }
+
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         try {
+            seterr(null);
             const value = e.target.files?.[0];
             let allowed = false;
 
@@ -79,18 +177,24 @@ const Addproblems = () => {
 
             if (!allowed) {
                 console.log("not allowed bro");
+                seterr("Invalid file type");
                 e.target.value = "";
                 return;
             }
-            value?.name && setname(value?.name);
             if (value) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     try {
                         const text = e.target?.result as string;
                         if (text) {
-                            const jsondata = JSON.parse(text);
-                            setproblems(jsondata);
+                            const jsondata = JSON.parse(text) as Problem[];
+                            if (validData(jsondata)) {
+                                value?.name && setname(value?.name);
+                                setproblems(jsondata);
+                            } else {
+                                seterr("Format of the JSON file is not valid.");
+                                clearData()
+                            }
                         }
                     } catch (error) {
                         console.log(error);
@@ -107,7 +211,12 @@ const Addproblems = () => {
     };
 
     return (
-        <div className="w-screen h-screen flex flex-col items-center justify-end bg-gray-900 p-5">
+        <div
+            className="w-screen h-screen flex flex-col items-center justify-end bg-gray-900 p-5"
+            style={{
+                height: "calc( 100vh - 64px)"
+            }}
+        >
             <input
                 onChange={handleChange}
                 type="file"
@@ -169,6 +278,12 @@ const Addproblems = () => {
                 {name ? name : "File Name"}
             </div>
             <div className="h-4/5 w-4/5 bg-gray-100 text-gray-900 overflow-y-auto p-5 rounded-lg shadow-inner">
+            {
+                err && 
+                <div
+                className="mb-6 p-4 bg-white rounded-lg shadow-md text-red-600"
+                >{err}</div>
+            }
                 {problems.map((p) => (
                     <div
                         key={v4()}

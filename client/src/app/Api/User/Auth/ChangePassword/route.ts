@@ -3,20 +3,28 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
-import User from "../../../lib/api/models/User/userModel";
-import dbConnect from "../../../lib/api/databaseConnect";
+import User from "../../../../lib/api/models/User/userModel";
+import dbConnect from "../../../../lib/api/databaseConnect";
 import { fail } from "@/app/lib/api/response";
+import { cookies } from "next/headers";
 
 export async function POST(request: NextRequest) {
   try {
-    const { token, newPassword } = await request.json();
-
-
-    if (!token || !newPassword) {
-      return fail("Token and newPassword are required.", 400);
+    const secretKey = process.env.JWT_SECRET;
+    if(!secretKey){
+      return fail("Server configuration failed");
     }
+    const body = await request.json();
+    const newPassword = body.newPassword;
+    if ( !newPassword) {
+      return fail("newPassword is required.", 400);
+    }
+    const cookiestore = cookies();
+    let token;
+    if(!body.token){
+      token = cookiestore.get("token")?.value;
+    }else token = body.token;
 
-    const secretKey = process.env.NEXT_PUBLIC_JWT_SECRET || "fallbackSecret";
     let decodedToken;
     try {
       decodedToken = jwt.verify(token, secretKey) as { email: string, id: string };

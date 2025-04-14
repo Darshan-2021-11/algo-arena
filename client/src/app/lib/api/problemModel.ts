@@ -17,4 +17,6 @@ export interface Problem {
     tags:Array<string>,
     constraints:Array<string>,
     testcases:Array<TESTCASE>,
+    spaceLimit?:number,
+    timeLimit?:number
 }

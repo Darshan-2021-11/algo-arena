@@ -102,6 +102,10 @@ export const ProblemSchema = new Schema(
       default: 0,
       min: [0, "Successful submissions cannot be negative."],
     },
+    isdeleted:{
+      type:Boolean,
+      default:false
+    }
   },
   { timestamps: true }
 );

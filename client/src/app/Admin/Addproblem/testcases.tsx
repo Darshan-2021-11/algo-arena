@@ -19,6 +19,7 @@ const Testcases: React.FC<testcasestype> = ({ testcases, settestcases }) => {
 
     return (
         <div
+        id="testcases"
             className="p-3 m-3 select-none "
         >
             <div
@@ -64,12 +65,13 @@ const Testcases: React.FC<testcasestype> = ({ testcases, settestcases }) => {
 
             <div
             className="flex flex-col"
+            id="testcasevalue"
             >
                 {
                     testcases.map((tag,i) => (
                         <div
                         className="flex items-center"
-                        id={v4()}
+                        key={v4()}
                         >
                         <div>
                         <p

@@ -71,10 +71,8 @@ const IDE: React.FC<pagetype> = ({ altproblem, contesturl }) => {
 
   useEffect(() => {
     const handlemove = (e: MouseEvent) => {
-      console.log(e.movementX);
       const s = { ...size };
       s.width += e.movementX;
-      console.log(s);
       setsize(s);
     };
 
@@ -333,11 +331,6 @@ const IDE: React.FC<pagetype> = ({ altproblem, contesturl }) => {
                         </div>
                         {<p></p>}
                       </div>
-                      {/* <p
-                        className='bg-green-600'
-                        >
-                        {r.errmsg}
-                        </p> */}
                     </div>
                   ))}
                 </div>
@@ -387,16 +380,6 @@ const IDE: React.FC<pagetype> = ({ altproblem, contesturl }) => {
           </div>
           <Assistant Problem={Problem} />
 
-          {/* <div
-              onMouseDown={() => setmove(true)}
-              className=' absolute w-0.5 h-screen cursor-move bg-transparent hover:bg-white rounded-lg  mr-2 ml-2'
-              style={{
-                left: size.x,
-                top: size.y
-              }}
-            >
-
-            </div> */}
         </>
       ) : (
         <div>Invalid page </div>

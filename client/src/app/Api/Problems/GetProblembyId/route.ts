@@ -7,22 +7,23 @@ import { cookies } from "next/headers";
 import mongoose from "mongoose";
 import Problem from '../../../lib/api/models/Problem/problemModel'
 import dbConnect from "@/app/lib/api/databaseConnect";
-
-interface Response {
-    success: boolean,
-    problem: problemModel,
-}
-
+import jwt from 'jsonwebtoken'
 
 export async function GET(request: NextRequest) {
     try {
-
+        const secret = process.env.JWT_SECRET;
+        if(!secret){
+            return fail("server configuration failed.");
+        }
 
         const cookieStore = cookies();
         const token = cookieStore.get("token")?.value;
         if (!token) {
             return fail("Unauthorised access", 403);
         }
+
+        const decodetoken = jwt.verify(token,secret) as {id:string, name:string, admin?:boolean};
+        console.log(decodetoken)
 
         const params = new URL(request.url).searchParams;
         const id= params.get('id');
@@ -34,18 +35,34 @@ export async function GET(request: NextRequest) {
             },
                 { status: 500 })
         }
+
+        const project : {
+            title:number,
+            description:number,
+            difficulty:number,
+            tags:number,
+            constraints:number,
+            timeLimit?:number,
+            spaceLimit?:number,
+            testcases:number|object
+        } = {
+            title:1,
+            description:1,
+            difficulty:1,
+            tags:1,
+            constraints:1,
+            testcases:{$slice:["$testcases",3]},
+        }
+
+        if(decodetoken.admin){
+            project.timeLimit = 1;
+            project.spaceLimit = 1;
+            project.testcases = 1;
+        }
         await dbConnect();
         const result = await Problem.aggregate([
             {$match:{_id: new mongoose.Types.ObjectId(id)}},
-            {$project:{
-                title:1,
-                description:1,
-                difficulty:1,
-                tags:1,
-                constraints:1,
-                testcases:{$slice:["$testcases",3]},
-                
-            }}
+            {$project:project}
         ])
         if (result.length >0) {
             return NextResponse.json({

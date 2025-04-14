@@ -13,6 +13,7 @@ const Tags: React.FC<tagstype> = ({ tags, settags }) => {
     const inputRef = useRef<HTMLInputElement | null>(null);
     return (
         <div
+            id="tags"
             className="p-3 m-3 select-none "
         >
             <div
@@ -32,7 +33,7 @@ const Tags: React.FC<tagstype> = ({ tags, settags }) => {
                     onClick={() => {
                         if (inputRef.current) {
                             const input = inputRef.current;
-                            if (input.value.length >= 1 && tags.length<10) {
+                            if (input.value.length >= 1 && tags.length < 10 && !tags.find((c)=>c === input.value)) {
                                 const alltags = [...tags];
                                 alltags.push(input.value);
                                 settags(alltags);
@@ -45,28 +46,32 @@ const Tags: React.FC<tagstype> = ({ tags, settags }) => {
             </div>
 
             <div
-            className="flex flex-wrap "
+                className="flex flex-wrap "
+                id="tagvalue"
             >
                 {
-                    tags.map((tag,i) => (
-                        <p
+                    tags.map((tag, i) => (
+                        <div
                             className="flex items-center justify-center bg-stone-900 pt-1 pb-1 p-2 m-2 text-white w-fit"
-                            id={v4()}
-                        >{tag}
-                        <RxCrossCircled 
-                        className="ml-2 text-red-500 cursor-pointer" 
-                        onClick={()=>{
-                            let newtags :string[] = []
-                            tags.map((t,j)=>{
-                                if(i !== j){
-                                    newtags.push(t);
-                                }
-                            })
-                            console.log(newtags)
-                            settags(newtags);
-                        }}
-                        />
-                        </p>
+                            key={v4()}
+                        >
+                            <p>
+                            {tag}
+                            </p>
+                            <RxCrossCircled
+                                className="ml-2 text-red-500 cursor-pointer"
+                                onClick={() => {
+                                    let newtags: string[] = []
+                                    tags.map((t, j) => {
+                                        if (i !== j) {
+                                            newtags.push(t);
+                                        }
+                                    })
+                                    console.log(newtags)
+                                    settags(newtags);
+                                }}
+                            />
+                        </div>
                     ))
                 }
             </div>

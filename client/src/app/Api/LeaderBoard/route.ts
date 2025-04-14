@@ -1,5 +1,4 @@
 "use server"
-import { NextApiRequest, NextApiResponse } from "next";
 import { NextResponse } from "next/server";
 import dbConnect from "@/app/lib/api/databaseConnect";
 import UserProblem from "@/app/lib/api/models/User/userProblemModel";
@@ -20,7 +19,7 @@ export async function GET() {
             return fail("Unauthorised access", 403);
         }
 
-         jwt.verify(token, secret) as { id: string, name: string };
+        jwt.verify(token, secret) as { id: string, name: string };
 
         await dbConnect();
 

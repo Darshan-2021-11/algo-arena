@@ -37,10 +37,12 @@ const Nav: React.FC = () => {
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await axios.get("/Api/Auth/VerifyCookie");
+        const { data } = await axios.get("/Api/User/Auth/VerifyCookie");
         if (data.success) {
           dispatch(login({ name: data.user.name, id: data.user.id, admin: data.user.admin }))
-          router.push("/")
+          // if(route.startsWith("/Sign-up") || route.startsWith("/Sign-in")){
+            router.push("/")
+          // }
         }
         console.log(data)
       } catch (error) {
@@ -52,7 +54,7 @@ const Nav: React.FC = () => {
 
   const logout = async () => {
     try {
-      const { data } = await axios.get("/Api/Auth/Logout");
+      const { data } = await axios.get("/Api/User/Auth/Logout");
       if (data.success) {
         dispatch(logoutSlice());
       }
@@ -86,7 +88,7 @@ const Nav: React.FC = () => {
                     </h6>
                   </div>
                   <div className={[style.e].join(" ")}>
-                    <Link href={"/Explore"}>list</Link>
+                    <Link href={"/Admin/Problems"}>list</Link>
                   </div>
                 </>
                 :

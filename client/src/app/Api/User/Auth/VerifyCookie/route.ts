@@ -5,9 +5,11 @@ import { NextRequest, NextResponse } from "next/server";
 import jwt from 'jsonwebtoken';
 import User from "@/app/lib/api/models/User/userModel";
 import dbConnect from "@/app/lib/api/databaseConnect";
+import arr from "@/app/Api/utils";
+import { randomBytes } from "crypto";
 
 
-export const GET = async (req: NextRequest, res: NextResponse) => {
+export const GET = async () => {
     try {
         const secretkey = process.env.JWT_SECRET;
         if (!secretkey) return fail("Server not working.");
@@ -15,15 +17,14 @@ export const GET = async (req: NextRequest, res: NextResponse) => {
         const cookieStore = cookies();
         const token = cookieStore.get("token")?.value;
         if (!token) return fail("Invalid request.", 400);
+        arr.push(token);
+        console.log(arr)
         const data = jwt.verify(token, secretkey) as { name: string, id: string };
         await dbConnect();
         const user = await User.findOne({ username: data.name }).select("isdeleted admin");
         if (!user || user.isdeleted) return fail("User not found.");
 
-        // const crefToken = await generateCustomToken(req.headers.get('userAgent'));
-
-        // if (!crefToken) return fail("Server is not working")
-
+        const crefToken = randomBytes(32).toString();
 
         const response = NextResponse.json({
             user: {
@@ -35,13 +36,13 @@ export const GET = async (req: NextRequest, res: NextResponse) => {
             success: true
         }, { status: 200 })
 
-        // response.cookies.set("x-cref-token", crefToken, {
-        //     httpOnly: true,
-        //     maxAge: 24 * 60 * 60,
-        //     path: "/",
-        //     secure: process.env.NODE_ENV === "production",
-        //     sameSite: "strict",
-        // });
+        response.cookies.set("x-cref-token", crefToken, {
+            httpOnly: true,
+            maxAge: 24 * 60 * 60,
+            path: "/",
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+        });
 
         return response
 

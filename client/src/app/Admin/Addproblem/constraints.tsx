@@ -14,6 +14,7 @@ const Constraints: React.FC<constraintstype> = ({ constraints, setconstraints })
     const inputRef = useRef<HTMLInputElement | null>(null);
     return (
         <div
+        id="constraints"
             className="p-3 m-3 select-none "
         >
             <div
@@ -33,7 +34,7 @@ const Constraints: React.FC<constraintstype> = ({ constraints, setconstraints })
                     onClick={() => {
                         if (inputRef.current) {
                             const input = inputRef.current;
-                            if (input.value.length >= 1 && constraints.length<10) {
+                            if (input.value.length >= 1 && constraints.length<10 && !constraints.find((c)=>c === input.value)) {
                                 const allconstraints = [...constraints];
                                 allconstraints.push(input.value);
                                 setconstraints(allconstraints);
@@ -46,14 +47,18 @@ const Constraints: React.FC<constraintstype> = ({ constraints, setconstraints })
             </div>
 
             <div
+            id="constraintvalue"
             className="flex flex-col flex-wrap max-h-60"
             >
                 {
                     constraints.map((tag,i) => (
-                        <p
+                        <div
                             className="flex items-center justify-center bg-stone-900 pt-1 pb-1 p-2 m-2 text-white w-fit"
-                            id={v4()}
-                        >{tag}
+                            key={v4()}
+                        >
+                            <p>
+                            {tag}
+                            </p>
                         <RxCrossCircled 
                         className="ml-2 text-red-500 cursor-pointer" 
                         onClick={()=>{
@@ -63,11 +68,10 @@ const Constraints: React.FC<constraintstype> = ({ constraints, setconstraints })
                                     newconstraints.push(t);
                                 }
                             })
-                            console.log(newconstraints)
                             setconstraints(newconstraints);
                         }}
                         />
-                        </p>
+                        </div>
                     ))
                 }
             </div>

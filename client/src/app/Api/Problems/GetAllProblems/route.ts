@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 import { fail } from "@/app/lib/api/response";
 import Problem from "../../../lib/api/models/Problem/problemModel"
 import dbConnect from "@/app/lib/api/databaseConnect";
+import jwt from "jsonwebtoken";
 
 export interface Response {
     success: boolean,
@@ -19,11 +20,17 @@ export interface Response {
 
 export async function GET(request : NextRequest){
     try{
+        const secret = process.env.JWT_SECRET;
+        if(!secret){
+            return fail("server configuration failed.")
+        }
         const cookieStore = cookies();
         const token = cookieStore.get("token")?.value;
         if(!token){
             return fail("Unauthorised access",403);
         }
+
+        const decodedtoken = jwt.verify(token,secret) as {id:string, name:string, admin?:boolean};
         
         const params = new URL(request.url).searchParams;
         const page : number = Number(params.get('page')) || 1;
@@ -36,11 +43,19 @@ export async function GET(request : NextRequest){
 
         await dbConnect();
 
+        const project : {"title":number, "difficulty"?:number} ={
+            "title":1
+        }
+
+        if(!decodedtoken.admin){
+            project["difficulty"] = 1;
+        }
+
         const result = await Problem.aggregate([
-            {$match:{}},
+            {$match:{isdeleted:false}},
             {$skip:i},
             {$limit:pagelen},
-            {$project:{"title":1,"difficulty":1,"totalProblems":1}},
+            {$project:project},
         ])
 
         
