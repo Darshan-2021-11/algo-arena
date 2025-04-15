@@ -6,46 +6,47 @@ import User from "../../../../lib/api/models/User/userModel";
 import dbConnect from "../../../../lib/api/databaseConnect";
 import { fail } from "@/app/lib/api/response";
 import { randomBytes } from "crypto";
+import { redisConnect } from "@/app/lib/api/redisConnect";
 
 interface reqbody {
-  identifier:string
-  password:string
-  rememberme?:boolean
+  identifier: string
+  password: string
+  rememberme?: boolean
 }
 
 interface validateoutput {
-  query:{
-    email?:string
+  query: {
+    email?: string
     username?: string
   }
-  success:boolean
-  message:string
+  success: boolean
+  message: string
 }
 
 
-const validateInput =(data:reqbody) :validateoutput =>{
+const validateInput = (data: reqbody): validateoutput => {
   const op = {
-    success:false,
-    message:"",
-    query:{},
+    success: false,
+    message: "",
+    query: {},
   }
   try {
-    const {identifier, password} = data;
-    
+    const { identifier, password } = data;
+
     if (!identifier || !password) {
       op.message = "All fields are required"
       return op;
     }
-  
+
     const isemail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (isemail.test(identifier)) {
-      if(identifier.length < 3 || identifier.length > 254){
+      if (identifier.length < 3 || identifier.length > 254) {
         op.message = "Invalid email."
         return op;
       }
       op.query = { email: identifier };
     } else {
-      if(identifier.length < 3 || identifier.length > 12){
+      if (identifier.length < 3 || identifier.length > 12) {
         op.message = "username size must be between 3 to 12"
         return op;
       }
@@ -53,89 +54,89 @@ const validateInput =(data:reqbody) :validateoutput =>{
     }
 
     const ispassword = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/;
-  
-    if(!ispassword.test(password)){
+
+    if (!ispassword.test(password)) {
       op.message = "invalid password"
       return op;
     }
-  
+
     op.success = true;
     op.message = "";
     return op;
-  } catch (error:any) {
+  } catch (error: any) {
     console.log(error);
-    op.message =  "Invalid input."
+    op.message = "Invalid input."
     return op;
   }
- 
+
 }
 
 export async function POST(req: NextRequest, res: NextResponse) {
   try {
     const secret = process.env.JWT_SECRET;
-    if(!secret){
+    if (!secret) {
       return fail("Server is not working")
     }
 
-    const data : reqbody = await req.json();
-    
+    const data: reqbody = await req.json();
 
-    if(!data){
-      return fail( "body is required.",400);
+
+    if (!data) {
+      return fail("body is required.", 400);
     }
-    
-    const {query, success, message} = validateInput(data);
-    if(!success){
-      return fail(message,400);
+
+    const { query, success, message } = validateInput(data);
+    if (!success) {
+      return fail(message, 400);
     }
 
     await dbConnect();
 
     const existingUser = await User.findOne(query).select("username password verified admin");
     if (!existingUser) {
-      return fail("Invalid username or password.",400);
+      return fail("Invalid username or password.", 400);
     }
 
     if (!existingUser.verified) {
-      return fail("Invalid username or password.",403);
+      return fail("Invalid username or password.", 403);
     }
 
     const isPasswordValid = await bcrypt.compare(data.password, existingUser.password);
     if (!isPasswordValid) {
-      return fail("Invalid username or password.",403);
+      return fail("Invalid username or password.", 403);
     }
 
-   
-    const expiry = data.rememberme 
-    ? Number(process.env.NEXT_PUBLIC_EXPIRES_IN_30D) ? Number(process.env.NEXT_PUBLIC_EXPIRES_IN_30D) : 24 * 60 * 60 * 30 
-    : Number(process.env.NEXT_PUBLIC_EXPIRES_IN_24H) ? Number(process.env.NEXT_PUBLIC_EXPIRES_IN_24H) : 24 * 60 * 60 ;
-    
 
-    const tokenval : {id:string, name:string, admin?:boolean} = {
-      id: existingUser._id, name: existingUser.username 
+    const expiry = data.rememberme
+      ? Number(process.env.NEXT_PUBLIC_EXPIRES_IN_30D) ? Number(process.env.NEXT_PUBLIC_EXPIRES_IN_30D) : 24 * 60 * 60 * 30
+      : Number(process.env.NEXT_PUBLIC_EXPIRES_IN_24H) ? Number(process.env.NEXT_PUBLIC_EXPIRES_IN_24H) : 24 * 60 * 60;
+
+
+    const tokenval: { id: string, name: string, admin?: boolean } = {
+      id: existingUser._id, name: existingUser.username
     }
 
-    if(existingUser.admin){
+    if (existingUser.admin) {
       tokenval.admin = true;
     }
 
     const token = jwt.sign(
       tokenval,
-       secret,
-      { expiresIn: expiry}
+      secret,
+      { expiresIn: expiry }
     );
     const crefToken = randomBytes(32).toString("hex");
 
-    if(!crefToken){
+    if (!crefToken) {
       return fail("Server is not working")
     }
 
-    const user : {id:string, name:string, admin?:boolean} = {
+    const user: { id: string, name: string, admin?: boolean } = {
       id: existingUser._id,
       name: existingUser.username
     };
 
-    if(existingUser.admin){
+    if (existingUser.admin) {
       user.admin = true;
     }
 
@@ -149,17 +150,27 @@ export async function POST(req: NextRequest, res: NextResponse) {
       httpOnly: true,
       maxAge: 24 * 60 * 60,
       path: "/",
-      secure:process.env.NODE_ENV === "production",
-      sameSite:"strict",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
     });
 
     response.cookies.set("x-cref-token", crefToken, {
       httpOnly: true,
-      maxAge: 24 * 60 * 60,
+      maxAge: 60 * 60,
       path: "/",
-      secure:process.env.NODE_ENV === "production",
-      sameSite:"strict",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
     });
+
+    const redis = await redisConnect();
+
+    if (redis) {
+      try {
+        redis.set(crefToken, existingUser.name, { EX: 3600 });
+      } catch (error) {
+        console.log(error);
+      }
+    }
 
     return response;
 

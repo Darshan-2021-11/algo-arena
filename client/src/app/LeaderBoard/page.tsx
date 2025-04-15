@@ -16,7 +16,7 @@ const Page: React.FC = () => {
 
     const fetchData =async()=>{
         try {
-            const url = "/Api/Auth/LeaderBoard";
+            const url = "/Api/LeaderBoard";
             const data = await axios.get(url);
             setusers(data.data.users);
             console.log(data);

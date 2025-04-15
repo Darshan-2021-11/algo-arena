@@ -4,7 +4,7 @@ import { useAuth } from "../lib/slices/authSlice";
 import { useEffect, useRef, useState } from "react";
 import { v4 } from "uuid";
 
-interface submissionType {
+export interface submissionType {
     createdAt: string,
     language: string,
     problem: string,
@@ -18,9 +18,9 @@ interface proptype {
 }
 
 const Submissions : React.FC<proptype> = ({setcode}) => {
-    const { id } = useSelector(useAuth);
     const [submissions, setsubmissions] = useState<submissionType[]>([]);
     const currentTime = Date.now();
+    const { id } = useSelector(useAuth);
     const page = useRef(1);
     const [end, setend] = useState(false);
     const limit = 15;

@@ -35,7 +35,7 @@ export async function GET(request : NextRequest){
         const url = new URL(request.url);
         
         const params = url.searchParams;
-        const problem = url.searchParams.get("p");
+        const problem = url.searchParams.get("pb");
         if(!problem){
             return fail("problem is required.")
         }
@@ -55,17 +55,7 @@ export async function GET(request : NextRequest){
             {$match:{user:new mongoose.Types.ObjectId(decodedtoken.id), problem:new mongoose.Types.ObjectId(problem) }},
             {$skip:(page-1)*pagelen},
             {$limit:pagelen},
-            {$lookup:{
-                localField:"problem",
-                foreignField:"_id",
-                from:"problems",
-                as:"problem"
-            }},
-            {$addFields:{
-                name:{$arrayElemAt:["$problem.title",0]}
-            }},
             {$project:{
-                name:1,
                 result:1,
                 language:1,
                 createdAt:1,

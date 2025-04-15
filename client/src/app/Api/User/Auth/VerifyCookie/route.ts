@@ -7,6 +7,7 @@ import User from "@/app/lib/api/models/User/userModel";
 import dbConnect from "@/app/lib/api/databaseConnect";
 import arr from "@/app/Api/utils";
 import { randomBytes } from "crypto";
+import { redisConnect } from "@/app/lib/api/redisConnect";
 
 
 export const GET = async () => {
@@ -18,7 +19,6 @@ export const GET = async () => {
         const token = cookieStore.get("token")?.value;
         if (!token) return fail("Invalid request.", 400);
         arr.push(token);
-        console.log(arr)
         const data = jwt.verify(token, secretkey) as { name: string, id: string };
         await dbConnect();
         const user = await User.findOne({ username: data.name }).select("isdeleted admin");
@@ -28,9 +28,9 @@ export const GET = async () => {
 
         const response = NextResponse.json({
             user: {
-                id:user._id,
-                name:data.name,
-                admin:user.admin
+                id: user._id,
+                name: data.name,
+                admin: user.admin
             },
             message: "successffully information fetched.",
             success: true
@@ -38,11 +38,22 @@ export const GET = async () => {
 
         response.cookies.set("x-cref-token", crefToken, {
             httpOnly: true,
-            maxAge: 24 * 60 * 60,
+            maxAge: 60 * 60,
             path: "/",
             secure: process.env.NODE_ENV === "production",
             sameSite: "strict",
         });
+
+        const redis = await redisConnect();
+
+        if (redis) {
+            try {
+                redis.set(crefToken, data.name, { EX: 3600 });
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
 
         return response
 

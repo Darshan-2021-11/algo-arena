@@ -19,7 +19,7 @@ export interface Response {
 }
 
 
-export async function GET(request : NextRequest){
+export async function GET(){
     try{
         const secret = process.env.JWT_SECRET;
         if(!secret){
@@ -33,17 +33,10 @@ export async function GET(request : NextRequest){
 
         const decodedtoken = jwt.verify(token,secret) as {id:string, name:string, admin?:boolean};
         
-        const params = new URL(request.url).searchParams;
-        const page : number = Number(params.get('page')) || 1;
-        const pagelen = Number(params.get('len')) || 10;
-        let i = 0, j = pagelen;
-        if(page > 1){
-            i = (pagelen * page) - pagelen;
-            j = i + pagelen;
-        }
+       
 
         let result;
-        const key = `problem${page}-${pagelen}`;
+        const key = `problemCount`;
 
         const redis = await redisConnect();
         if(redis){
@@ -62,21 +55,12 @@ export async function GET(request : NextRequest){
         if(!result){
             await dbConnect();
 
-            const project : {"title":number, "difficulty"?:number} ={
-                "title":1
-            }
-    
-            if(!decodedtoken.admin){
-                project["difficulty"] = 1;
-            }
-    
-            result = await Problem.aggregate([
+            const totalProblems = await Problem.aggregate([
                 {$match:{isdeleted:false}},
-                {$skip:i},
-                {$limit:pagelen},
-                {$project:project},
-            ])
+                {$count:"totalProblems"}
+            ]);
 
+            totalProblems.length > 0 && (result = totalProblems[0].totalProblems);
             try {
                 redis && redis.set(key,JSON.stringify(result),{EX:86400})
             } catch (error) {
@@ -88,8 +72,7 @@ export async function GET(request : NextRequest){
         return NextResponse.json({
             success:true,
             message:"successfully fetched data",
-            Problems:result,
-            end:result?.length < pagelen
+            total:result
         },{status:200})
     }catch(err){
         console.log(err);

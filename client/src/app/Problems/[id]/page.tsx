@@ -11,6 +11,9 @@ import Assistant from "../../utils/Assistant";
 import { AiOutlineLoading } from "react-icons/ai";
 import ProblemDescription from "./Problem";
 import Commentpage from "./Comment";
+import { IoIosArrowForward } from "react-icons/io";
+import { IoIosArrowDown } from "react-icons/io";
+import Submissions from "./Submissions";
 
 interface resulttype {
   status: {
@@ -20,6 +23,8 @@ interface resulttype {
   time: string;
   memory: string;
   errmsg?: string;
+  output?: string;
+  down:boolean
 }
 
 interface sizetype {
@@ -107,13 +112,13 @@ const IDE: React.FC<pagetype> = ({ altproblem, contesturl }) => {
   const [running, setrun] = useState(false);
 
   const failed_test: resulttype[] = [
-    { status: { id: null, description: null }, time: "0.000", memory: "N/A " },
+    { status: { id: null, description: null }, time: "0.000", memory: "N/A ", down:false },
   ];
   const runcode = async () => {
     try {
       setrun(true);
-      const res: any[] = ["sd"];
-      setresult(res);
+      // const res: any[] = ["sd"];
+      // setresult(res);
       /*
       const url = contesturl || "/Api/Submissions/Run";
       const body = altproblem
@@ -163,7 +168,10 @@ const IDE: React.FC<pagetype> = ({ altproblem, contesturl }) => {
             time: data.data.time,
             memory: data.data.memory,
             errmsg: data.data.stderr,
+            output: data.data.message,
+            down:false
           };
+          console.log(data)
           if (d.data.success) {
             const results = [...result];
             let newrs = [];
@@ -255,14 +263,15 @@ const IDE: React.FC<pagetype> = ({ altproblem, contesturl }) => {
                     discussion
                   </p>
                 }
-                {/* <p
+                <p
+                onClick={()=>setp("c")}
                   className='mr-4 bg-black pt-1 pb-1 pl-2 pr-2 rounded-xl cursor-pointer text-gray-50 hover:text-gray-300'
-                  >submissions</p> */}
+                  >submissions</p>
               </div>
               {p === "a" && <ProblemDescription Problem={Problem} />}
-              {p === "b" && !altproblem && (
-                <Commentpage comments={Comment} setcomments={setComment} id={id} />
-              )}
+              {p === "b" && !altproblem && <Commentpage comments={Comment} setcomments={setComment} id={id} /> }
+              {p === "c" && !altproblem && <Submissions id={id} /> }
+
             </div>
             <div
               onMouseDown={() => setmove(true)}
@@ -282,19 +291,19 @@ const IDE: React.FC<pagetype> = ({ altproblem, contesturl }) => {
               >
                 <div className=" overflow-y-scroll h-4/6">
                   <div key={uuidv4()} className={`flex w-screen justify-evenly m-1 p-3 text-white `} >
-                    <div style={{ width: "20%"}} > test no </div>
+                    <div style={{ width: "20%" }} > test no </div>
                     <div style={{ width: "20%" }} > description </div>
-                    <div style={{width: "20%"}} > time </div>
-                    <div style={{width: "20%" }} > memory </div>
+                    <div style={{ width: "20%" }} > time </div>
+                    <div style={{ width: "20%" }} > memory </div>
                   </div>
                   {result.map((r, i) => (
                     <div key={uuidv4()}>
                       <div
                         className={`flex text-white w-screen justify-evenly m-1 p-3 ${r?.status?.id
-                            ? r.status.id === 3
-                              ? "bg-green-500"
-                              : "bg-red-700"
-                            : "bg-gray-400"
+                          ? r.status.id === 3
+                            ? "bg-green-500"
+                            : "bg-red-700"
+                          : "bg-gray-400"
                           }`}
                       >
                         <div
@@ -329,8 +338,65 @@ const IDE: React.FC<pagetype> = ({ altproblem, contesturl }) => {
                         >
                           {r?.memory ? r.memory : "--"}KB
                         </div>
-                        {<p></p>}
+                        <div
+                        className="flex items-center justify-center "
+                        >
+                          {
+                            r.down ? 
+                            <IoIosArrowDown 
+                            onClick={()=>{
+                              const temp = [...result];
+                              temp[i].down = false;
+                              setresult(temp);
+                            }}
+                            className="cursor-pointer scale-125" />
+                            :
+                            <IoIosArrowForward
+                            onClick={()=>{
+                              const temp = [...result];
+                              temp[i].down = true;
+                              setresult(temp);
+                            }}
+                            className="cursor-pointer scale-125" />
+                          }
+                        </div>
                       </div>
+                      {
+                        r.down && 
+                        <div
+                        className="bg-zinc-700 "
+                      >
+                        {
+                          r.errmsg &&
+                          <div
+                            className="p-2 pl-3 pr-3"
+                          >
+                            <p
+                              className="text-red-500 m-1"
+                            >Error</p>
+                            <pre
+                              className="bg-zinc-800 p-4"
+                            >
+                              {r?.errmsg}
+                            </pre>
+                          </div>
+                        }
+
+                        <div
+                          className="p-2 pl-3 pr-3"
+                        >
+                          <p
+                            className=" m-1"
+                          >Output</p>
+                          <pre
+                            className="bg-zinc-800 p-4"
+                          >
+                            {r?.output}
+                          </pre>
+                        </div>
+                      </div>
+                      }
+                    
                     </div>
                   ))}
                 </div>

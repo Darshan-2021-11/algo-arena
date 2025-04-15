@@ -65,13 +65,13 @@ const Commentpage: React.FC<commentpayload> = ({ comments, setcomments, id }) =>
 
     return (
         <>
-            <div className=" relative h-full flex flex-col overflow-scroll bg-zinc-800 m-2 "
+            <div className=" relative h-full flex flex-col overflow-hidden bg-zinc-800 m-2 "
 
             >
                 <div
-                    className="p-3 h-full overflow-scroll"
+                    className="p-3 overflow-scroll flex-1 pb-28"
                     style={{
-                        height: "83%"
+                        height: "calc(85vh - 100px)"
                     }}
                 >
                     {
@@ -111,7 +111,10 @@ const Commentpage: React.FC<commentpayload> = ({ comments, setcomments, id }) =>
 
                     type="text"
                     placeholder="write something here and press enter."
-                    className="pl-3 w-full pt-2 pb-2 outline-none rounded-xl bg-zinc-700 "
+                    className="pl-3 w-full pt-2 pb-2 outline-none rounded-xl absolute bg-zinc-700 left-0 "
+                    style={{
+                        top:"70vh"
+                    }}
                 />
             </div>
         </>

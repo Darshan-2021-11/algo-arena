@@ -44,6 +44,7 @@ async function joinMatch({roomid, id}) {
 
         const problemschema = mongoose.connection.collection("problems");
         const problem = await problemschema.aggregate([
+            {$match:{isdeleted:false }},
             { $sample: { size: 1 } },
             {
                 $project: {

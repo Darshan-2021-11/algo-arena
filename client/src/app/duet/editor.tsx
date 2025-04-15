@@ -62,6 +62,8 @@ const Codeeditor = () => {
       window.removeEventListener("resize", handleresize);
     })
   }, [move, size])
+
+  console.log(Problem)
   return (
     <>
       {
