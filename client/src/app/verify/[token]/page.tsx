@@ -29,7 +29,7 @@ const Page : React.FC = ()=>{
         (async()=>{
                 try {
               
-                const res = await axios.get(`/Api/Auth/Verify?token=${token}`);
+                const res = await axios.get(`/Api/User/Auth/Verify?token=${token}`);
                 console.log(res)
                 if(res.data.success){
                     settext("You have been verified successfully.");

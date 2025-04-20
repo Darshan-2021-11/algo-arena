@@ -1,11 +1,13 @@
 'use server';
 
 import jwt from "jsonwebtoken";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import handleEmailVerification from "../../../../lib/api/emailVerification";
 import dbConnect from "../../../../lib/api/databaseConnect";
 import { fail, success } from "@/app/lib/api/response";
 import User from "@/app/lib/api/models/User/userModel";
+import { getBloom } from "@/app/lib/api/generateHash";
+import mongoose from "mongoose";
 
 export const validateUserInput = (username: string, email: string, password: string) => {
   const errors: string[] = [];
@@ -55,31 +57,42 @@ export async function POST(request: NextRequest) {
 
     const tokenExpiry = Number(process.env.NEXT_PUBLIC_TOKEN_EXPIRY) ;
     const verificationToken = jwt.sign({ username, email }, secretKey, { expiresIn: tokenExpiry ? tokenExpiry : "24h" });
-    const newuser = await User.create({
-      username,
-      email,
-      password,
-      verificationToken
-    });
 
-    newuser.save();
-
-
+    const session = await mongoose.startSession();
     try {
-      const url = `${origin}/Verify/${verificationToken}`;
-      const encodeurl = encodeURI(url);
-      const text = `Visit this link: ${encodeurl} to verify your email. 
-      If link expires please visit this link - ${origin}/Reverify/
-      `;
+      session.startTransaction();
 
-      await handleEmailVerification("Email Verification", text, email, text);
-    } catch (emailError) {
-      console.error("Email sending failed:", emailError);
-      // return fail("Failed to send verification email. Please try again.", 500);
+      await User.create({
+        username,
+        email,
+        password,
+        verificationToken
+      });
+  
+
+      const bloom = await getBloom();
+      if(bloom){
+        bloom.add(username);
+      }
+  
+      try {
+        const url = `${origin}/verify/${verificationToken}`;
+        const encodeurl = encodeURI(url);
+        const text = `Visit this link: ${encodeurl} to verify your email. 
+        If link expires please visit this link - ${origin}/Reverify/
+        `;
+  
+        await handleEmailVerification("Email Verification", text, email, text);
+      } catch (emailError) {
+        console.error("Email sending failed:", emailError);
+      }
+  
+     await session.commitTransaction();
+    } catch (error) {
+     await session.abortTransaction();
+      return fail("failed to create account.");
     }
-
-
-    
+   
 
     return success("User registered successfully. Please check your mail to verify account.", {
     }, 201);

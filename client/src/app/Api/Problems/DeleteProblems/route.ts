@@ -43,9 +43,9 @@ export async function POST(req: NextRequest) {
                 } 
             });
             
-            session.commitTransaction();
+            await session.commitTransaction();
         } catch (error) {
-            session.abortTransaction();
+            await session.abortTransaction();
             throw  error;
         }
 

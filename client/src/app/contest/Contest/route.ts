@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
     let submission;
     try {
       session.startTransaction();
-      const submission = await Submission.create({
+      submission = await Submission.create({
         user: decodedtoken.id,
         problem: id,
         language: lang,
@@ -165,10 +165,10 @@ export async function POST(req: NextRequest) {
           }
         );
       }
-      session.commitTransaction();
+      await session.commitTransaction();
     } catch (error: any) {
       console.log(error);
-      session.abortTransaction();
+      await session.abortTransaction();
       return fail(error.message ? error.message : "Data could not be saved.");
     }
     return NextResponse.json(

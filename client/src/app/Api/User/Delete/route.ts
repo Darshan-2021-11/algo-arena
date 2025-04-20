@@ -42,9 +42,9 @@ export async function DELETE(req: NextRequest) {
                 await Submission.deleteMany({_id})
             }
 
-            session.commitTransaction();
+            await session.commitTransaction();
         } catch (error) {
-            session.abortTransaction();
+            await session.abortTransaction();
             return fail("failed to delete user account.");
         }
         session.endSession();

@@ -155,10 +155,10 @@ export async function POST(req: NextRequest) {
 					upsert:true
 				})
 			}
-			session.commitTransaction();
+			await session.commitTransaction();
 		} catch (error:any) {
 			console.log(error)
-			session.abortTransaction();
+			await session.abortTransaction();
 			return fail(error.message ? error.message : "Data could not be saved.")
 		}
 		return NextResponse.json({ success: true, tokens, message: "successfully sent to run codes.", problemid: submission._id }, { status: 200 });

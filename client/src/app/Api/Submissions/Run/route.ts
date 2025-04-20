@@ -116,10 +116,10 @@ export async function POST(req: NextRequest) {
                 {upsert:true}
             )
             }
-            session.commitTransaction();
+            await session.commitTransaction();
         } catch (error:any) {
             console.log(error)
-            session.abortTransaction();
+            await session.abortTransaction();
             return fail(error.message ? error.message : "Data could not be saved.")
         }
 

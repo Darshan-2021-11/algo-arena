@@ -1,10 +1,10 @@
 'use client'
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from "next/link";
-import { useRouter } from 'next/navigation';
 import axios from "axios";
 import { LuLoaderCircle } from 'react-icons/lu';
 import { generateHeader } from '../lib/customHeader';
+import Username from './username';
 
 interface body {
   email: string | undefined,
@@ -16,13 +16,11 @@ interface body {
 const SignUp: React.FC = () => {
   const [e_error, sete_Error] = useState<string | null>(null);
   const [success, setsuccess] = useState<string | null>(null);
-  const [u_error, setu_Error] = useState<string | null>(null);
   const [p_error, setp_Error] = useState<string | null>(null);
   const [p2_error, setp2_Error] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const router = useRouter()
 
   const passwordTests = [
     { test: /[A-Z]/, msg: "Capital letter must be present." },
@@ -35,12 +33,10 @@ const SignUp: React.FC = () => {
     try {
       const username = data.username;
       if (!username) {
-        setu_Error("username is required");
-        return;
-      } else if (username.length < 3 || username.length > 12) {
-        setu_Error("username must be in between 3 to 12.")
-        return;
-      }
+        return ;
+    } else if (username.length < 3 || username.length > 12) {
+        return ;
+    }
 
       const email = data.email;
       if (!email) {
@@ -83,7 +79,6 @@ const SignUp: React.FC = () => {
       setError(null);
       setLoading(true);
       sete_Error(null);
-      setu_Error(null);
       setp2_Error(null);
       setp_Error(null);
       setsuccess(null);
@@ -122,6 +117,8 @@ const SignUp: React.FC = () => {
     }
   };
 
+  
+
   return (
     <div className="h-screen flex items-center justify-center">
       <div className="bg-gray-800 p-10 rounded-3xl w-96 bg-opacity-60 shadow-gray-600 shadow-xl ">
@@ -136,18 +133,7 @@ const SignUp: React.FC = () => {
           }}
         >
 
-          <input
-            type="text"
-            placeholder="Name"
-            name='username'
-            className={` ${u_error&& 'border-red-600 border'} w-full p-3 bg-gray-700 rounded outline-none text-white placeholder-gray-500`}
-          />
-          {
-            u_error ?
-              <div className='mb-4 text-xs text-red-700'>{u_error}</div>
-              :
-              <div className='h-8 w-1 '></div>
-          }
+          <Username/>
           <input
             type="email"
             placeholder="Email"
