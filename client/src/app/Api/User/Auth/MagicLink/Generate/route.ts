@@ -7,7 +7,8 @@ import handleEmailVerification from "@/app/lib/api/emailVerification";
 
 const sendemail = async(email:string, token:string) => {
     try {
-        const url = `${origin}/Forgotpassword/Magiclink/login/${token}`;
+        const origin = process.env.NEXT_PUBLIC_ORIGIN;
+        const url = `${origin}/Forgotpassword/Magiclink/login/${email}%${token}`;
         const encodeurl = encodeURI(url);
         const text = `Visit this link: ${encodeurl} to verify your email. Link will expire in 1 hour.`;
 
@@ -52,7 +53,7 @@ export async function POST(req: NextRequest) {
         }
         const token = randomBytes(32).toString("hex");
         if (redis) {
-            redis.set(email, token,{EXAT:3600});
+            await redis.set(email, token, { EX: 3600 });
         }
 
         await sendemail(email,token);

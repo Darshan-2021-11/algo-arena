@@ -35,8 +35,11 @@ const Page = () => {
         if (typeof (mp) !== "number") {
           mp = 1;
         }
-        console.log(mp)
-        setmaxpage(mp)
+        if(mp){
+          setmaxpage(mp)
+        }else{
+          setmaxpage(1)
+        }
       }
     } catch (err: any) {
       console.log(err);
@@ -65,7 +68,6 @@ const Page = () => {
     } else {
       a = maxpage > 4 ? maxpage - 4 : 0;
     }
-    console.log(maxpage,a)
 
     const p = [];
     for (let i = a; i < a + 4 && i < maxpage; i++) {
@@ -74,11 +76,10 @@ const Page = () => {
     setpages(p);
   }, [page])
 
-  // console.log(maxpage)
 
   useEffect(() => {
     const p = [];
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 1; i++) {
       if ((i + 1) > maxpage) {
         break;
       }
@@ -141,7 +142,7 @@ const Page = () => {
                   <p
                     key={`${v4()}th page`}
                     onClick={() => {
-                      
+                      console.log(i)
                       if (i + 1 < page) {
                         prevPage();
                       } else {
@@ -169,6 +170,17 @@ const Page = () => {
             min={1}
             defaultValue={1}
             max={maxpage}
+            onChange={(e)=>{
+              const num = Number(e.currentTarget.value);
+              if(num > maxpage){
+                e.currentTarget.value = String(maxpage);
+              }
+
+              if(num < 1){
+                e.currentTarget.value = "1";
+              }
+
+            }}
             onKeyDown={(e)=>{
               if(e.code === "Enter"){
                 const p = Number(e.currentTarget.value);

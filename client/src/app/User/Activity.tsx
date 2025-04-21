@@ -5,8 +5,9 @@ import { v4 } from "uuid";
 
 const Activity: React.FC = () => {
     const monthDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    const currentYear = new Date().getFullYear();
     const [calendar, setcalender] = useState<{ month: number, days: (number | null)[] }[]>([]);
-    const [years, setyears] = useState<number[]>([]);
+    const [years, setyears] = useState<number[]>([currentYear]);
     const [year, sety] = useState<number | null>();
 
     const getActivity = async (): Promise<{ date: Date, submissions: number }[]> => {
