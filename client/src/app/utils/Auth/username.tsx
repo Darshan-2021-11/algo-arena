@@ -1,25 +1,30 @@
 import axios from "axios";
-import { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
-const Username = () => {
-    const [u_error, setu_Error] = useState<string | null>(null);
+interface nametype {
+    check:boolean
+    setvalid:React.Dispatch<React.SetStateAction<boolean>>
+}
+
+const Username : React.FC<nametype> = ({check, setvalid}) => {
+    const [error, seterror] = useState<string | null>(null);
     const [status, setstatus] = useState<boolean | null>(null);
 
     const usercheck = useRef(true);
     const nextusercheck = useRef("");
 
-    const validateUsername = (username: string) => {
+    const validate = (username: string) => {
         if (!username) {
-            setu_Error("username is required");
+            seterror("username is required");
             setstatus(false);
             return false;
         } else if (username.length < 3 || username.length > 12) {
-            setu_Error("username must be in between 3 to 12.")
+            seterror("username must be in between 3 to 12.")
             setstatus(false);
             return false;
         }
-        setstatus(null)
-        setu_Error(null);
+        check ? setstatus(null) : setstatus(true);
+        seterror(null);
         return true;
     }
 
@@ -31,16 +36,16 @@ const Username = () => {
             const url = "/Api/User/Auth/Exists/Username";
             const { data } = await axios.post(url, { username });
             if (!data.success) {
-                setu_Error("Username is not available.");
+                seterror("Username is not available.");
                 setstatus(false);
             } else {
                 setstatus(true);
-                setu_Error(null);
+                seterror(null);
             }
         } catch (error: any) {
             console.log(error);
             setstatus(false);
-            setu_Error("Username is not available.");
+            seterror("Username is not available.");
         } finally {
             usercheck.current = true;
             if(nextusercheck.current){
@@ -49,20 +54,29 @@ const Username = () => {
         }
     }
 
+    useEffect(()=>{
+        if(status){
+            setvalid(true);
+        }else{
+            setvalid(false);
+        }
+    },[status])
+
 
     return (
         <>
             <input
                 type="text"
-                placeholder="Name"
+                placeholder="Username"
                 onChange={(e) => {
                     const val = e.currentTarget.value;
-                    if (validateUsername(val)) {
+                    const valid = validate(val);
+                    if (valid && check) {
                         if (usercheck.current) {
                             const id = setTimeout(() => {
                                 checkusername(val);
                                 clearTimeout(id);
-                            }, 200);
+                            }, 400);
                         } else {
                             nextusercheck.current = val;
                         }
@@ -72,8 +86,8 @@ const Username = () => {
                 className={` ${status !== null ? status ? "border-green-600 border" : 'border-red-600 border' : ""} w-full p-3 bg-gray-700 rounded outline-none text-white placeholder-gray-500`}
             />
             {
-                u_error ?
-                    <div className='mb-4 text-xs text-red-700'>{u_error}</div>
+                error ?
+                    <div className='mb-4 text-xs text-red-700'>{error}</div>
                     :
                     <div className='h-8 w-1 '></div>
             }

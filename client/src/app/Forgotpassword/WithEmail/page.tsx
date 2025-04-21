@@ -4,11 +4,12 @@ import { useRouter } from 'next/navigation';
 import axios from "axios";
 import { LuLoaderCircle } from "react-icons/lu";
 import { useDispatch } from 'react-redux';
-import { login } from '../lib/slices/authSlice';
-import { generateHeader } from '../lib/customHeader';
+import { login } from '@/app/lib/slices/authSlice';
+import { generateHeader } from '@/app/lib/customHeader';
 import Link from 'next/link';
-import Password from '../utils/Auth/passwords';
-import Username from '../utils/Auth/username';
+import Password from '@/app/utils/Auth/passwords';
+import Email from '@/app/utils/Auth/email';
+
 
 const SignIn = () => {
   const [loading, setLoading] = useState(false);
@@ -24,16 +25,16 @@ const SignIn = () => {
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     try {
       e.preventDefault();
-      if (!namevalid || !passwordvalid) {
+      if (!namevalid || !passwordvalid){
         return;
       }
-      setLoading(true);
+        setLoading(true);
       setsuccess(null);
       setError(null);
 
       const data = new FormData(e.currentTarget);
       const objectdata = {
-        username: data.get("username")?.toString(),
+        email: data.get("email")?.toString(),
         password: data.get("password")?.toString()
       };
 
@@ -66,21 +67,20 @@ const SignIn = () => {
 
   return (
     <div className="flex items-center justify-center"
-      style={{
-        height: "calc( 100vh - 64px )"
-      }}
+    style={{
+      height:"calc( 100vh - 64px )"
+    }}
     >
       <div className="bg-gray-800 p-10 rounded-3xl w-96 bg-opacity-50 mt-5 shadow-gray-600 shadow-xl">
         <h2 className="text-3xl font-bold pb-3 text-center text-white mb-4">
-          Log in
+          Log in with Email
         </h2>
 
         <form
           onSubmit={handleSignIn}
         >
-
-          <Username setvalid={setnv} check={false} />
-          <Password doublecheck={false} setvalid={setpv} />
+            <Email setvalid={setnv}/>
+          <Password doublecheck={false} setvalid={setpv}/>
           {
             error || success ?
               error ?
@@ -106,12 +106,10 @@ const SignIn = () => {
 
         </form>
 
-        <div className='mt-5 ml-3'><Link className="text-sm  pt-5 ml-8 text-right" href={"/Sign-up"}>
-          Create a new account ? <span className="underline text-red-700">Signup</span>
-        </Link></div>
         <Link className="text-sm flex items-center justify-center mt-4 text-right" href={"/Forgotpassword"}>
           Another way to login? <span className="pl-1 underline text-red-700">try another way</span>
         </Link>
+       
       </div>
     </div>
   );

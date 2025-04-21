@@ -1,17 +1,64 @@
-import { fail } from "@/app/lib/api/response";
+import User from "@/app/lib/api/models/User/userModel";
+import { fail, success } from "@/app/lib/api/response";
 import { NextRequest } from "next/server";
+import { randomBytes } from 'crypto';
+import { redisConnect } from "@/app/lib/api/redisConnect";
+import handleEmailVerification from "@/app/lib/api/emailVerification";
 
-export async function POST(req : NextRequest){
+const sendemail = async(email:string, token:string) => {
     try {
-        const {identifier} = await req.json();
+        const url = `${origin}/Forgotpassword/Magiclink/login/${token}`;
+        const encodeurl = encodeURI(url);
+        const text = `Visit this link: ${encodeurl} to verify your email. Link will expire in 1 hour.`;
 
-        const query = {verified:true};
+        await handleEmailVerification("Email Verification", text, email, text);
+    } catch (emailError) {
+        console.error("Email sending failed:", emailError);
+    }
+}
+
+export async function POST(req: NextRequest) {
+    try {
+        const { email } = await req.json();
 
         const regex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
-        if(regex.test(identifier)){
-
+        if (!regex.test(email)) {
+            return fail("invalid email.");
         }
-    } catch (error:any) {
+
+        const redis = await redisConnect();
+
+        if (redis) {
+            const data = await redis.get(email);
+            if (data) {
+                if (data === "No") {
+                    return fail("No such user found.", 404);
+                } else {
+                    await sendemail(email,data);
+                    return success("Check you email for login link.");
+                }
+            }
+        }
+
+        const query = { verified: true, email };
+
+        const user = await User.findOne(query).select("_id");
+
+        if (!user) {
+            if (redis) {
+                redis.set(email, "No");
+            }
+            return fail("No such user found.", 404)
+        }
+        const token = randomBytes(32).toString("hex");
+        if (redis) {
+            redis.set(email, token,{EXAT:3600});
+        }
+
+        await sendemail(email,token);
+        return success("Check you email for login link.");
+
+    } catch (error: any) {
         return fail(error.message);
     }
 }

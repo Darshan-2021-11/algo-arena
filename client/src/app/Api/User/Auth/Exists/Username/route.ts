@@ -28,6 +28,12 @@ export async function POST(request: NextRequest) {
       return fail("All fields are required", 400);
     }
 
+    const errs = validateUserInput(username);
+
+    if(errs.length > 0){
+      return fail(errs[0],400);
+    }
+
     const bloom = await getBloom();
     if(bloom){
       const isexists = await bloom.exists(username);

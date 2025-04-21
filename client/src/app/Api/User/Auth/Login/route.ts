@@ -7,17 +7,19 @@ import dbConnect from "../../../../lib/api/databaseConnect";
 import { fail } from "@/app/lib/api/response";
 import { randomBytes } from "crypto";
 import { redisConnect } from "@/app/lib/api/redisConnect";
+import { getBloom } from "@/app/lib/api/generateHash";
 
 interface reqbody {
-  identifier: string
+  username: string
   password: string
   rememberme?: boolean
+  email:string
 }
 
 interface validateoutput {
   query: {
-    email?: string
     username?: string
+    email?:string
   }
   success: boolean
   message: string
@@ -25,34 +27,35 @@ interface validateoutput {
 
 
 const validateInput = (data: reqbody): validateoutput => {
-  const op = {
+  const op : validateoutput = {
     success: false,
     message: "",
     query: {},
   }
   try {
-    const { identifier, password } = data;
+    const { username,email, password } = data;
 
-    if (!identifier || !password) {
+    if ((!username && !email) || !password) {
       op.message = "All fields are required"
       return op;
     }
 
-    const isemail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (isemail.test(identifier)) {
-      if (identifier.length < 3 || identifier.length > 254) {
-        op.message = "Invalid email."
-        return op;
+
+    if(email){ 
+      const isemail = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
+      if(isemail.test(email)){
+        op.query = {email};
       }
-      op.query = { email: identifier };
-    } else {
-      if (identifier.length < 3 || identifier.length > 12) {
+    }
+
+    if(username){
+      if (username.length < 3 || username.length > 12) {
         op.message = "username size must be between 3 to 12"
         return op;
       }
-      op.query = { username: identifier };
+      op.query = { username };
     }
-
+    
     const ispassword = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/;
 
     if (!ispassword.test(password)) {
@@ -80,7 +83,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     const data: reqbody = await req.json();
 
-
     if (!data) {
       return fail("body is required.", 400);
     }
@@ -88,6 +90,18 @@ export async function POST(req: NextRequest, res: NextResponse) {
     const { query, success, message } = validateInput(data);
     if (!success) {
       return fail(message, 400);
+    }
+
+    const redis = await redisConnect();
+
+    if(query.username){
+      const bloom = await getBloom();
+      if(bloom && query.username){
+        const isexists = await bloom.exists(query.username);
+        if(!isexists){
+          return fail("No such user exists",404);
+        }
+      }
     }
 
     await dbConnect();
@@ -162,15 +176,15 @@ export async function POST(req: NextRequest, res: NextResponse) {
       sameSite: "strict",
     });
 
-    const redis = await redisConnect();
+   
 
-    if (redis) {
-      try {
-        redis.set(crefToken, existingUser.name, { EX: 3600 });
-      } catch (error) {
-        console.log(error);
-      }
-    }
+    // if (redis) {
+    //   try {
+    //     redis.set(crefToken, existingUser.name, { EX: 3600 });
+    //   } catch (error) {
+    //     console.log(error);
+    //   }
+    // }
 
     return response;
 

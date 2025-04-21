@@ -37,8 +37,6 @@ class RedisBloomFilter {
             hashes.push((hash1 + i + hash2) % this.size)
         }
 
-        console.log(hashes)
-
         return hashes;
     }
 
