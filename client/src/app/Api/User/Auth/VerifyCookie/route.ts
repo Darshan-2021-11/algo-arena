@@ -21,16 +21,29 @@ export const GET = async () => {
         arr.push(token);
         const data = jwt.verify(token, secretkey) as { name: string, id: string };
         await dbConnect();
-        const user = await User.findOne({ username: data.name }).select("isdeleted admin");
+        const userdata = await User.aggregate([
+            { $match: { username: data.name } },
+            { $lookup: { from: "dps", localField: "_id", foreignField: "user", as: "photo" } },
+            { $project: { username: 1, password: 1, verified: 1, admin: 1, email: 1, "photo.type": 1, "photo.size": 1, "photo.data": 1 } }
+        ])
+
+        if (userdata.length === 0) return fail("User not found.");
+
+        const user = userdata[0];
         if (!user || user.isdeleted) return fail("User not found.");
 
         const crefToken = randomBytes(32).toString();
+
+        console.log(user);
+
 
         const response = NextResponse.json({
             user: {
                 id: user._id,
                 name: data.name,
-                admin: user.admin
+                email: user.email,
+                admin: user.admin,
+                photo: user.photo.length > 0 && user.photo[0]
             },
             message: "successffully information fetched.",
             success: true

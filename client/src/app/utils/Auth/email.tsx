@@ -2,15 +2,20 @@ import { useEffect, useState } from "react";
 
 interface nametype {
     setvalid:React.Dispatch<React.SetStateAction<boolean>>
+    defaultval?:string
 }
 
-const Email : React.FC<nametype> = ({setvalid}) => {
+const Email : React.FC<nametype> = ({setvalid, defaultval}) => {
     const [error, seterror] = useState<string | null>(null);
     const [status, setstatus] = useState<boolean | null>(null);
 
     const validate = (email: string) => {
+        if(email === defaultval){
+            setstatus(null);
+            return false;
+        }
         const regex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
-        if(!regex.test(email)){
+        if(!regex.test(email) ){
             seterror("Invalid email.");
             setstatus(false);
             return false;
@@ -26,6 +31,7 @@ const Email : React.FC<nametype> = ({setvalid}) => {
             <input
                 type="text"
                 placeholder="Email"
+                defaultValue={defaultval? defaultval : ""}
                 onChange={(e) => {
                     const val = e.currentTarget.value;
                     setvalid(validate(val));

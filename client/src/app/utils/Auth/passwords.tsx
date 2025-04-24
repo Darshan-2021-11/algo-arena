@@ -48,11 +48,12 @@ const Password: React.FC<nametype> = ({ setvalid, doublecheck }) => {
             if(status && cstatus){
                 setvalid(true);
             }
+        }else if(status){
+                setvalid(true)
         }else{
-            status && (setvalid(true));
+            setvalid(false)
         }
     },[status,cstatus])
-
 
     return (
         <>
@@ -86,7 +87,6 @@ const Password: React.FC<nametype> = ({ setvalid, doublecheck }) => {
                         placeholder="Confirm Password"
                         onChange={(e) => {
                             const val = e.currentTarget.value;
-                            // valid = validate(val);
                             if (pass.current !== val) {
                                 setcstatus(false);
                                 setc_error("password is not equal.");

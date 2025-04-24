@@ -94,6 +94,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     const redis = await redisConnect();
 
+
     if(query.username){
       const bloom = await getBloom();
       if(bloom && query.username){
@@ -106,10 +107,17 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     await dbConnect();
 
-    const existingUser = await User.findOne(query).select("username password verified admin");
-    if (!existingUser) {
+    const userdata = await User.aggregate([
+      {$match:query},
+      {$lookup:{ from:"dps", localField:"_id", foreignField:"user", as:"photo"}},
+      {$project:{ username:1, password:1, verified:1, admin:1, email:1, "photo.type":1, "photo.size":1, "photo.data":1}}
+    ])
+
+
+    if (userdata.length == 0) {
       return fail("Invalid username or password.", 400);
     }
+    const existingUser = userdata[0];
 
     if (!existingUser.verified) {
       return fail("Invalid username or password.", 403);
@@ -145,10 +153,13 @@ export async function POST(req: NextRequest, res: NextResponse) {
       return fail("Server is not working")
     }
 
-    const user: { id: string, name: string, admin?: boolean } = {
+    const user: { id: string, name: string, admin?: boolean, email:string, photo:{type:string, size:number, data:string} } = {
       id: existingUser._id,
-      name: existingUser.username
+      name: existingUser.username,
+      email:existingUser.email,
+      photo:existingUser.photo[0]
     };
+
 
     if (existingUser.admin) {
       user.admin = true;

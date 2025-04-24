@@ -5,10 +5,10 @@ import { login, logout as logoutSlice, useAuth } from "../lib/slices/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { FaRegUserCircle } from "react-icons/fa";
+import { FaUserEdit } from "react-icons/fa";
 import { MdSpaceDashboard } from "react-icons/md";
-import { IoSettingsSharp } from "react-icons/io5";
 import { IoIosLogOut } from "react-icons/io";
+import Dp from "./Auth/dp";
 
 const Nav: React.FC = () => {
   const router = useRouter();
@@ -43,7 +43,8 @@ const Nav: React.FC = () => {
       try {
         const { data } = await axios.get("/Api/User/Auth/VerifyCookie");
         if (data.success) {
-          dispatch(login({ name: data.user.name, id: data.user.id, admin: data.user.admin }));
+          console.log(data)
+          dispatch(login({ name: data.user.name, id: data.user.id, admin: data.user.admin, email:data.user.email, type:data.user.photo.type, data:data.user.photo.data }));
           router.push("/");
         }
         console.log(data);
@@ -128,9 +129,7 @@ const Nav: React.FC = () => {
                       className="flex items-center cursor-pointer"
                       onClick={() => setshow(prev => !prev)}
                     >
-                      <FaRegUserCircle
-                        className="h-6 w-6"
-                      />
+                     <Dp size="small"/>
                     </div>
                   }
 
@@ -140,9 +139,7 @@ const Nav: React.FC = () => {
                       className="transition-all absolute top-12 right-0 bg-zinc-700 pt-3 pb-3 pl-3 pr-3 rounded-xl"
                     >
                       <div className="flex items-center justify-start">
-                        <FaRegUserCircle
-                          className="h-9 w-9"
-                        />
+                      <Dp size="medium"/>
                         {username && <div className="pl-2 text-xl font-bold">{username?.slice(0, 9)}</div>}
                       </div>
                       <div
@@ -155,9 +152,12 @@ const Nav: React.FC = () => {
                         <Link
                           onClick={() => { setshow(false) }}
                           className="p-2 hover:bg-zinc-800 rounded-md flex items-center justify-center"
-                          href={""}><IoSettingsSharp className="p-0.5 box-content" />Settings</Link>
+                          href={"/User/Update"}><FaUserEdit className="p-0.5 box-content" />Edit user</Link>
                         <p
-                          onClick={() => { setshow(false) }}
+                          onClick={async() => { 
+                            await logout();
+                            setshow(false) 
+                          }}
                           className="p-2 text-red-500 hover:text-red-600 cursor-pointer rounded-md flex items-center justify-center"
 
                         ><IoIosLogOut className="p-0.5 box-content" />Log out</p>
