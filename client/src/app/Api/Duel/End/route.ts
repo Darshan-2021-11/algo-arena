@@ -40,10 +40,10 @@ export async function POST(req: NextRequest) {
         const {user1, result, user2, duelid, code, lang } = await req.json();
 
         await dbConnect();
-        const transaction = await mongoose.startSession();
+        const session = await mongoose.startSession();
         let duel;
         try {
-            transaction.startTransaction();
+            session.startTransaction();
             const duelbody : db = {status:2};
             const user1body : ub = {duels:1};
             const user2body : ub = {duels:1};
@@ -67,29 +67,31 @@ export async function POST(req: NextRequest) {
          
             const dueldata = await Duel.findOneAndUpdate({_id: new mongoose.Types.ObjectId(duelid)},{
                 status:2
-            })
+            },{session})
            
             if(!dueldata){
-                transaction.abortTransaction();
+                await session.abortTransaction();
             }
             const user1duel = await UserDuel.findOneAndUpdate({user:user1},{
                 $inc:user1body
-            })
+            },{session})
             if(!user1duel){
-                await UserDuel.create({user:user1, ...user1body})
+                await UserDuel.create({user:user1, ...user1body},{session})
             }
 
             const user2duel = await UserDuel.findOneAndUpdate({user:user2},{
                 $inc:user2body
-            })
+            },{session})
 
             if(!user2duel){
-                await UserDuel.create({user:user2, ...user2body})
+                await UserDuel.create({user:user2, ...user2body},{session})
             }
             
-            transaction.commitTransaction();
+            await session.commitTransaction();
         } catch (error) {
-            transaction.abortTransaction();
+            await session.abortTransaction();
+        }finally{
+            await session.endSession();
         }
         
         return NextResponse.json({

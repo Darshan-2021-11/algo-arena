@@ -94,17 +94,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     const redis = await redisConnect();
 
-
-    if(query.username){
-      const bloom = await getBloom();
-      if(bloom && query.username){
-        const isexists = await bloom.exists(query.username);
-        if(!isexists){
-          return fail("No such user exists",404);
-        }
-      }
-    }
-
     await dbConnect();
 
     const userdata = await User.aggregate([

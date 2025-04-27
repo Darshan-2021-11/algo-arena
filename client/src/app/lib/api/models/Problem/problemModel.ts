@@ -105,6 +105,10 @@ export const ProblemSchema = new Schema(
     isdeleted:{
       type:Boolean,
       default:false
+    },
+    private:{
+      type:Boolean,
+      default:false
     }
   },
   { timestamps: true }

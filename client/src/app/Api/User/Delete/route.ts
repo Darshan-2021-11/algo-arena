@@ -36,18 +36,19 @@ export async function DELETE(req: NextRequest) {
 
             const existingUser = await User.findByIdAndUpdate(decodedToken.id, { $unset: { email: "", password: "", verificationToken: "", resetToken: "", tokenExpires: "", resetTokenExpires: "", verified: "" }, isdeleted: true })
 
-            if(existingUser){
+            if (existingUser) {
                 const _id = new mongoose.Types.ObjectId(user);
-                await User.deleteOne({_id});
-                await Submission.deleteMany({_id})
+                await User.deleteOne({ _id });
+                await Submission.deleteMany({ _id })
             }
 
             await session.commitTransaction();
+            await session.endSession();
         } catch (error) {
             await session.abortTransaction();
+            await session.endSession();
             return fail("failed to delete user account.");
         }
-        session.endSession();
 
         // await User.deleteOne({_id:new mongoose.Types.ObjectId(decodedToken.id)});
 

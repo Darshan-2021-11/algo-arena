@@ -40,9 +40,9 @@ const Dp: React.FC<prop> = ({ size }) => {
             <div className="flex items-center justify-start">
                 {
                     img ?
-                        <img ref={imgref} className={`${size === "big" ? "w-28 h-28 m-5" : size === "small" ? "w-6 h-6" : "w-9 h-9"} rounded-full border-2 object-cover border-white`} />
+                        <img ref={imgref} className={`${size === "big" ? "w-24 h-24" : size === "small" ? "w-6 h-6" : "w-9 h-9"} rounded-full border-2 object-cover border-white`} />
                         :
-                        <FaRegUserCircle className={`${size === "big" ? "w-28 h-28 m-5" : size === "small" ? "w-6 h-6" : "w-9 h-9"} `} />
+                        <FaRegUserCircle className={`${size === "big" ? "w-24 h-24" : size === "small" ? "w-6 h-6" : "w-9 h-9"} `} />
 
 
                 }

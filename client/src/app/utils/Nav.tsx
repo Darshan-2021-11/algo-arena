@@ -44,7 +44,7 @@ const Nav: React.FC = () => {
         const { data } = await axios.get("/Api/User/Auth/VerifyCookie");
         if (data.success) {
           console.log(data)
-          dispatch(login({ name: data.user.name, id: data.user.id, admin: data.user.admin, email:data.user.email, type:data.user.photo.type, data:data.user.photo.data }));
+          dispatch(login({ name: data.user.name, id: data.user.id, admin: data.user.admin, email:data.user.email, type:data.user.photo?.type, data:data.user.photo?.data }));
           router.push("/");
         }
         console.log(data);
@@ -77,17 +77,16 @@ const Nav: React.FC = () => {
               {admin ? (
                 <>
                   <div className="px-2">
-                    <h6>
                       <Link href="/Admin/Addproblem">add</Link>
-                    </h6>
                   </div>
                   <div className="px-2">
-                    <h6>
                       <Link href="/Admin/Addproblems">upload</Link>
-                    </h6>
                   </div>
                   <div className="cursor-pointer px-2">
                     <Link href="/Admin/Problems">list</Link>
+                  </div>
+                  <div className="cursor-pointer px-2">
+                    <Link href="/Admin/Contest">contest</Link>
                   </div>
                 </>
               ) : (

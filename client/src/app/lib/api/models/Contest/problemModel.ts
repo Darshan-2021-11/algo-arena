@@ -1,26 +1,52 @@
 import mongoose, { model, Schema } from "mongoose";
-import {ProblemSchema} from "../Problem/problemModel";
 
-export const contestProblem = new Schema(ProblemSchema.obj, {
-	timestamps: {
-		createdAt: true,
-		updatedAt: false,
+// export const contestProblem = new Schema(ProblemSchema.obj, {
+// 	timestamps: {
+// 		createdAt: true,
+// 		updatedAt: false,
+// 	}
+// });
+// contestProblem.add({
+// 	alias: {
+// 		type: String,
+// 		required: true,
+// 	},
+// 	contest:{
+// 		ref:"Contest",
+// 		type:mongoose.Types.ObjectId,
+// 		index: true,
+// 		default:null
+// 	},
+// 	score: {
+// 		type: Number,
+// 		required:
+// 			[
+// 			true,
+// 			"Problem score must be specified.",
+// 		],
+// 	},
+// });
+
+const contestProblem = new Schema({
+	problem:{
+		type: mongoose.Types.ObjectId, 
+		ref: "Problem", 
+		required: true
+	},
+	contest:{
+		type: mongoose.Types.ObjectId, 
+		ref: "Contest", 
+		required: true
+	},
+	ispublic:{
+		type: Boolean, 
+		default: true
+	},
+	score:{
+		type:Number,
+		default:10
 	}
-});
-contestProblem.add({
-	alias: {
-		type: String,
-		required: true,
-	},
-	score: {
-		type: Number,
-		required:
-			[
-			true,
-			"Problem score must be specified.",
-		],
-	},
-});
+})
 
-const ContestProblem = mongoose.models.contestProblem || model("contestProblem", contestProblem);
+const ContestProblem = mongoose.models.ContestProblem || model("ContestProblem", contestProblem);
 export default ContestProblem;

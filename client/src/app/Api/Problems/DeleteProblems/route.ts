@@ -47,6 +47,8 @@ export async function POST(req: NextRequest) {
         } catch (error) {
             await session.abortTransaction();
             throw  error;
+        }finally{
+            await session.endSession();
         }
 
 

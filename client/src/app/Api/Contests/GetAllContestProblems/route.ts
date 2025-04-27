@@ -1,9 +1,12 @@
 "use server"
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import ContestProblem from "@/app/lib/api/models/Contest/problemModel";
 import { contestproblemmodel as cpm } from "@/app/lib/api/contestModel";
 import dbConnect from "@/app/lib/api/databaseConnect";
+import { fail } from "@/app/lib/api/response";
+import jwt from 'jsonwebtoken';
+import mongoose from "mongoose";
+import Problem from "@/app/lib/api/models/Problem/problemModel";
 
 export interface Response {
 	success: boolean,
@@ -15,62 +18,55 @@ export interface Response {
 }
 
 
-export async function GET(request : NextRequest){
-	try{
+export async function GET(request: NextRequest) {
+	try {
+		const secret = process.env.JWT_SECRET;
+		if (!secret) {
+			return fail("Server configuration failed", 500);
+		}
 		const cookieStore = cookies();
 		const token = cookieStore.get("token")?.value;
-		/*
-			 if(!token){
-			 return fail("Unauthorised access",403);
-			 }
-			 */
+
+		if (!token) {
+			return fail("Unauthorised access", 403);
+		}
+
+		const { admin } = jwt.verify(token, secret) as { id: string, name: string, admin: boolean };
+
+		if (!admin) {
+			return fail("Unauthorized accesss.", 403);
+		}
 
 		const params = new URL(request.url).searchParams;
-		const page : number = Number(params.get('page')) || 1;
-		const pagelen = Number(params.get('len')) || 10;
-		let i = 0, j = pagelen;
-		if(page > 1){
-			i = (pagelen * page) - pagelen;
-			j = i + pagelen;
+		const contestid = params.get("id");
+		if(!contestid){
+			return fail("invalid request");
 		}
 
 		await dbConnect();
 
-		const result = await ContestProblem.aggregate([
+		const result = await Problem.aggregate([
 			{
-				$match:{}
+				$match:{contest:new mongoose.Types.ObjectId(contestid)}
 			},
 			{
-				$sort: { createdAt: -1 }
-			},
-			{
-				$skip: i
-			},
-			{
-				$limit:
-					pagelen
-			},
-			{
-				$project:
-					{
-					title: 1,
-					difficulty: 1,
+				$project:{
+					alias:1,
+					score:1,
 				}
-			},
+			}
 		])
-
 
 		return NextResponse.json({
 			success: true,
 			message: "Successfully fetched data",
 			Problems: result,
-			end: result?.length < pagelen
-		},{status: 200})
-	}catch(err){
+		}, { status: 200 })
+	} catch (err) {
 		console.log(err);
 		return NextResponse.json({
 			success: false,
 			err
-		},{status: 500})
+		}, { status: 500 })
 	}
 }

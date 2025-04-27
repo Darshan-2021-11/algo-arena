@@ -1,59 +1,39 @@
 import mongoose, { model, Schema } from "mongoose";
-import {contestProblem} from "./problemModel";
 
 export const contestSchema = new Schema({
 	name: {
 		type: String,
-		required:
-			[
-			true,
-			"Contest name is required.",
-		],
-		unique:
-			[
-			true,
-			"Contest name must be unique.",
-		],
+		required: [true, "Contest name is required."],
+		unique: [true, "Contest name must be unique."],
+	},
+	description: {
+		type: String,
+		require: true,
 	},
 	startTime: {
 		type: Date,
-		required:
-			[
-			true,
-			"Start time of the contest is required.",
-		],
+		required: [true, "Start time of the contest is required."],
 	},
 	endTime: {
 		type: Date,
-		required:
-			[
-			true,
-			"End time of the contest is required.",
-		],
+		required: [true, "End time of the contest is required."],
 	},
-	problems: [contestProblem],
-	/*problems: [{ type: mongoose.Schema.Types.ObjectId, ref: "ContestProblem" }]*/
-
-	type: {
+	status: {
 		type: String,
-		enum: [ "ICPC", ],
-		required: [
-			true,
-			"Contest type is required.",
-		],
-	}
+		enum: ["planned", "ongoing", "completed"],
+		default: "planned"
+	},
+	problems: [{
+		problemId: { type: mongoose.Types.ObjectId, ref: "Problem", required: true },
+		customScore: { type: Number, default: 100 },
+		isHidden: { type: Boolean, default: true }
+	}],
+	isPublic: {
+		type: Boolean,
+		default: false
+	}	
 });
-/*
-contestSchema.set('toJSON', {
-  virtuals: true,
-  versionKey: false,
-  transform: (doc, ret) => {
-    ret.name = ret._id;
-    delete ret._id;
-  }
-});
-*/
 contestSchema.index({ name: 1 });
 
-const Contest = mongoose.models.Contest || model("Contest",contestSchema);
+const Contest = mongoose.models.Contest || model("Contest", contestSchema);
 export default Contest;

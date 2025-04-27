@@ -166,9 +166,11 @@ export async function POST(req: NextRequest) {
         );
       }
       await session.commitTransaction();
+      await session.endSession();
     } catch (error: any) {
       console.log(error);
       await session.abortTransaction();
+      await session.endSession();
       return fail(error.message ? error.message : "Data could not be saved.");
     }
     return NextResponse.json(

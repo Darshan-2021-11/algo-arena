@@ -33,7 +33,6 @@ export async function POST(req: NextRequest) {
 
         const { id, code, lang } = await req.json();
         const problem = await Problem.findById(id).select("testcases") as { testcases: Testcase[] };
-        console.log(problem)
         const { testcases } = problem 
 
         if (testcases.length == 0) {
@@ -97,13 +96,13 @@ export async function POST(req: NextRequest) {
                 problem: id,
                 language: lang,
                 code: code,
-            })
-            const usersubmission = await UserProblem.findOneAndUpdate({ user: decodedtoken.id }, { $inc: { submission: 1 } });
+            },{session}) 
+            const usersubmission = await UserProblem.findOneAndUpdate({ user: decodedtoken.id }, { $inc: { submission: 1 } },{session});
             if (!usersubmission) {
                 await UserProblem.create({
                     user: decodedtoken.id,
                     submission:1
-                })
+                },{session})
             }
             const targetDate = new Date(); 
             targetDate.setHours(0, 0, 0, 0)
@@ -113,21 +112,17 @@ export async function POST(req: NextRequest) {
                 await Activity.updateOne({user:decodedtoken.id},{
                     $push:{activity:{date:targetDate, submission:1}}
                 },
-                {upsert:true}
+                {upsert:true,session},
             )
             }
             await session.commitTransaction();
+            await session.endSession();
         } catch (error:any) {
             console.log(error)
             await session.abortTransaction();
             await session.endSession();
             return fail(error.message ? error.message : "Data could not be saved.")
-        }finally{
-            await session.endSession();
         }
-
-
-
 
         return NextResponse.json({ success: true, tokens, message: "successfully sent to run codes.", problemid: submission._id }, { status: 200 });
 

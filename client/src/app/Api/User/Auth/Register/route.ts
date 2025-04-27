@@ -88,8 +88,11 @@ export async function POST(request: NextRequest) {
       }
   
      await session.commitTransaction();
+     await session.endSession();
     } catch (error) {
      await session.abortTransaction();
+     await session.endSession();
+     console.log(error)
       return fail("failed to create account.");
     }
    

@@ -81,7 +81,11 @@ const Problems = () => {
         if (typeof (mp) !== "number") {
           mp = 1;
         }
-        setmaxpage(mp)
+        if(mp){
+          setmaxpage(mp)
+        }else{
+          setmaxpage(1)
+        }
       }
     } catch (err: any) {
       console.log(err);

@@ -29,7 +29,7 @@ const userSchema = new Schema({
 	password:{
 		type:String,
 		required:[true,"password is required."],
-		minLength:[8,"password must be at least 8 charcters long."],
+		minLength:[6,"password must be at least 8 charcters long."],
 		maxLength:[60,"password must be at most 60 charcters long."],
 		validate: {
 			validator:function(v:string){

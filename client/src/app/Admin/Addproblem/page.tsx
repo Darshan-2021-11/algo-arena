@@ -6,6 +6,7 @@ import Constraints from "./constraints";
 import Testcases from "./testcases";
 import axios from "axios";
 import { LuLoaderCircle } from "react-icons/lu";
+import Toggle from "@/app/utils/Auth/toggle";
 
 interface obj {
     input: string
@@ -36,6 +37,7 @@ const Page = () => {
     const [error, seterr] = useState<string | null>(null);
     const [success, setsuccess] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const [p, setp] = useState(true);
 
 
 
@@ -80,6 +82,7 @@ const Page = () => {
             testcases,
             timeLimit: Number(formdata.get("timeLimit")?.toString()),
             spaceLimit: Number(formdata.get("spaceLimit")?.toString()),
+            private:!p
         }
 
         return body;
@@ -208,6 +211,11 @@ const Page = () => {
                 <div
                     className="w-full ml-3 rounded text-white "
                 >in KB</div>
+                {/* <input type="radio" name="" id="" /> */}
+                <div className="m-2">
+                <div className="text-white mb-2 mt-2">Visibility</div>
+                <Toggle left="public" right="private" p={p} setp={setp} />
+                </div>
                 <input
                     className=" m-3 w-full p-3 bg-gray-700 rounded outline-none text-white placeholder-gray-500"
                     placeholder="spaceLimit"

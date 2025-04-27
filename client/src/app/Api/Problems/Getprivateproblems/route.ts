@@ -32,10 +32,14 @@ export async function GET(request : NextRequest){
         }
 
         const decodedtoken = jwt.verify(token,secret) as {id:string, name:string, admin?:boolean};
+
+        if(!decodedtoken.admin){
+            return fail("Unauthorised access",403);
+        }
         
         const params = new URL(request.url).searchParams;
-        const page : number = Number(params.get('page')) || 1;
-        const pagelen = Number(params.get('len')) || 10;
+        const page : number = Number(params.get('p')) || 1;
+        const pagelen = Number(params.get('l')) || 10;
         let i = 0, j = pagelen;
         if(page > 1){
             i = (pagelen * page) - pagelen;
@@ -62,16 +66,12 @@ export async function GET(request : NextRequest){
         if(!result){
             await dbConnect();
 
-            const project : {"title":number, "difficulty"?:number} ={
+            const project : {"title":number} ={
                 "title":1
             }
     
-            if(!decodedtoken.admin){
-                project["difficulty"] = 1;
-            }
-    
             result = await Problem.aggregate([
-                {$match:{isdeleted:false, private:false}},
+                {$match:{isdeleted:false, private:true}},
                 {$skip:i},
                 {$limit:pagelen},
                 {$project:project},

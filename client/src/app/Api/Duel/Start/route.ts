@@ -28,10 +28,10 @@ export async function POST(req: NextRequest) {
 
         await dbConnect();
 
-        const transaction = await mongoose.startSession();
+        const session = await mongoose.startSession();
         let duel;
         try {
-            transaction.startTransaction()
+            session.startTransaction()
             duel = await Duel.create({
                 user1:decodedtoken.id,
                 user2:user,
@@ -62,10 +62,12 @@ export async function POST(req: NextRequest) {
 
             
             }
-            transaction.commitTransaction();
+            await session.commitTransaction();
         } catch (error) {
             console.log(error)
-            transaction.abortTransaction();
+            await session.abortTransaction();
+        }finally{
+            await session.endSession();
         }
 
 

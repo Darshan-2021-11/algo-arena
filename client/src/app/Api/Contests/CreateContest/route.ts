@@ -4,7 +4,6 @@ import { NextRequest } from "next/server";
 import jwt from 'jsonwebtoken';
 import { fail, success } from "@/app/lib/api/response";
 import Contest from "@/app/lib/api/models/Contest/contestModel";
-import { contestmodel as cm } from "@/app/lib/api/models/contestModel";
 import dbConnect from "@/app/lib/api/databaseConnect";
 
 export async function POST(req: NextRequest) {
@@ -16,18 +15,47 @@ export async function POST(req: NextRequest) {
 		}
 
 		const cookieStore = cookies();
-		const cookie = cookieStore.get("token")?.value;
-		if (!cookie) {
+		const token = cookieStore.get("token")?.value;
+		if (!token) {
 			return fail("unauthorized access.", 403);
 		}
 
-		const { id, name, admin } = jwt.verify(cookie,secret) as {id:string, name:string,admin:boolean};
+		const { admin } = jwt.verify(token,secret) as {id:string, name:string,admin:boolean};
 
-		const body = await req.json() as cm;
+		if(!admin){
+			return fail("Unauthorized accesss.",403);
+		}
+
+		const body = await req.json() ;
+		const {startTime, endTime, name, description, ispublic} = body;
+		console.log(startTime, endTime, name, description, ispublic)
+
+		if(!startTime || !endTime || !name || !description || typeof(ispublic) !== "boolean"){
+			return fail("All data are required.",400);
+		}
+
+		if (name.length < 3 || name.length > 100) {
+			return fail("Name must be between 3 and 100 characters.", 400);
+		  }
+		  
+		  if (description.length < 10 || description.length > 500) {
+			return fail("Description must be between 10 and 500 characters.", 400);
+		  }
+		
+		if(typeof(startTime) !== 'string' || typeof(endTime) !== 'string' || typeof(name) !== "string" || typeof(description) !== "string" || typeof(ispublic) !== "boolean" ){
+			return fail("Invalid input type");
+		}
 
 		await dbConnect();
 
-		await Contest.create(body);
+		await Contest.create({
+			name,
+			description,
+			startTime,
+			endTime,
+			ispublic,
+			problems:[]
+		});
 
 		return success("Contest created successfully.",201);
 

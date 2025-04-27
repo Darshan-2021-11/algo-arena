@@ -16,6 +16,21 @@ const config: Config = {
             'custom-linear': 'linear-gradient(18deg, rgb(214, 219, 220) 0% 50%, rgb(33, 33, 33) 50% 100%)',
     
       },
+      keyframes: {
+        slideRight: {
+          '0%': { transform: 'translateX(-50%)' },
+          '100%': { transform: 'translateX(0%)' },
+        },
+        slideLeft: {
+          '0%': { transform: 'translateX(50%)' },
+          '100%': { transform: 'translateX(0)' },
+        }
+      },
+      animation: {
+        slideRight: 'slideRight 0.2s ease-in-out forwards',
+        slideLeft: 'slideLeft 0.2s ease-in-out',
+      },
+
     },
   },
   plugins: [
