@@ -19,4 +19,5 @@ export interface Problem {
     testcases:Array<TESTCASE>,
     spaceLimit?:number,
     timeLimit?:number
+    private?:boolean
 }

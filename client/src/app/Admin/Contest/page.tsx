@@ -1,19 +1,23 @@
 "use client"
+import { updateProblem } from "@/app/lib/slices/contestSlice";
 import axios from "axios";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { IoAddOutline } from "react-icons/io5";
 import { MdDelete } from "react-icons/md";
+import { useDispatch } from "react-redux";
 
 const Contest = () => {
 
     const currentpage = useRef(1);
     const [end, setend] = useState(false);
-    const [contests, setcontests] = useState<{ _id: string, name: string, startTime: string, endTime: string }[]>([]);
+    const [contests, setcontests] = useState<{ _id: string, name: string, startTime: string, endTime: string, problems:{problemId:string,customScore:number}[] }[]>([]);
     const [del, setdel] = useState<number | null>(null);
     const [loading, setloading] = useState(false);
     const [err, seterr] = useState<string|null>(null);
+
+    const dispatch = useDispatch();
 
     const deleteProblem =async()=>{
         try {
@@ -88,28 +92,34 @@ const Contest = () => {
                     name
                 </p>
                 <p className="flex items-center justify-center">
-                    start
+                    duration
                 </p>
                 <p className="flex items-center justify-center">
-                    end
+                    problems
                 </p>
             </div>
             {
                 contests.map((contest,i) => (
                     <div
                         key={contest._id}
-                        className=" hover:bg-zinc-200 transition-all hover:text-zinc-900 grid grid-cols-[1fr_1fr_1fr_40px] bg-zinc-800 m-1 mb-2 rounded-xl shadow-md shadow-gray-600 pl-1 pr-1 pt-2 pb-2"
+                        className="  transition-all text-zinc-300 grid grid-cols-[1fr_1fr_1fr_40px] bg-zinc-800 m-1 mb-2 rounded-xl shadow-md shadow-gray-600 pl-1 pr-1 "
                     >
                         <Link
                             href={`/Admin/Contest/Update/${contest._id}`}
-                            className="flex items-center justify-center"
+                            className="pt-2 pb-2 m-1 mr-2 rounded-lg hover:text-zinc-900 hover:bg-white  flex items-center justify-center"
                         >
                             {contest.name}
                         </Link>
-                        <p className="flex items-center justify-center">{contest.startTime}</p>
-                        <p className="flex items-center justify-center">{contest.endTime}</p>
+                        <p className="pt-2 pb-2 flex items-center justify-center">{`${contest.startTime} -- ${contest.endTime}` }</p>
+                        <Link 
+                        onClick={()=>{
+                            dispatch(updateProblem(contest.problems))
+                        }}
+                        href={`/Admin/Contest/Update/${contest._id}/addproblems`} className=" hover:text-zinc-900 m-1 mr-2 rounded-lg hover:bg-white cursor-pointer pt-2 pb-2 flex items-center justify-center">{contest.problems.length}</Link>
+                        {/* <p className="flex items-center justify-center">{contest.endTime}</p> */}
+
                         <div
-                            className="flex items-center justify-center cursor-pointer"
+                            className=" pt-2 pb-2 flex items-center justify-center cursor-pointer"
                             onClick={() => { setdel(i) }}
                         >
                             <MdDelete className="text-red-600" />

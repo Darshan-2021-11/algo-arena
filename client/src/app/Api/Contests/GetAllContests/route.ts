@@ -44,8 +44,20 @@ export async function GET(request: NextRequest) {
 		await dbConnect();
 
 		const m : {isPublic?:boolean} = {};
+		let cond; 
 		if(!admin){
 			m.isPublic = true;
+			cond = {
+				$cond: {
+					if: {
+						$lte: ["$startTime", "$$NOW"],
+					},
+					then: "$problems",
+					else: [],
+				}
+			}
+		}else{
+			cond =1;
 		}
 
 		const result = await contestModel.aggregate([
@@ -63,15 +75,7 @@ export async function GET(request: NextRequest) {
 					"name": 1,
 					"startTime": 1,
 					"endTime": 1,
-					"problems": {
-						$cond: {
-							if: {
-								$lte: ["$startTime", "$$NOW"],
-							},
-							then: "$problems",
-							else: [],
-						}
-					}
+					"problems": cond
 				}
 			},
 		])

@@ -1,12 +1,13 @@
 'use client'
 
-import { ChangeEvent, FormEvent, FormEventHandler, useEffect, useRef, useState } from "react"
+import { FormEvent, useEffect, useRef, useState } from "react"
 import axios from "axios";
 import Tags from "../../Addproblem/tags";
 import Constraints from "../../Addproblem/constraints";
 import { LuLoaderCircle } from "react-icons/lu";
 import { Problem } from "@/app/lib/api/problemModel";
 import { useParams } from "next/navigation";
+import Toggle from "@/app/utils/Auth/toggle";
 
 interface obj {
     input: string
@@ -47,6 +48,7 @@ const ProblemDescription: React.FC<{ Problem: Problem }> = ({ Problem }) => {
     const params = useParams();
     const [id,setid] = useState("");
     const [problem, setproblem] = useState(Problem);
+    const [p, setp] = useState(false);
 
     useEffect(()=>{
         if(typeof(params.id) === "string"){
@@ -90,6 +92,7 @@ const ProblemDescription: React.FC<{ Problem: Problem }> = ({ Problem }) => {
             testcases,
             timeLimit: Number(formdata.get("timeLimit")?.toString()),
             spaceLimit: Number(formdata.get("spaceLimit")?.toString()),
+            private:p
         }
 
         return body;
@@ -144,16 +147,28 @@ const ProblemDescription: React.FC<{ Problem: Problem }> = ({ Problem }) => {
             settl(problem.timeLimit);
             setisl(problem.spaceLimit);
             setitl(problem.timeLimit);
+            setp(!!problem.private);
         }
     }, [problem]);
 
     useEffect(()=>{
-        console.log(tl)
-    },[tl])
+        if(formref.current){
+            const fakeEvent = {
+                preventDefault:()=>console.log("prevent default behaviour"),
+                currentTarget:formref.current
+            } as React.FormEvent<HTMLFormElement>;
+            match(fakeEvent);
+        }
+    },[p]);
 
     const match = (e: FormEvent<HTMLFormElement>) => {
         const arr = Array.from(e.currentTarget.children);
         let changed = false;
+
+        console.log(p,problem.private)
+        if(p != problem.private){
+            changed = true;
+        }
         arr.map((a) => {
             if(changed){
                 return;
@@ -251,6 +266,8 @@ const ProblemDescription: React.FC<{ Problem: Problem }> = ({ Problem }) => {
             setopen(false);
         }
     }
+
+
 
     return (
         <div
@@ -382,6 +399,7 @@ const ProblemDescription: React.FC<{ Problem: Problem }> = ({ Problem }) => {
                         }
                     }}
                 />
+                <Toggle left="private" right="public" p={p} setp={setp}/>
 
                 {
                     error || success ?

@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
             return new mongoose.Types.ObjectId(pr);
         })
 
-        const result = await Contest.findByIdAndUpdate({ _id: new mongoose.Types.ObjectId(contestid) }, { $push: { problems: { $each: p } } })
+        const result = await Contest.findByIdAndUpdate({ _id: new mongoose.Types.ObjectId(contestid) }, { $pull: { problems: { $in: p } } })
 
         return success("succesfully added problem",result)
 

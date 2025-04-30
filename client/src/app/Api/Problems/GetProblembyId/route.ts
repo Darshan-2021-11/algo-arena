@@ -61,7 +61,8 @@ export async function GET(request: NextRequest) {
                 constraints: number,
                 timeLimit?: number,
                 spaceLimit?: number,
-                testcases: number | object
+                testcases: number | object,
+                private:number
             } = {
                 title: 1,
                 description: 1,
@@ -69,6 +70,7 @@ export async function GET(request: NextRequest) {
                 tags: 1,
                 constraints: 1,
                 testcases: { $slice: ["$testcases", 3] },
+                private:1
             }
 
             if (decodetoken.admin) {

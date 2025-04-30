@@ -23,11 +23,9 @@ export const contestSchema = new Schema({
 		enum: ["planned", "ongoing", "completed"],
 		default: "planned"
 	},
-	problems: [{
-		problemId: { type: mongoose.Types.ObjectId, ref: "Problem", required: true },
-		customScore: { type: Number, default: 100 },
-		isHidden: { type: Boolean, default: true }
-	}],
+	problems: {
+		type:[String]
+	},
 	isPublic: {
 		type: Boolean,
 		default: false

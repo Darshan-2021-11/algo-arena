@@ -1,10 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit'
 import authreducer from './slices/authSlice';
+import contestreducer from './slices/contestSlice';
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
-      auth:authreducer
+      auth:authreducer,
+      contest:contestreducer
     }
   })
 }

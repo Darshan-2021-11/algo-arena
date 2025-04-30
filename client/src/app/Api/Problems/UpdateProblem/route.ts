@@ -37,6 +37,10 @@ export async function POST(req: NextRequest) {
 
         const decodedtoken = jwt.verify(cookie,secret) as {id:string, name:string,admin:boolean};
 
+        if(!decodedtoken.admin){
+            return fail("unauthorized access.",403);
+        }
+
         const body = await req.json() as body;
 
         if(!body.id || !body.problem){

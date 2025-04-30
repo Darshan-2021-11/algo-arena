@@ -34,6 +34,7 @@ export async function GET(request : NextRequest){
         const decodedtoken = jwt.verify(token,secret) as {id:string, name:string, admin?:boolean};
         
         const params = new URL(request.url).searchParams;
+        const pr =  params.get("pr");
         const page : number = Number(params.get('page')) || 1;
         const pagelen = Number(params.get('len')) || 10;
         let i = 0, j = pagelen;
@@ -43,7 +44,14 @@ export async function GET(request : NextRequest){
         }
 
         let result;
-        const key = `problem${page}-${pagelen}`;
+        let key = `problem${page}-${pagelen}`;
+        if(pr){
+            key+="private";
+        }
+
+        if(decodedtoken.admin){
+            key+= "admin"
+        }
 
         const redis = await redisConnect();
         if(redis){
@@ -69,9 +77,20 @@ export async function GET(request : NextRequest){
             if(!decodedtoken.admin){
                 project["difficulty"] = 1;
             }
-    
+
+            
+            const m :{isdeleted:boolean, private?:boolean} = {
+                isdeleted:false
+            };
+            
+            if(decodedtoken.admin && pr){
+                m.private = true;
+            }else if(!decodedtoken.admin){
+                m.private = false;
+            }
+            
             result = await Problem.aggregate([
-                {$match:{isdeleted:false, private:false}},
+                {$match:m},
                 {$skip:i},
                 {$limit:pagelen},
                 {$project:project},
