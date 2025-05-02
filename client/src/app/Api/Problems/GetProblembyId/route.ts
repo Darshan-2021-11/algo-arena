@@ -11,19 +11,12 @@ import { redisConnect } from "@/app/lib/api/redisConnect";
 
 export async function GET(request: NextRequest) {
     try {
-        const secret = process.env.JWT_SECRET;
-        if (!secret) {
-            return fail("server configuration failed.");
+       const cookiestore = cookies();
+        const token = cookiestore.get("decodedtoken")?.value as string;
+        if(!token){
+            return fail("Unauthorized access",403);
         }
-
-        const cookieStore = cookies();
-        const token = cookieStore.get("token")?.value;
-        if (!token) {
-            return fail("Unauthorised access", 403);
-        }
-
-        const decodetoken = jwt.verify(token, secret) as { id: string, name: string, admin?: boolean };
-
+        const decodedtoken = await JSON.parse(token) as { id: string, name: string, admin?: boolean };
 
         const params = new URL(request.url).searchParams;
         const id = params.get('id');
@@ -73,7 +66,7 @@ export async function GET(request: NextRequest) {
                 private:1
             }
 
-            if (decodetoken.admin) {
+            if (decodedtoken.admin) {
                 project.timeLimit = 1;
                 project.spaceLimit = 1;
                 project.testcases = 1;

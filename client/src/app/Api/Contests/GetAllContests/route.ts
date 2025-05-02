@@ -19,19 +19,18 @@ export interface Response {
 
 export async function GET(request: NextRequest) {
 	try {
-		const secret = process.env.JWT_SECRET;
-		if (!secret) {
-			return fail("Server configuration failed", 500);
-		}
 		const cookieStore = cookies();
-		const token = cookieStore.get("token")?.value;
+        const token = cookieStore.get("decodedtoken")?.value;
+        if (!token) {
+            return fail("Unauthorised access", 403);
+        }
 
-		if (!token) {
+        const decodedtoken = await JSON.parse(token)  as { id: string, name: string, admin?: boolean };
+
+		if(!decodedtoken.admin){
 			return fail("Unauthorised access", 403);
 		}
-
-		const { id , admin} = jwt.verify(token, secret) as { id: string, name: string, admin:boolean };
-
+		
 		const params = new URL(request.url).searchParams;
 		const page: number = Number(params.get('P')) || 1;
 		const pagelen = Number(params.get('l')) || 10;
@@ -41,28 +40,12 @@ export async function GET(request: NextRequest) {
 			j = i + pagelen;
 		}
 
-		await dbConnect();
 
-		const m : {isPublic?:boolean} = {};
-		let cond; 
-		if(!admin){
-			m.isPublic = true;
-			cond = {
-				$cond: {
-					if: {
-						$lte: ["$startTime", "$$NOW"],
-					},
-					then: "$problems",
-					else: [],
-				}
-			}
-		}else{
-			cond =1;
-		}
+		await dbConnect();
 
 		const result = await contestModel.aggregate([
 			{
-				$match: m
+				$match: {}
 			},
 			{
 				$skip: i
@@ -75,7 +58,7 @@ export async function GET(request: NextRequest) {
 					"name": 1,
 					"startTime": 1,
 					"endTime": 1,
-					"problems": cond
+					"problems": 1
 				}
 			},
 		])

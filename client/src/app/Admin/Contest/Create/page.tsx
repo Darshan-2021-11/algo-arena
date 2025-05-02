@@ -136,7 +136,7 @@ const Create =()=>{
             <input className=" outline-none m-1 bg-zinc-700 " type="date" name="enddate" id="" />
             <input className=" outline-none m-1 bg-zinc-700 " type="time" name="endtime" id="" />
             </div>
-            <Toggle left="private" right="public" p={p} setp={setp}/>
+            <Toggle left="public" right="private" p={p} setp={setp}/>
             <div className="min-h-4 m-1 mb-2">
                 <p className="text-red-600">{err}</p>
                 <p className="text-green-600">{msg}</p>

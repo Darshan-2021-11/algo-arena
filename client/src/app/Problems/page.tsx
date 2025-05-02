@@ -32,14 +32,17 @@ const Page = () => {
       const { data } = await axios.get(url);
       if (data.success) {
         let mp = Math.round(data.total / pagesize);
+        
         if (typeof (mp) !== "number") {
           mp = 1;
-        }
-        if(mp){
-          setmaxpage(mp)
         }else{
-          setmaxpage(1)
+          if(mp%pagesize > 0){
+            mp++;
+          }
         }
+        console.log(data,mp)
+
+          setmaxpage(mp)
       }
     } catch (err: any) {
       console.log(err);
@@ -76,16 +79,16 @@ const Page = () => {
     setpages(p);
   }, [page])
 
-
   useEffect(() => {
     const p = [];
-    for (let i = 0; i < 1; i++) {
+    for (let i = 0; i < 4; i++) {
       if ((i + 1) > maxpage) {
         break;
       }
       p.push(i);
     }
     setpages(p);
+    console.log(pages)
   }, [maxpage])
 
   useEffect(()=>{

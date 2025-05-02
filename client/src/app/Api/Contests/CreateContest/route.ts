@@ -9,20 +9,14 @@ import dbConnect from "@/app/lib/api/databaseConnect";
 export async function POST(req: NextRequest) {
 	try {
 
-		const secret = process.env.JWT_SECRET;
-		if (!secret) {
-			return fail("Server is not working")
-		}
-
 		const cookieStore = cookies();
-		const token = cookieStore.get("token")?.value;
-		if (!token) {
-			return fail("unauthorized access.", 403);
-		}
+        const token = cookieStore.get("decodedtoken")?.value;
+        if (!token) {
+            return fail("Unauthorised access", 403);
+        }
 
-		const { admin } = jwt.verify(token,secret) as {id:string, name:string,admin:boolean};
-
-		if(!admin){
+        const decodedtoken = await JSON.parse(token)  as { id: string, name: string, admin?: boolean };
+		if(!decodedtoken.admin){
 			return fail("Unauthorized accesss.",403);
 		}
 

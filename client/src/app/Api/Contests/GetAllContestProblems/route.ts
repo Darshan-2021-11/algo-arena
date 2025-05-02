@@ -20,20 +20,15 @@ export interface Response {
 
 export async function GET(request: NextRequest) {
 	try {
-		const secret = process.env.JWT_SECRET;
-		if (!secret) {
-			return fail("Server configuration failed", 500);
-		}
 		const cookieStore = cookies();
-		const token = cookieStore.get("token")?.value;
+        const token = cookieStore.get("decodedtoken")?.value;
+        if (!token) {
+            return fail("Unauthorised access", 403);
+        }
 
-		if (!token) {
-			return fail("Unauthorised access", 403);
-		}
+        const decodedtoken = await JSON.parse(token)  as { id: string, name: string, admin?: boolean };
 
-		const { admin } = jwt.verify(token, secret) as { id: string, name: string, admin: boolean };
-
-		if (!admin) {
+		if (!decodedtoken.admin) {
 			return fail("Unauthorized accesss.", 403);
 		}
 

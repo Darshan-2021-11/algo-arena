@@ -1,134 +1,83 @@
 'use server'
-
-import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
-import Problem from "../../../lib/api/models/Problem/problemModel";
-import { fail } from "@/app/lib/api/response";
-import Submission from "@/app/lib/api/models/User/submissionModel";
+import { fail, success } from "@/app/lib/api/response";
 import { cookies } from "next/headers";
-import jwt from 'jsonwebtoken';
-import dbConnect from "@/app/lib/api/databaseConnect";
 import mongoose from "mongoose";
-import UserProblem from "@/app/lib/api/models/User/userProblemModel";
-import Activity from "@/app/lib/api/models/User/activityModel";
-
-interface Testcase {
-    input: string
-    output: string
-}
+import Contest from "@/app/lib/api/models/Contest/contestModel";
+import Problem from "@/app/lib/api/models/Problem/problemModel";
+import Leaderboard from "@/app/lib/api/models/User/leaderboardModel";
+import Participant from "@/app/lib/api/models/Contest/participantModel";
+import dbConnect from "@/app/lib/api/databaseConnect";
 
 export async function POST(req: NextRequest) {
     try {
-        const secret = process.env.JWT_SECRET;
-        if (!secret) {
-            return fail("Server is not working")
+      const cookiestore = cookies();
+        const token = cookiestore.get("decodedtoken")?.value as string;
+        if(!token){
+            return fail("Unauthorized access",403);
         }
-        const cookieStore = cookies();
-        const token = cookieStore.get("token")?.value;
-        if (!token) {
-            return fail("Unauthorised access", 403);
+        const decodedtoken = await JSON.parse(token) as { id: string, name: string, admin?: boolean };
+
+        const { id, contestid } = await req.json();
+
+        const date = new Date();
+
+        const pid = new mongoose.Types.ObjectId(id);
+        const cid = new mongoose.Types.ObjectId(contestid);
+        const uid = new mongoose.Types.ObjectId(decodedtoken.id);
+
+        await dbConnect();
+
+        const registered = await Participant.findOne({ user: uid, contest: cid }).select("solved");
+
+        if (!registered) {
+            return fail("You are not registered in the contest, submission will not affect your score.");
         }
 
-        const decodedtoken = jwt.verify(token, secret) as { id: string, name: string, admin: boolean };
+        const contest = await Contest.findOne({ _id: cid, startTime: { $lt: date }, endTime: { $gt: date } });
 
-        const { id, code, lang } = await req.json();
-        const problem = await Problem.findById(id).select("testcases") as { testcases: Testcase[] };
-        const { testcases } = problem 
-
-        if (testcases.length == 0) {
-            return fail("No test cases found.");
-        }
-
-
-        const tokens: string[] = [];
-
-        const prom = testcases.map((t) => {
-            const judgeurl = 'http://localhost:2358/submissions/';
-            const submissionBody = {
-                source_code: code,
-                language_id: 71,
-                stdin: t.input,
-                expected_output: t.output,
-                cpu_time_limit: 15,
-                wall_time_limit: 20
-            };
-
-            switch (lang) {
-                case "javascript":
-                    submissionBody.language_id = 63;
-                    break;
-                case "python":
-                    submissionBody.language_id = 71;
-                    break;
-                case "go":
-                    submissionBody.language_id = 60;
-                    break;
-                case "cpp":
-                    submissionBody.language_id = 54;
-                    break;
-                case "c":
-                    submissionBody.language_id = 50;
-                    break;
-                case "java":
-                    submissionBody.language_id = 62;
-                    break;
+        if (contest) {
+            if (!registered.solved.includes(id)) {
+                const diff = await Problem.findById(pid).select("difficulty");
+                if (!diff) {
+                    return fail("Invalid question.", 410);
+                }
+                let score;
+                if (diff === "Easy") {
+                    score = 10;
+                } else if (diff === "Medium") {
+                    score = 20;
+                } else {
+                    score = 30;
+                }
+                // if (leaderboard.matchedCount === 0) {
+                    const session = await mongoose.startSession();
+                    try {
+                        session.startTransaction();
+                        const leaderboard = await Leaderboard.updateOne({ user: uid }, { $inc: { score: score } });
+                        if(leaderboard.matchedCount === 0){
+                            await Leaderboard.create({ user: decodedtoken.id, score }, { session });
+                        }
+                        console.log("hi")
+                        await Participant.findOneAndUpdate({ user: uid, contest: cid }, { $push: { solved: id } }
+                            // , { session }
+                        );
+                        console.log("byte")
+                        await session.commitTransaction();
+                        await session.endSession();
+                    } catch (error) {
+                        await session.abortTransaction();
+                        await session.endSession();
+                        console.log(error);
+                        return fail("Failed to submit in contest.")
+                    // }
+                }
             }
-
-
-            return axios.post<{ token: string }>(judgeurl, submissionBody)
-                .then(({ data }) => {
-                    tokens.push(data.token);
-                })
-                .catch((err: any) => {
-                    console.log(err)
-                    throw new Error(err.message ? err.message : "Unable to reach Judge0.");
-                })
-
-        })
-        await Promise.all(prom)
-        await dbConnect()
-        const session = await mongoose.startSession();
-        let submission;
-        try {
-            session.startTransaction();
-            submission = await Submission.create({
-                user: decodedtoken.id,
-                problem: id,
-                language: lang,
-                code: code,
-            },{session}) 
-            const usersubmission = await UserProblem.findOneAndUpdate({ user: decodedtoken.id }, { $inc: { submission: 1 } },{session});
-            if (!usersubmission) {
-                await UserProblem.create({
-                    user: decodedtoken.id,
-                    submission:1
-                },{session})
-            }
-            const targetDate = new Date(); 
-            targetDate.setHours(0, 0, 0, 0)
-
-            const activity = await Activity.findOneAndUpdate({ user: decodedtoken.id, "activity.date": targetDate }, { $inc: { "activity.$.submissions": 1 } })
-            if(!activity){
-                await Activity.updateOne({user:decodedtoken.id},{
-                    $push:{activity:{date:targetDate, submission:1}}
-                },
-                {upsert:true,session},
-            )
-            }
-            await session.commitTransaction();
-            await session.endSession();
-        } catch (error:any) {
-            console.log(error)
-            await session.abortTransaction();
-            await session.endSession();
-            return fail(error.message ? error.message : "Data could not be saved.")
+            return success("solve successfully.");
         }
-
-        return NextResponse.json({ success: true, tokens, message: "successfully sent to run codes.", problemid: submission._id }, { status: 200 });
-
-
+        return fail("Contest already expired.", 410);
     } catch (err: any) {
-        console.log(err)
+        // console.log(err)
         return NextResponse.json({ success: false, err: err.message ? err.message : "something went wrong" }, { status: 500 });
     }
 }

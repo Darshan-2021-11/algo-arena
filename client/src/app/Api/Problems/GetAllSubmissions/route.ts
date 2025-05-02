@@ -20,11 +20,6 @@ export interface Response {
 
 export async function GET(request : NextRequest){
     try{
-        const cookieStore = cookies();
-        const token = cookieStore.get("token")?.value;
-        if(!token){
-            return fail("Unauthorised access",403);
-        }
         const url = new URL(request.url);
         
         const params = url.searchParams;

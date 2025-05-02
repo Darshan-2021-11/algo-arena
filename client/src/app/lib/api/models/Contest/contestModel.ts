@@ -18,15 +18,15 @@ export const contestSchema = new Schema({
 		type: Date,
 		required: [true, "End time of the contest is required."],
 	},
-	status: {
-		type: String,
-		enum: ["planned", "ongoing", "completed"],
-		default: "planned"
-	},
+	// status: {
+	// 	type: String,
+	// 	enum: ["planned", "ongoing", "completed"],
+	// 	default: "planned"
+	// },
 	problems: {
 		type:[String]
 	},
-	isPublic: {
+	ispublic: {
 		type: Boolean,
 		default: false
 	}	

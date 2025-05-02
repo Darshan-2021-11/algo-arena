@@ -35,6 +35,7 @@ const Activity: React.FC = () => {
 
     const generateCalender = async () => {
         const act = await getActivity();
+        console.log(act)
 
         const date = new Date();
         const year = date.getFullYear();
@@ -62,8 +63,10 @@ const Activity: React.FC = () => {
             const d = new Date(date);
             const m = d.getMonth();
             let c = cal[m];
-            const diff = md[m] - c.days.length;
+            let diff = Math.abs(md[m] - c.days.length);
+            diff > 0 && diff--;
             c.days[diff + d.getDate()] = submissions;
+            cal[m] = c;
         })
         setcalender(cal);
     }

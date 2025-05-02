@@ -113,7 +113,8 @@ const Create = () => {
             if (!body) {
                 return;
             }
-            body.ispublic = p;
+            body.ispublic = !p;
+            console.log(body)
             if( body.name === original.name && body.description === original.description && body.startTime === original.startTime && body.endTime === original.endTime && body.ispublic === original.ispublic ){
                 seterr("Change something to update.")
                 return;
@@ -121,7 +122,7 @@ const Create = () => {
             const url = `/Api/Contests/UpdateContest?id=${original._id}`;
             const { data } = await axios.post(url, body);
             if (data.success) {
-                setmsg("Contest created successfully");
+                setmsg("Contest updated successfully");
                 formref.current?.reset();
             }
 
@@ -138,11 +139,13 @@ const Create = () => {
             try {
                 const url = `/Api/Contests/GetContest?id=${params.id}`;
                 const { data } = await axios.get(url);
+                console.log(data)
                 if (data.success) {
+                    console.log(typeof(data.body.ispublic),data.body.ispublic)
                     if(data.body.ispublic){
-                        setp(true)
-                    }else{
                         setp(false)
+                    }else{
+                        setp(true)
                     }
                     setoriginal(data.body);
                 }

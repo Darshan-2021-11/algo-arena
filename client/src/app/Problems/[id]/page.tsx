@@ -14,6 +14,10 @@ import Commentpage from "./Comment";
 import { IoIosArrowForward } from "react-icons/io";
 import { IoIosArrowDown } from "react-icons/io";
 import Submissions from "./Submissions";
+import Link from "next/link";
+import { MdArrowBackIosNew } from "react-icons/md";
+import { useDispatch, useSelector } from "react-redux";
+import { removeContestid, useContest } from "@/app/lib/slices/contestSlice";
 
 interface resulttype {
   status: {
@@ -24,7 +28,7 @@ interface resulttype {
   memory: string;
   errmsg?: string;
   output?: string;
-  down:boolean
+  down: boolean
 }
 
 interface sizetype {
@@ -42,10 +46,10 @@ interface msgtype {
 
 interface pagetype {
   altproblem?: Problem;
-  contesturl?: string;
+  contestid?: string;
 }
 
-const IDE: React.FC<pagetype> = ({ altproblem, contesturl }) => {
+const IDE: React.FC<pagetype> = ({ altproblem }) => {
   const { lang, value, setlang, setValue } = useEditor();
 
   const [Problem, setProblem] = useState<Problem>();
@@ -57,6 +61,9 @@ const IDE: React.FC<pagetype> = ({ altproblem, contesturl }) => {
   const [Comment, setComment] = useState<msgtype[]>([]);
   const [p, setp] = useState("a");
   const { id } = useParams();
+  const {contestid} = useSelector(useContest);
+
+  const dispatch = useDispatch();
 
   // size control
   const [size, setsize] = useState<sizetype>({
@@ -112,7 +119,7 @@ const IDE: React.FC<pagetype> = ({ altproblem, contesturl }) => {
   const [running, setrun] = useState(false);
 
   const failed_test: resulttype[] = [
-    { status: { id: null, description: null }, time: "0.000", memory: "N/A ", down:false },
+    { status: { id: null, description: null }, time: "0.000", memory: "N/A ", down: false },
   ];
   const runcode = async () => {
     try {
@@ -169,10 +176,20 @@ const IDE: React.FC<pagetype> = ({ altproblem, contesturl }) => {
             memory: data.data.memory,
             errmsg: data.data.stderr,
             output: data.data.message,
-            down:false
+            down: false
           };
-          console.log(data)
           if (d.data.success) {
+            if (contestid) {
+              try {
+                const url = `/Api/Contests/solveProblem`;
+                const { data } = await axios.post(url, { id, contestid });
+                if (data.success) {
+                  console.log(data);
+                }
+              } catch (error) {
+                console.log(error);
+              }
+            }
             const results = [...result];
             let newrs = [];
             newrs = results.map((t: any) => {
@@ -219,6 +236,12 @@ const IDE: React.FC<pagetype> = ({ altproblem, contesturl }) => {
 
   useEffect(() => {
     getProblem();
+
+    return(()=>{
+      if(contestid){
+        dispatch(removeContestid())
+      }
+    })
   }, []);
 
   useEffect(() => {
@@ -229,9 +252,14 @@ const IDE: React.FC<pagetype> = ({ altproblem, contesturl }) => {
 
   return (
     <div
-      className={`${move && "cursor-col-resize"
-        } transition-all duration-100 overflow-hidden`}
+      className={`${move && "cursor-col-resize flex flex-col"} transition-all duration-100 overflow-hidden`}
+      style={{
+        maxHeight: "calc( 100vh - 64px )"
+      }}
+
     >
+
+
       {Problem ? (
         <>
           <div
@@ -240,11 +268,28 @@ const IDE: React.FC<pagetype> = ({ altproblem, contesturl }) => {
               maxHeight: "100vh",
             }}
           >
+            <div 
+            
+            style={{
+              width: size.width,
+              maxHeight: "85vh",
+            }}
+            >
+
+            {
+              contestid &&
+              <Link
+                href={`/contest/${contestid}`}
+                className="rounded-full bg-gray-600 w-7 h-7 z-50 relative"
+              >
+                <MdArrowBackIosNew className="rounded-full bg-gray-600 p-2 m-2 box-content" />
+              </Link>
+            }
             <div
               className="border overflow-hidden border-zinc-600 rounded-xl m-1 bg-zinc-900"
               style={{
                 width: size.width,
-                maxHeight: "85vh",
+                height: "78vh",
               }}
             >
               <div className="flex p-3 overflow-hidden">
@@ -264,15 +309,17 @@ const IDE: React.FC<pagetype> = ({ altproblem, contesturl }) => {
                   </p>
                 }
                 <p
-                onClick={()=>setp("c")}
+                  onClick={() => setp("c")}
                   className='mr-4 bg-black pt-1 pb-1 pl-2 pr-2 rounded-xl cursor-pointer text-gray-50 hover:text-gray-300'
-                  >submissions</p>
+                >submissions</p>
               </div>
               {p === "a" && <ProblemDescription Problem={Problem} />}
-              {p === "b" && !altproblem && <Commentpage comments={Comment} setcomments={setComment} id={id} /> }
-              {p === "c" && !altproblem && <Submissions id={id} /> }
+              {p === "b" && !altproblem && <Commentpage comments={Comment} setcomments={setComment} id={id} />}
+              {p === "c" && !altproblem && <Submissions id={id} />}
 
             </div>
+            </div>
+
             <div
               onMouseDown={() => setmove(true)}
               className={` relative ${move && "bg-blue-500"
@@ -339,64 +386,64 @@ const IDE: React.FC<pagetype> = ({ altproblem, contesturl }) => {
                           {r?.memory ? r.memory : "--"}KB
                         </div>
                         <div
-                        className="flex items-center justify-center "
+                          className="flex items-center justify-center "
                         >
                           {
-                            r.down ? 
-                            <IoIosArrowDown 
-                            onClick={()=>{
-                              const temp = [...result];
-                              temp[i].down = false;
-                              setresult(temp);
-                            }}
-                            className="cursor-pointer scale-125" />
-                            :
-                            <IoIosArrowForward
-                            onClick={()=>{
-                              const temp = [...result];
-                              temp[i].down = true;
-                              setresult(temp);
-                            }}
-                            className="cursor-pointer scale-125" />
+                            r.down ?
+                              <IoIosArrowDown
+                                onClick={() => {
+                                  const temp = [...result];
+                                  temp[i].down = false;
+                                  setresult(temp);
+                                }}
+                                className="cursor-pointer scale-125" />
+                              :
+                              <IoIosArrowForward
+                                onClick={() => {
+                                  const temp = [...result];
+                                  temp[i].down = true;
+                                  setresult(temp);
+                                }}
+                                className="cursor-pointer scale-125" />
                           }
                         </div>
                       </div>
                       {
-                        r.down && 
+                        r.down &&
                         <div
-                        className="bg-zinc-700 "
-                      >
-                        {
-                          r.errmsg &&
+                          className="bg-zinc-700 "
+                        >
+                          {
+                            r.errmsg &&
+                            <div
+                              className="p-2 pl-3 pr-3"
+                            >
+                              <p
+                                className="text-red-500 m-1"
+                              >Error</p>
+                              <pre
+                                className="bg-zinc-800 p-4"
+                              >
+                                {r?.errmsg}
+                              </pre>
+                            </div>
+                          }
+
                           <div
                             className="p-2 pl-3 pr-3"
                           >
                             <p
-                              className="text-red-500 m-1"
-                            >Error</p>
+                              className=" m-1"
+                            >Output</p>
                             <pre
                               className="bg-zinc-800 p-4"
                             >
-                              {r?.errmsg}
+                              {r?.output}
                             </pre>
                           </div>
-                        }
-
-                        <div
-                          className="p-2 pl-3 pr-3"
-                        >
-                          <p
-                            className=" m-1"
-                          >Output</p>
-                          <pre
-                            className="bg-zinc-800 p-4"
-                          >
-                            {r?.output}
-                          </pre>
                         </div>
-                      </div>
                       }
-                    
+
                     </div>
                   ))}
                 </div>

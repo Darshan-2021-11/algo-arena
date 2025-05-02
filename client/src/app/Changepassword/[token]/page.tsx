@@ -92,7 +92,7 @@ const Page: React.FC = () => {
             if (!passed) {
                 return;
             }
-            const res = await axios.post(`/Api/Auth/ChangePassword`,{newPassword:obj.password,token:router.token});
+            const res = await axios.post(`/Api/User/Auth/ChangePassword`,{newPassword:obj.password,token:router.token});
             console.log(res)
             if (res.data.success) {
                 setsuccess(res.data.message);

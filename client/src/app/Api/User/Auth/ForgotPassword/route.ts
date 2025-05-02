@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
       }, { status: 200 });
     }
 
-    const secretKey = process.env.NEXT_PUBLIC_NEXT_PUBLIC_JWT_SECRET || "fallbackSecret";
+    const secretKey = process.env.JWT_SECRET || "fallbackSecret";
     const resetToken = jwt.sign(
       { email: existingUser.email, id: existingUser._id },
       secretKey,

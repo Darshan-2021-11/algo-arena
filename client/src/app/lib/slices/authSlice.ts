@@ -45,6 +45,7 @@ const authSlice = createSlice({
         updateEmail(state, action){
             state.email = action.payload;
         },
+        
         updateImg(state, action){
             state.img = action.payload;
         },

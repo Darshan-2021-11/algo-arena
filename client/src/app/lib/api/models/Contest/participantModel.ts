@@ -4,16 +4,20 @@ const participantSchema = new Schema({
 	user: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "User",
-		required: true
+		required: true,
 	},
 	contest: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "Contest",
 		required: true
+	},
+	solved:{
+		type:[String],
+		default:[]
 	}
 });
 
-participantSchema.index({user:1, contest:1});
+participantSchema.index({user:1, contest:1},{unique:true});
 
 const Participant = mongoose.models.Participant || model("Participant", participantSchema);
 

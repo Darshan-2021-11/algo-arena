@@ -21,17 +21,12 @@ export interface Response {
 
 export async function GET(request : NextRequest){
     try{
-        const secret = process.env.JWT_SECRET;
-        if(!secret){
-            return fail("server configuration failed.")
-        }
-        const cookieStore = cookies();
-        const token = cookieStore.get("token")?.value;
+       const cookiestore = cookies();
+        const token = cookiestore.get("decodedtoken")?.value as string;
         if(!token){
-            return fail("Unauthorised access",403);
+            return fail("Unauthorized access",403);
         }
-
-        const decodedtoken = jwt.verify(token,secret) as {id:string, name:string, admin?:boolean};
+        const decodedtoken = await JSON.parse(token) as { id: string, name: string, admin?: boolean };
 
         if(!decodedtoken.admin){
             return fail("Unauthorised access",403);

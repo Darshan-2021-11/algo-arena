@@ -15,6 +15,7 @@
     "axios": "^1.8.2",
     "bcryptjs": "^3.0.2",
     "firebase": "^11.0.2",
+    "jose": "^6.0.10",
     "jsonwebtoken": "^9.0.2",
     "monaco-languageclient": "^8.8.3",
     "mongoose": "^8.8.1",

@@ -3,9 +3,21 @@ import Contest from "@/app/lib/api/models/Contest/contestModel";
 import { fail, success } from "@/app/lib/api/response";
 import mongoose from "mongoose";
 import { NextRequest } from "next/server";
+import { cookies } from "next/headers";
 
 export async function DELETE(req: NextRequest) {
     try {
+        const cookieStore = cookies();
+        const token = cookieStore.get("decodedtoken")?.value;
+        if (!token) {
+            return fail("Unauthorised access", 403);
+        }
+
+        const decodedtoken = await JSON.parse(token) as { id: string, name: string, admin?: boolean };
+
+        if (!decodedtoken.admin) {
+            return fail("Unauthorized access.", 403);
+        }
         const url = new URL(req.url);
         const params = url.searchParams;
         const qid = params.get("id");

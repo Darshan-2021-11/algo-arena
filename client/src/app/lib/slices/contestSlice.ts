@@ -3,11 +3,13 @@ import { createSlice } from "@reduxjs/toolkit";
 
 
 export interface value{
-    problems:string[]
+    problems:string[],
+    contestid:string | null
 }
 
 const initialState : value ={
-   problems:[]
+   problems:[],
+   contestid:null
 }
 
 const contestSlice = createSlice({
@@ -16,10 +18,16 @@ const contestSlice = createSlice({
     reducers:{
        updateProblem(state, action){
         state.problems = action.payload;
+       },
+       setContestid(state,action){
+        state.contestid = action.payload;
+       },
+       removeContestid(state){
+        state.contestid = null;
        }
     }
 })
 
-export const {updateProblem} = contestSlice.actions;
+export const {updateProblem, setContestid, removeContestid} = contestSlice.actions;
 export const useContest = (state:RootState)=>state.contest as value;
 export default contestSlice.reducer;

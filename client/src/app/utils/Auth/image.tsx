@@ -6,6 +6,7 @@ import { ChangeEvent, useEffect, useRef, useState } from "react"
 import { AiOutlineLoading3Quarters } from "react-icons/ai"
 import { FaRegUserCircle } from "react-icons/fa"
 import { useDispatch, useSelector } from "react-redux"
+import { UrlObject } from "url"
 import { v4 } from "uuid"
 
 interface prop {
@@ -18,6 +19,7 @@ const ProfileImage: React.FC<prop> = ({ update, size }) => {
 
     const imgref = useRef<HTMLImageElement>(null);
     const inputref = useRef<HTMLInputElement>(null);
+    const urlref = useRef<string | null>(null);
 
     const [load, setload] = useState(false);
 
@@ -91,7 +93,7 @@ const ProfileImage: React.FC<prop> = ({ update, size }) => {
 
                 if (file && file instanceof File) {
                     const regex = /image\//;
-                    if(!regex.test(file.type)){
+                    if (!regex.test(file.type)) {
                         return;
                     }
                     const blob = await getblob(file, 1, file.type);
@@ -117,15 +119,30 @@ const ProfileImage: React.FC<prop> = ({ update, size }) => {
                 if (defimg) {
                     const obj = URL.createObjectURL(blob);
                     defimg.src = obj;
-                    defimg.onload = () => {
-                        URL.revokeObjectURL(obj);
-                    }
+                    urlref.current = obj;
+                    // defimg.onload = () => {
+                    // URL.revokeObjectURL(obj);
+                    // }
                 }
             }
         } catch (error) {
             console.log(error);
         }
     }, [img]);
+    
+    useEffect(() => {
+        const handleUnload = () => {
+            if (urlref.current) {
+                URL.revokeObjectURL(urlref.current);
+            }
+        };
+
+        window.addEventListener("beforeunload", handleUnload);
+
+        return () => {
+            window.removeEventListener("beforeunload", handleUnload);
+        };
+    }, []);
 
     const removeImage = async () => {
         try {
@@ -150,7 +167,7 @@ const ProfileImage: React.FC<prop> = ({ update, size }) => {
                 {
                     !update ?
                         img ?
-                                <img ref={imgref} className={`${size === "big" ? "w-28 h-28 m-5" : size === "small" ? "w-6 h-6" : "w-9 h-9"} rounded-full border-2 object-cover border-white`} />
+                            <img ref={imgref} className={`${size === "big" ? "w-28 h-28 m-5" : size === "small" ? "w-6 h-6" : "w-9 h-9"} rounded-full border-2 object-cover border-white`} />
                             :
                             <FaRegUserCircle className={`${size === "big" ? "w-28 h-28 m-5" : size === "small" ? "w-6 h-6" : "w-9 h-9"} `} />
 

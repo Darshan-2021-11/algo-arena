@@ -20,24 +20,21 @@ interface typebody {
 
 export async function POST(req: NextRequest) {
     try {
-
-        const secret = process.env.JWT_SECRET;
-        if (!secret ) {
-            return fail("Server is not working")
+      const cookiestore = cookies();
+        const token = cookiestore.get("decodedtoken")?.value as string;
+        if(!token){
+            return fail("Unauthorized access",403);
         }
+        const decodedtoken = await JSON.parse(token) as { id: string, name: string, admin?: boolean };
 
-        const cookieStore = cookies();
-        const cookie = cookieStore.get("token")?.value;
-        if (!cookie) {
-            return fail("unauthorized access.", 403);
+        if(!decodedtoken.admin){
+            return fail("Unauthorised access.",403);
         }
-
-        const { id, name, admin } = jwt.verify(cookie,secret) as {id:string, name:string,admin:boolean};
 
         const body = await req.json() as typebody[];
        
         body.map((b)=>{
-            b.author = id;
+            b.author = decodedtoken.id;
         })
 
         await dbConnect();

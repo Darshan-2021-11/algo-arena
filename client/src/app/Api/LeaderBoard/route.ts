@@ -1,32 +1,19 @@
 "use server"
 import { NextResponse } from "next/server";
 import dbConnect from "@/app/lib/api/databaseConnect";
-import UserProblem from "@/app/lib/api/models/User/userProblemModel";
 import { fail } from "@/app/lib/api/response";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken"
+import Leaderboard from "@/app/lib/api/models/User/leaderboardModel";
 
 export async function GET() {
     try {
-
-        const secret = process.env.JWT_SECRET;
-        if (!secret) {
-            return fail("Server is not working")
-        }
-        const cookieStore = cookies();
-        const token = cookieStore.get("token")?.value;
-        if (!token) {
-            return fail("Unauthorised access", 403);
-        }
-
-        jwt.verify(token, secret) as { id: string, name: string };
-
         await dbConnect();
 
-        const users = await UserProblem.aggregate([
+        const users = await Leaderboard.aggregate([
             {
                 $sort: {
-                    totalQuestionSolved: -1
+                    score: -1
                 },
             },
             {
@@ -51,7 +38,7 @@ export async function GET() {
                     name: {
                         $arrayElemAt: ["$user", 0]
                     },
-                    submission: 1,
+                    score: 1,
                 }
             }
         ])

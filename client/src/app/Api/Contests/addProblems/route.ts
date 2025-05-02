@@ -11,20 +11,13 @@ import Contest from "@/app/lib/api/models/Contest/contestModel";
 export async function POST(req: NextRequest) {
     try {
 
-        const secret = process.env.JWT_SECRET;
-        if (!secret) {
-            return fail("Server is not working")
+      const cookiestore = cookies();
+        const token = cookiestore.get("decodedtoken")?.value as string;
+        if(!token){
+            return fail("Unauthorized access",403);
         }
-
-        const cookieStore = cookies();
-        const token = cookieStore.get("token")?.value;
-        if (!token) {
-            return fail("unauthorized access.", 403);
-        }
-
-        const { admin } = jwt.verify(token, secret) as { id: string, name: string, admin: boolean };
-
-        if (!admin) {
+        const decodedtoken = await JSON.parse(token) as { id: string, name: string, admin?: boolean };
+        if (!decodedtoken.admin) {
             return fail("Unauthorized accesss.", 403);
         }
 

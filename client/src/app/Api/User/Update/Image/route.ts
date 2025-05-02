@@ -7,21 +7,15 @@ import mongoose from "mongoose";
 
 export async function POST(req: NextRequest) {
     try {
-        const secret = process.env.JWT_SECRET;
-        if (!secret) {
-            return fail("Server is not working")
+       const cookiestore = cookies();
+        const token = cookiestore.get("decodedtoken")?.value as string;
+        if(!token){
+            return fail("Unauthorized access",403);
         }
+        const decodedtoken = await JSON.parse(token) as { id: string, name: string, admin?: boolean };
+        
+        
         const formdata = await req.formData();
-
-        const cookieStore = cookies();
-        const token = cookieStore.get("token")?.value;
-        if (!token) {
-            return fail("Unauthorised access", 403);
-        }
-
-        const decodedtoken = jwt.verify(token, secret) as { id: string, name: string, admin: boolean };
-
-
         const img = formdata.get("image");
         if (!img || !(img instanceof Blob)) {
             return fail("image is required.");
