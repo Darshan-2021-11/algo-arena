@@ -50,7 +50,7 @@ const SignIn = () => {
       if (response.data.success) {
         setsuccess(response.data.message);
         dispatch(login({ name: response.data.user.name, id: response.data.user.id, admin: response.data.user.admin, type:response.data.user.photo?.type, data:response.data.user.photo?.data }));
-        router.push("/Problems")
+        router.push("/")
       }
     } catch (err: any) {
       console.log(err)

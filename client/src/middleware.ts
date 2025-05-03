@@ -16,7 +16,8 @@ const NotProtected = [
   "/Api/User/Auth/MagicLink",
   "/Api/User/Auth/Verify",
   "/Api/User/Auth/RetryVerification",
-  "/Api/User/Auth/ChangePassword"
+  "/Api/User/Auth/ChangePassword",
+  "/Api/User/Auth/Exists/Username"
 ]
 
 export async function middleware(req: NextRequest) {

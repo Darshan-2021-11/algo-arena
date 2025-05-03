@@ -1,8 +1,9 @@
 import { Problem } from "@/app/lib/api/problemModel";
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { io, Socket } from 'socket.io-client';
 import { useAuth } from "../slices/authSlice";
+import { setError, setMessage } from "../slices/popupSlice";
 
 interface submitPayload {
     roomid: string | null
@@ -44,8 +45,8 @@ interface SocketContextType {
     listMatch: () => void
     setlimit: (payload: number) => void
     joinMatch: (payload: string) => void
-    setmsgs: (payload: string[]) => void
-    seterrs: (payload: string[]) => void
+    // setmsgs: (payload: string[]) => void
+    // seterrs: (payload: string[]) => void
     setloadmsg: (payload: string) => void
     setwinner: (payload: boolean | null) => void
     setdraw: (payload: boolean) => void
@@ -66,8 +67,8 @@ interface SocketContextType {
     rooms: { roomid: string, creator: string }[]
     socket: Socket<ServerToClientEvents, ClientToServerEvents> | null
     initload: boolean
-    msgs: string[]
-    errs: string[]
+    // msgs: string[]
+    // errs: string[]
     loadmsg: string
     lang: string
     code: string
@@ -94,11 +95,13 @@ const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [disable, setdisable] = useState(false);
     const [matchStart, setstart] = useState(false);
     const timeoutid = useRef<NodeJS.Timeout | null>(null);
-    const [msgs, setmsgs] = useState<string[]>([]);
-    const [errs, seterrs] = useState<string[]>([]);
+    // const [msgs, setmsgs] = useState<string[]>([]);
+    // const [errs, seterrs] = useState<string[]>([]);
     const [loadmsg, setloadmsg] = useState<string>("Please wait...");
     const [lang, setlang] = useState("python");
     const [code, setcode] = useState<string>('');
+
+    const dispatch = useDispatch();
 
 
     const [message, setmessage] = useState<string | null>(null);
@@ -127,10 +130,12 @@ const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
                 const soc = SocketRef.current;
                 if (soc) {
                     soc.on("connect_error", (e) => {
-                        seterrs([...errs, e.message]);
+                        // seterrs([...errs, e.message]);
+                        dispatch(setError(e.message));
                     })
                     soc.on("connect", () => {
-                        setmsgs((prev) => [...prev, "Connected successfully."])
+                        // setmsgs((prev) => [...prev, "Connected successfully."])
+                        dispatch(setMessage("Connected successfully."));
                         setinitload(false);
                         listMatch()
                         timeoutid.current = setInterval(() => {
@@ -138,20 +143,23 @@ const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
                         }, 10 * 1000);
                     })
                     soc.on("created", (e) => {
-                        setmsgs((prev) => [...prev, e.message])
+                        // setmsgs((prev) => [...prev, e.message])
+                        dispatch(setMessage(e.message));
                         setroomid(e.roomid);
                         setloadmsg("Waiting for opponent...")
                         setLoading(true);
                     })
                     soc.on("begin", (e) => {
-                        setmsgs((prev) => [...prev, "match begun."])
+                        // setmsgs((prev) => [...prev, "match begun."])
+                        dispatch(setMessage("match begun."));
                         setLoading(false);
                         setProblem(e.problem);
                         e.id && setroomid(e.id);
                         setstart(true);
                     })
                     soc.on("canceled", () => {
-                        setmsgs((prev) => [...prev, "match canceled."])
+                        // setmsgs((prev) => [...prev, ])
+                        dispatch(setMessage("match canceled."));
                         setwaiting(false);
                         setLoading(false);
                     })
@@ -179,20 +187,25 @@ const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
                     soc.on("server_report", (e) => {
                         switch (e.status) {
                             case 1:
-                                setmsgs([...msgs, e.message]);
+                                // setmsgs([...msgs, e.message]);
+                                dispatch(setMessage(e.message));
                                 break;
                             case 3:
-                                seterrs([...errs, e.message]);
+                                // seterrs([...errs, e.message]);
+                                dispatch(setError(e.message));
                                 break;
 
                             case 3.1:
-                                seterrs([...errs, e.message]);
+                                // seterrs([...errs, e.message]);
+                                dispatch(setError(e.message));
                                 setLoading(false);
                                 setroomid(null);
                                 break;
                                 
                             case 3.2:
-                                seterrs([...errs, e.message]);
+                                // seterrs([...errs, e.message]);
+                                dispatch(setError(e.message));
+
                                 setLoading(false);
                                 setroomid(null);
                                 setProblem(null)
@@ -302,8 +315,8 @@ const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
             startMatch,
             setlimit,
             joinMatch,
-            setmsgs,
-            seterrs,
+            // setmsgs,
+            // seterrs,
             setloadmsg,
             setwinner,
             setdraw,
@@ -322,8 +335,8 @@ const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
             roomid,
             message,
             initload,
-            msgs,
-            errs,
+            // msgs,
+            // errs,
             loadmsg,
             draw,
             code,

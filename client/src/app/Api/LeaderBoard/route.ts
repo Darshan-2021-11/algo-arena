@@ -30,6 +30,7 @@ export async function GET() {
             {
                 $addFields: {
                     user: '$users.username',
+                    userid:'$users._id'
                 }
             },
             {
@@ -37,6 +38,9 @@ export async function GET() {
                     _id: 0,
                     name: {
                         $arrayElemAt: ["$user", 0]
+                    },
+                    id:{
+                        $arrayElemAt:["$userid",0]
                     },
                     score: 1,
                 }

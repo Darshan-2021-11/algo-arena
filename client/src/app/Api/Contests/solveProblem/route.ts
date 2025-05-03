@@ -54,15 +54,16 @@ export async function POST(req: NextRequest) {
                     const session = await mongoose.startSession();
                     try {
                         session.startTransaction();
-                        const leaderboard = await Leaderboard.updateOne({ user: uid }, { $inc: { score: score } });
-                        if(leaderboard.matchedCount === 0){
-                            await Leaderboard.create({ user: decodedtoken.id, score }, { session });
-                        }
-                        console.log("hi")
+                        await Leaderboard.findOneAndUpdate(
+                            { user: uid },
+                            { $inc: { score: score } },
+                            { upsert: true
+                                // , session 
+                            }
+                        );
                         await Participant.findOneAndUpdate({ user: uid, contest: cid }, { $push: { solved: id } }
                             // , { session }
                         );
-                        console.log("byte")
                         await session.commitTransaction();
                         await session.endSession();
                     } catch (error) {

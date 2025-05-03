@@ -3,7 +3,11 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { v4 } from "uuid";
 
-const Activity: React.FC = () => {
+interface props {
+    id:string
+}
+
+const Activity: React.FC<props> = ({id}) => {
     const monthDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
     const currentYear = new Date().getFullYear();
     const [calendar, setcalender] = useState<{ month: number, days: (number | null)[] }[]>([]);
@@ -14,7 +18,7 @@ const Activity: React.FC = () => {
         let arr: { date: Date, submissions: number, start: Date }[] = [];
         try {
             const y = Number(new Date().getFullYear());
-            const url = `/Api/Activity?y=${year != null ? year : y}`;
+            const url = `/Api/Activity?y=${year != null ? year : y}&id=${id}`;
             const { data } = await axios.get(url);
             if (data.success && data.activity !== null) {
                 arr = data.activity;

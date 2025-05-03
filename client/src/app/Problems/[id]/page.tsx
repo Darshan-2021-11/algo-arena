@@ -178,6 +178,7 @@ const IDE: React.FC<pagetype> = ({ altproblem }) => {
             output: data.data.message,
             down: false
           };
+          console.log(data.data)
           if (d.data.success) {
             if (contestid) {
               try {

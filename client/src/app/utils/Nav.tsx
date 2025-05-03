@@ -9,6 +9,8 @@ import { FaUserEdit } from "react-icons/fa";
 import { MdSpaceDashboard } from "react-icons/md";
 import { IoIosLogOut } from "react-icons/io";
 import Dp from "./Auth/dp";
+import Popup from "./popup";
+import { setMessage } from "../lib/slices/popupSlice";
 
 const Nav: React.FC = () => {
   const router = useRouter();
@@ -16,7 +18,7 @@ const Nav: React.FC = () => {
 
   const [show, setshow] = useState(false);
 
-  const { loggedIn, username, admin } = useSelector(useAuth);
+  const { loggedIn, username, admin, id } = useSelector(useAuth);
   const dispatch = useDispatch();
 
   const protectedUri = ["/Explore", "/Problems", "/User", "/LeaderBoard", "/duet", "/Admin"];
@@ -147,7 +149,7 @@ const Nav: React.FC = () => {
                         <Link
                           className="p-2 hover:bg-zinc-800 rounded-md flex items-center justify-center"
                           onClick={() => { setshow(false) }}
-                          href={"/User/Dashboard"}><MdSpaceDashboard className="p-0.5 box-content" />Dashboard</Link>
+                          href={`/User/${id}`}><MdSpaceDashboard className="p-0.5 box-content" />Dashboard</Link>
                         <Link
                           onClick={() => { setshow(false) }}
                           className="p-2 hover:bg-zinc-800 rounded-md flex items-center justify-center"
@@ -172,6 +174,8 @@ const Nav: React.FC = () => {
         </div>
       </div>
       <div className="h-16 w-screen"></div>
+
+      <Popup/>
     </>
   );
 };

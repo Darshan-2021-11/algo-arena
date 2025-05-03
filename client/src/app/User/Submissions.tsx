@@ -15,9 +15,10 @@ export interface submissionType {
 
 interface proptype {
     setcode : React.Dispatch<React.SetStateAction<string|null>>
+    uid?:string
 }
 
-const Submissions : React.FC<proptype> = ({setcode}) => {
+const Submissions : React.FC<proptype> = ({setcode,uid}) => {
     const [submissions, setsubmissions] = useState<submissionType[]>([]);
     const currentTime = Date.now();
     const { id } = useSelector(useAuth);
@@ -28,7 +29,7 @@ const Submissions : React.FC<proptype> = ({setcode}) => {
 
     const getSubmissions = async () => {
         try {
-            const url = `/Api/Problems/GetAllSubmissions?u=${id}&p=${page.current}&l=${limit}`;
+            const url = `/Api/Problems/GetAllSubmissions?u=${uid?uid:id}&p=${page.current}&l=${limit}`;
             const { data } = await axios.get(url);
             if (data.success) {
 

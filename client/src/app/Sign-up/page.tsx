@@ -44,6 +44,7 @@ const SignUp: React.FC = () => {
       const response = await axios.post("/Api/User/Auth/Register", objectdata, { headers }) as { data:{message: string, success: boolean} };
       if (response.data.success === true) {
         setsuccess(response.data.message)
+        e.currentTarget.reset();
       } else {
         setError("something went wrong")
       }
