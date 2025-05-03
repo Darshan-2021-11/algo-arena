@@ -101,6 +101,9 @@ const Nav: React.FC = () => {
                   <div className="cursor-pointer px-2">
                     <Link href="/Explore">Explore</Link>
                   </div>
+                  <div className="cursor-pointer px-2">
+                    <Link href="/Search">Search</Link>
+                  </div>
                 </>
               )}
             </>
