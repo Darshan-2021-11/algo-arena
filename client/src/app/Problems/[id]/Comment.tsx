@@ -19,11 +19,11 @@ interface commentpayload {
 
 const Commentpage: React.FC<commentpayload> = ({ comments, setcomments, id }) => {
 
-    const {username} = useSelector(useAuth)
+    const auth = useSelector(useAuth)
     const comment = useRef("");
     const getComments = async () => {
         try {
-            const url = `/Api/Comment/List/ByProblemId?pid=${id}`
+            const url = `/Api/Comment/List/ByProblemId?pid=${id}&id=${auth.id}`
             const { data } = await axios.get(url);
             if (data.success) {
                 setcomments([...comments, ...data.comments])
@@ -82,7 +82,7 @@ const Commentpage: React.FC<commentpayload> = ({ comments, setcomments, id }) =>
                             >
                                 <p
                                 className=" text-xs text-gray-400 text-nowrap "
-                                >{c.user === username ? "you" : c.user}</p>
+                                >{c.user === auth.username ? "you" : c.user}</p>
                                 <p
                                 className="pl-2 font-bold"
                                 >{c.message}</p>

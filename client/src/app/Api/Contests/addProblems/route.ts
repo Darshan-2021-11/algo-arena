@@ -1,7 +1,6 @@
 "use server"
-import { cookies } from "next/headers";
+
 import { NextRequest } from "next/server";
-import jwt from 'jsonwebtoken';
 import { fail, success } from "@/app/lib/api/response";
 import dbConnect from "@/app/lib/api/databaseConnect";
 import mongoose from "mongoose";
@@ -10,17 +9,6 @@ import Contest from "@/app/lib/api/models/Contest/contestModel";
 
 export async function POST(req: NextRequest) {
     try {
-
-      const cookiestore = cookies();
-        const token = cookiestore.get("decodedtoken")?.value as string;
-        if(!token){
-            return fail("Unauthorized access",403);
-        }
-        const decodedtoken = await JSON.parse(token) as { id: string, name: string, admin?: boolean };
-        if (!decodedtoken.admin) {
-            return fail("Unauthorized accesss.", 403);
-        }
-
         const { problems, contestid } = await req.json();
 
         await dbConnect();
@@ -29,13 +17,13 @@ export async function POST(req: NextRequest) {
             return fail("problems is not an array", 400);
         }
 
-        const p = problems.map((pr)=>{
+        const p = problems.map((pr) => {
             return new mongoose.Types.ObjectId(pr);
         })
 
         const result = await Contest.findByIdAndUpdate({ _id: new mongoose.Types.ObjectId(contestid) }, { $push: { problems: { $each: p } } })
 
-        return success("succesfully added problem",result)
+        return success("succesfully added problem", result)
 
     } catch (error: any) {
         console.log(error)

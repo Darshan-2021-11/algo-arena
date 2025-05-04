@@ -1,8 +1,10 @@
+import { useAuth } from "@/app/lib/slices/authSlice"
 import { submissionType } from "@/app/User/Submissions"
 import axios from "axios"
 import { Dispatch, useEffect, useRef, useState } from "react"
 import { IoIosArrowDown } from "react-icons/io"
 import { RxCross2 } from "react-icons/rx"
+import { useSelector } from "react-redux"
 import { v4 } from "uuid"
 
 interface propType {
@@ -16,10 +18,11 @@ const Submissions: React.FC<propType> = ({ id }) => {
     const [end, setend] = useState(false);
     const limit = 10;
     const [submissions, setsubmissions] = useState<submissionType[]>([]);
+    const auth = useSelector(useAuth);
 
     const getSubmissions = async () => {
         try {
-            const url = `/Api/Problems/GetSubmissionbyId?pb=${id}&p=${page}`;
+            const url = `/Api/Problems/GetSubmissionbyId?pb=${id}&p=${page}&id=${auth.id}`;
             const { data } = await axios.get(url);
             if (data.success) {
 

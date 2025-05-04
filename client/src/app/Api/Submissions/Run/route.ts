@@ -19,16 +19,8 @@ interface Testcase {
 
 export async function POST(req: NextRequest) {
     try {
-       const cookiestore = cookies();
-        const token = cookiestore.get("decodedtoken")?.value as string;
-        if(!token){
-            return fail("Unauthorized access",403);
-        }
-        const decodedtoken = await JSON.parse(token) as { id: string, name: string, admin?: boolean };
-
-        const { id, code, lang } = await req.json();
+        const { id, code, lang,user } = await req.json();
         const problem = await Problem.findById(id).select("testcases") as { testcases: Testcase[] };
-        console.log(problem)
         const { testcases } = problem 
 
         if (testcases.length == 0) {
@@ -88,24 +80,24 @@ export async function POST(req: NextRequest) {
         try {
             session.startTransaction();
             submission = await Submission.create({
-                user: decodedtoken.id,
+                user: user,
                 problem: id,
                 language: lang,
                 code: code,
             })
-            const usersubmission = await UserProblem.findOneAndUpdate({ user: decodedtoken.id }, { $inc: { submission: 1 } });
+            const usersubmission = await UserProblem.findOneAndUpdate({ user: user }, { $inc: { submission: 1 } });
             if (!usersubmission) {
                 await UserProblem.create({
-                    user: decodedtoken.id,
+                    user: user,
                     submission:1
                 })
             }
             const targetDate = new Date(); 
             targetDate.setHours(0, 0, 0, 0)
 
-            const activity = await Activity.findOneAndUpdate({ user: decodedtoken.id, "activity.date": targetDate }, { $inc: { "activity.$.submissions": 1 } })
+            const activity = await Activity.findOneAndUpdate({ user: user, "activity.date": targetDate }, { $inc: { "activity.$.submissions": 1 } })
             if(!activity){
-                await Activity.updateOne({user:decodedtoken.id},{
+                await Activity.updateOne({user:user},{
                     $push:{activity:{date:targetDate, submission:1}}
                 },
                 {upsert:true}

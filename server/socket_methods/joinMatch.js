@@ -5,7 +5,7 @@ const authorize = require("./authorize");
 const endMatch = require("./endMatch");
 const axios = require("axios");
 
-async function joinMatch({roomid, id}) {
+async function joinMatch({ roomid, id }) {
     try {
 
         const callauthorize = authorize.bind(this);
@@ -22,11 +22,11 @@ async function joinMatch({roomid, id}) {
             this.emit("server_report", { status: 3.2, message: "Unable to join room." });
             return;
         }
-        
-       
+
+
 
         const Room = list.get(roomid);
-         if (!Room) {
+        if (!Room) {
             this.emit("server_report", { status: 3.2, message: "This room does not exists." });
             return;
         }
@@ -44,7 +44,7 @@ async function joinMatch({roomid, id}) {
 
         const problemschema = mongoose.connection.collection("problems");
         const problem = await problemschema.aggregate([
-            {$match:{isdeleted:false }},
+            { $match: { isdeleted: false } },
             { $sample: { size: 1 } },
             {
                 $project: {
@@ -68,7 +68,7 @@ async function joinMatch({roomid, id}) {
         this.join(roomid);
         clearTimeout(Room.timeid);
         const tid = setTimeout(() => {
-            endMatch(roomid,true);
+            endMatch(roomid, true);
             clearTimeout(tid);
         }, (30 * 60 * 1000));
 
@@ -77,8 +77,8 @@ async function joinMatch({roomid, id}) {
         Room.timeid = tid;
         list.set(roomid, Room);
         this.to(roomid).emit("server_report", { status: 1, message: `${user.name} joined the room.` });
-        this.to(roomid).emit("begin", {problem:Room.problem,id:null})
-        this.emit("begin", {problem:Room.problem, id:roomid})
+        this.to(roomid).emit("begin", { problem: Room.problem, id: null })
+        this.emit("begin", { problem: Room.problem, id: roomid })
 
         try {
             const url = "http://localhost:3000/Api/Duel/Start";
@@ -87,8 +87,8 @@ async function joinMatch({roomid, id}) {
                     Cookie: `token=${user.token}`,
                 },
             }
-            const data = await axios.post(url,{user:Room.mems[0].id,problem:Room.problem._id,duration:30},headers);    
-            if(data.data.success){
+            const data = await axios.post(url, { user: Room.mems[0].id, user1: Room.mems[1].id, problem: Room.problem._id, duration: 30 }, headers);
+            if (data.data.success) {
                 Room.duelid = data.data.duelid;
                 list.set(roomid, Room);
             }
@@ -96,7 +96,7 @@ async function joinMatch({roomid, id}) {
             console.log(error);
         }
 
-       
+
 
 
     } catch (error) {

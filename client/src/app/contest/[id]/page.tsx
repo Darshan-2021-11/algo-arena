@@ -7,10 +7,11 @@ import { useParams } from "next/navigation";
 import { TfiMenuAlt } from "react-icons/tfi";
 import { MdArrowBackIosNew } from "react-icons/md";
 import Link from "next/link";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setContestid } from "@/app/lib/slices/contestSlice";
 import { useRouter } from "next/navigation";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { useAuth } from "@/app/lib/slices/authSlice";
 
 
 const Page = () => {
@@ -22,6 +23,7 @@ const Page = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const router = useRouter();
+  const auth = useSelector(useAuth); 
 
   const currentTime = new Date();
 
@@ -66,7 +68,7 @@ const Page = () => {
     try {
       setload(true);
       const url = "/Api/Contests/register";
-      const { data } = await axios.post(url, { id });
+      const { data } = await axios.post(url, { id, user:auth.id });
       if (data.success) {
         setreg(true);
       }

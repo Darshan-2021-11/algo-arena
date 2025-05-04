@@ -7,6 +7,8 @@ import Testcases from "./testcases";
 import axios from "axios";
 import { LuLoaderCircle } from "react-icons/lu";
 import Toggle from "@/app/utils/Auth/toggle";
+import { useSelector } from "react-redux";
+import { useAuth } from "@/app/lib/slices/authSlice";
 
 interface obj {
     input: string
@@ -22,6 +24,7 @@ export interface body {
     testcases: { input: string, output: string }[]
     timeLimit: number
     spaceLimit: number
+    author:string|null
 }
 
 const Page = () => {
@@ -38,6 +41,7 @@ const Page = () => {
     const [success, setsuccess] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [p, setp] = useState(true);
+    const auth = useSelector(useAuth);
 
 
 
@@ -82,7 +86,8 @@ const Page = () => {
             testcases,
             timeLimit: Number(formdata.get("timeLimit")?.toString()),
             spaceLimit: Number(formdata.get("spaceLimit")?.toString()),
-            private:!p
+            private:!p,
+            author:auth.id
         }
 
         return body;
@@ -96,7 +101,7 @@ const Page = () => {
             if (!body) {
                 return;
             }
-            console.log(body);
+            // console.log(body);
 
             const url = "/Api/Problems/CreateProblem";
 

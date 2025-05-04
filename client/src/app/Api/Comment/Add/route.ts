@@ -12,22 +12,15 @@ interface b{
 
 export async function POST(req:NextRequest){
     try {
-      const cookiestore = cookies();
-        const token = cookiestore.get("decodedtoken")?.value as string;
-        if(!token){
-            return fail("Unauthorized access",403);
-        }
-        const decodedtoken = await JSON.parse(token) as { id: string, name: string, admin?: boolean };
+        const {pid, msg, cid, id} = await req.json();
 
-        const {pid, msg, cid} = await req.json();
-
-        if(!pid || !msg){
-            return fail("Bad request pid and msg are required.",400)
+        if(!pid || !msg || !id){
+            return fail("Bad request pid, msg and id are required.",400)
         }
 
         const body : b = {
             problem:pid,
-            user:decodedtoken.id,
+            user:id,
             message:msg,
         };
 

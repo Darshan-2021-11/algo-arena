@@ -1,24 +1,19 @@
 import Dp from "@/app/lib/api/models/User/dpModel";
 import { fail, success } from "@/app/lib/api/response";
-import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
-import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import dbConnect from "@/app/lib/api/databaseConnect";
 
 export async function DELETE(req: NextRequest) {
     try {
-       const cookiestore = cookies();
-        const token = cookiestore.get("decodedtoken")?.value as string;
-        if(!token){
-            return fail("Unauthorized access",403);
+        const id = new URL(req.url).searchParams.get("id");
+        if(!id){
+            return fail("id is required.");
         }
-        const decodedtoken = await JSON.parse(token) as { id: string, name: string, admin?: boolean };
-
         await dbConnect();
 
 
-        await Dp.deleteOne({user:new mongoose.Types.ObjectId(decodedtoken.id)});
+        await Dp.deleteOne({user:new mongoose.Types.ObjectId(id)});
 
         return success("Profile image saved.", 200)
     } catch (error: any) {

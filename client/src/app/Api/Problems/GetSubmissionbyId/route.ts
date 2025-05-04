@@ -21,18 +21,13 @@ export interface Response {
 
 export async function GET(request : NextRequest){
     try{
-       const cookiestore = cookies();
-        const token = cookiestore.get("decodedtoken")?.value as string;
-        if(!token){
-            return fail("Unauthorized access",403);
-        }
-        const decodedtoken = await JSON.parse(token) as { id: string, name: string, admin?: boolean };
         const url = new URL(request.url);
         
         const params = url.searchParams;
-        const problem = url.searchParams.get("pb");
-        if(!problem){
-            return fail("problem is required.")
+        const problem = params.get("pb");
+        const id = params.get("id");
+        if(!problem || !id){
+            return fail("problem and id are required.")
         }
         const page : number = Number(params.get('p')) || 1;
         const pagelen = Number(params.get('l')) || 10;
@@ -47,7 +42,7 @@ export async function GET(request : NextRequest){
        
 
         const result = await Submission.aggregate([
-            {$match:{user:new mongoose.Types.ObjectId(decodedtoken.id), problem:new mongoose.Types.ObjectId(problem) }},
+            {$match:{user:new mongoose.Types.ObjectId(id), problem:new mongoose.Types.ObjectId(problem) }},
             {$skip:(page-1)*pagelen},
             {$limit:pagelen},
             {$project:{

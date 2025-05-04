@@ -18,6 +18,7 @@ import Link from "next/link";
 import { MdArrowBackIosNew } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { removeContestid, useContest } from "@/app/lib/slices/contestSlice";
+import { useAuth } from "@/app/lib/slices/authSlice";
 
 interface resulttype {
   status: {
@@ -61,7 +62,8 @@ const IDE: React.FC<pagetype> = ({ altproblem }) => {
   const [Comment, setComment] = useState<msgtype[]>([]);
   const [p, setp] = useState("a");
   const { id } = useParams();
-  const {contestid} = useSelector(useContest);
+  const { contestid } = useSelector(useContest);
+  const auth = useSelector(useAuth);
 
   const dispatch = useDispatch();
 
@@ -133,7 +135,7 @@ const IDE: React.FC<pagetype> = ({ altproblem }) => {
         : { id, code: value, lang };
         */
       const url = "/Api/Submissions/Run";
-      const body = { id, code: value, lang };
+      const body = { id, code: value, lang,user:auth.id };
       const header = { "Content-Type": "application/json" };
 
       const response = await axios.post(url, body, { headers: header });
@@ -178,12 +180,11 @@ const IDE: React.FC<pagetype> = ({ altproblem }) => {
             output: data.data.message,
             down: false
           };
-          console.log(data.data)
           if (d.data.success) {
             if (contestid) {
               try {
                 const url = `/Api/Contests/solveProblem`;
-                const { data } = await axios.post(url, { id, contestid });
+                const { data } = await axios.post(url, { id, contestid, user: auth.id });
                 if (data.success) {
                   console.log(data);
                 }
@@ -238,8 +239,8 @@ const IDE: React.FC<pagetype> = ({ altproblem }) => {
   useEffect(() => {
     getProblem();
 
-    return(()=>{
-      if(contestid){
+    return (() => {
+      if (contestid) {
         dispatch(removeContestid())
       }
     })
@@ -269,56 +270,56 @@ const IDE: React.FC<pagetype> = ({ altproblem }) => {
               maxHeight: "100vh",
             }}
           >
-            <div 
-            
-            style={{
-              width: size.width,
-              maxHeight: "85vh",
-            }}
-            >
-
-            {
-              contestid &&
-              <Link
-                href={`/contest/${contestid}`}
-                className="rounded-full bg-gray-600 w-7 h-7 z-50 relative"
-              >
-                <MdArrowBackIosNew className="rounded-full bg-gray-600 p-2 m-2 box-content" />
-              </Link>
-            }
             <div
-              className="border overflow-hidden border-zinc-600 rounded-xl m-1 bg-zinc-900"
+
               style={{
                 width: size.width,
-                height: "78vh",
+                maxHeight: "85vh",
               }}
             >
-              <div className="flex p-3 overflow-hidden">
-                <p
-                  className="mr-4 bg-black pt-1 pb-1 pl-2 pr-2 rounded-xl cursor-pointer text-gray-50 hover:text-gray-300"
-                  onClick={() => setp("a")}
+
+              {
+                contestid &&
+                <Link
+                  href={`/contest/${contestid}`}
+                  className="rounded-full bg-gray-600 w-7 h-7 z-50 relative"
                 >
-                  description
-                </p>
-                {
-                  !altproblem &&
+                  <MdArrowBackIosNew className="rounded-full bg-gray-600 p-2 m-2 box-content" />
+                </Link>
+              }
+              <div
+                className="border overflow-hidden border-zinc-600 rounded-xl m-1 bg-zinc-900"
+                style={{
+                  width: size.width,
+                  height: "78vh",
+                }}
+              >
+                <div className="flex p-3 overflow-hidden">
                   <p
                     className="mr-4 bg-black pt-1 pb-1 pl-2 pr-2 rounded-xl cursor-pointer text-gray-50 hover:text-gray-300"
-                    onClick={() => setp("b")}
+                    onClick={() => setp("a")}
                   >
-                    discussion
+                    description
                   </p>
-                }
-                <p
-                  onClick={() => setp("c")}
-                  className='mr-4 bg-black pt-1 pb-1 pl-2 pr-2 rounded-xl cursor-pointer text-gray-50 hover:text-gray-300'
-                >submissions</p>
-              </div>
-              {p === "a" && <ProblemDescription Problem={Problem} />}
-              {p === "b" && !altproblem && <Commentpage comments={Comment} setcomments={setComment} id={id} />}
-              {p === "c" && !altproblem && <Submissions id={id} />}
+                  {
+                    !altproblem &&
+                    <p
+                      className="mr-4 bg-black pt-1 pb-1 pl-2 pr-2 rounded-xl cursor-pointer text-gray-50 hover:text-gray-300"
+                      onClick={() => setp("b")}
+                    >
+                      discussion
+                    </p>
+                  }
+                  <p
+                    onClick={() => setp("c")}
+                    className='mr-4 bg-black pt-1 pb-1 pl-2 pr-2 rounded-xl cursor-pointer text-gray-50 hover:text-gray-300'
+                  >submissions</p>
+                </div>
+                {p === "a" && <ProblemDescription Problem={Problem} />}
+                {p === "b" && !altproblem && <Commentpage comments={Comment} setcomments={setComment} id={id} />}
+                {p === "c" && !altproblem && <Submissions id={id} />}
 
-            </div>
+              </div>
             </div>
 
             <div

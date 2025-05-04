@@ -20,6 +20,7 @@ const ProfileImage: React.FC<prop> = ({ update, size }) => {
     const imgref = useRef<HTMLImageElement>(null);
     const inputref = useRef<HTMLInputElement>(null);
     const urlref = useRef<string | null>(null);
+    const auth = useSelector(useAuth);
 
     const [load, setload] = useState(false);
 
@@ -33,7 +34,7 @@ const ProfileImage: React.FC<prop> = ({ update, size }) => {
             const body = new FormData();
             body.set("image", blob);
 
-            const url = "/Api/User/Update/Image";
+            const url = `/Api/User/Update/Image?id=${auth.id}`;
             const { data } = await axios.post(url, body);
             if (data.success) {
                 const buffer = await blob.arrayBuffer();
@@ -150,7 +151,7 @@ const ProfileImage: React.FC<prop> = ({ update, size }) => {
                 inputref.current.value = ""
             }
 
-            const url = "/Api/User/Delete/Image";
+            const url = `/Api/User/Delete/Image?id=${auth.id}`;
             const { data } = await axios.delete(url);
             if (data.success) {
                 dispatch(updateImg(null));

@@ -1,5 +1,4 @@
 import { fail } from "@/app/lib/api/response";
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import Comment from "@/app/lib/api/models/User/commentModels";
 import mongoose from "mongoose";
@@ -7,16 +6,9 @@ import mongoose from "mongoose";
 
 export async function GET(req:NextRequest){
     try {
-      const cookiestore = cookies();
-        const token = cookiestore.get("decodedtoken")?.value as string;
-        if(!token){
-            return fail("Unauthorized access",403);
-        }
-        const decodedtoken = await JSON.parse(token) as { id: string, name: string, admin?: boolean };
-
         const url = new URL(req.url);
         const id = url.searchParams.get("pid");
-        const limit = Number(url.searchParams.get("l") || "10");
+        const limit = Number(url.searchParams.get("l") ) || 10;
 
         if(!id){
             return fail("cid is required.",400);
@@ -27,7 +19,7 @@ export async function GET(req:NextRequest){
                 $match:{problem:new mongoose.Types.ObjectId(id)}
             },
             {
-                $limit:10
+                $limit:limit
             },
             {
                 $lookup:{
@@ -51,8 +43,6 @@ export async function GET(req:NextRequest){
                 }
             }
         ])
-        
-        console.log(comments)
         
         return NextResponse.json({
             success: true,

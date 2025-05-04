@@ -1,7 +1,6 @@
 'use server'
 import { NextRequest, NextResponse } from "next/server";
 import { fail, success } from "@/app/lib/api/response";
-import { cookies } from "next/headers";
 import mongoose from "mongoose";
 import Contest from "@/app/lib/api/models/Contest/contestModel";
 import Problem from "@/app/lib/api/models/Problem/problemModel";
@@ -11,20 +10,17 @@ import dbConnect from "@/app/lib/api/databaseConnect";
 
 export async function POST(req: NextRequest) {
     try {
-      const cookiestore = cookies();
-        const token = cookiestore.get("decodedtoken")?.value as string;
-        if(!token){
-            return fail("Unauthorized access",403);
-        }
-        const decodedtoken = await JSON.parse(token) as { id: string, name: string, admin?: boolean };
+        const { id, contestid, user } = await req.json();
 
-        const { id, contestid } = await req.json();
+        if(!id || !contestid || !user){
+            return fail("id, contestid and user are required.");
+        }
 
         const date = new Date();
 
         const pid = new mongoose.Types.ObjectId(id);
         const cid = new mongoose.Types.ObjectId(contestid);
-        const uid = new mongoose.Types.ObjectId(decodedtoken.id);
+        const uid = new mongoose.Types.ObjectId(user);
 
         await dbConnect();
 

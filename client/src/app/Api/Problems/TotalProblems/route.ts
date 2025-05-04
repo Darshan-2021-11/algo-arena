@@ -6,8 +6,8 @@ import { cookies } from "next/headers";
 import { fail } from "@/app/lib/api/response";
 import Problem from "../../../lib/api/models/Problem/problemModel"
 import dbConnect from "@/app/lib/api/databaseConnect";
-import jwt from "jsonwebtoken";
 import { redisConnect } from "@/app/lib/api/redisConnect";
+import jwt from 'jsonwebtoken';
 
 export interface Response {
     success: boolean,
@@ -21,12 +21,18 @@ export interface Response {
 
 export async function GET(req: NextRequest) {
     try {
-       const cookiestore = cookies();
-        const token = cookiestore.get("decodedtoken")?.value as string;
-        if(!token){
-            return fail("Unauthorized access",403);
+        const secret = process.env.JWT_SECRET;
+        if (!secret) {
+            return fail("Server configuration failed", 500);
         }
-        const decodedtoken = await JSON.parse(token) as { id: string, name: string, admin?: boolean };
+        const cookieStore = cookies();
+        const token = cookieStore.get("token")?.value;
+
+        if (!token) {
+            return fail("Unauthorised access", 403);
+        }
+
+        const decodedtoken = jwt.verify(token, secret) as { id: string, name: string, admin?: boolean };
         const url = new URL(req.url);
         const params = url.searchParams;
         const pr = params.get("pr");

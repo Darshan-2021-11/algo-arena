@@ -21,16 +21,6 @@ export interface Response {
 
 export async function GET(request : NextRequest){
     try{
-       const cookiestore = cookies();
-        const token = cookiestore.get("decodedtoken")?.value as string;
-        if(!token){
-            return fail("Unauthorized access",403);
-        }
-        const decodedtoken = await JSON.parse(token) as { id: string, name: string, admin?: boolean };
-
-        if(!decodedtoken.admin){
-            return fail("Unauthorised access",403);
-        }
         
         const params = new URL(request.url).searchParams;
         const page : number = Number(params.get('p')) || 1;

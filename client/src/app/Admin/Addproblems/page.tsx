@@ -5,6 +5,8 @@ import { v4 } from "uuid";
 import { RxCross2, RxCheck } from "react-icons/rx";
 import axios from "axios";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { useSelector } from "react-redux";
+import { useAuth } from "@/app/lib/slices/authSlice";
 
 type TestCase = {
     input: string;
@@ -20,6 +22,7 @@ type Problem = {
     testcases: TestCase[];
     timeLimit: number;
     spaceLimit: number;
+    author:string | null
 };
 
 type ProblemList = Problem[];
@@ -30,7 +33,7 @@ const Addproblems = () => {
     const [success, setsuccess] = useState<string | null>(null);
     const [err, seterr] = useState<string | null>(null);
     const [load, setload] = useState(false);
-
+    const auth = useSelector(useAuth);
 
     const inputref = useRef<HTMLInputElement | null>(null);
 
@@ -139,21 +142,18 @@ const Addproblems = () => {
 
                     case "timeLimit":
                         {
-                            console.log("hi")
                             if (typeof (probarr[j][1]) !== "number") return false;
                         }
                         break;
 
                     case "spaceLimit":
                         {
-                            console.log("byte")
                             if (typeof (probarr[j][1]) !== "number") return false;
                         }
                         break;
 
                     default:
                         return false;
-                        break;
                 }
             }
 
@@ -183,14 +183,18 @@ const Addproblems = () => {
             }
             if (value) {
                 const reader = new FileReader();
-                reader.onload = (e) => {
+                reader.onload = async(e) => {
                     try {
                         const text = e.target?.result as string;
                         if (text) {
-                            const jsondata = JSON.parse(text) as Problem[];
+                            const jsondata = await JSON.parse(text) as Problem[];
                             if (validData(jsondata)) {
                                 value?.name && setname(value?.name);
-                                setproblems(jsondata);
+                                const data  = jsondata.map((j)=>{
+                                    j.author = auth.id;
+                                    return j;
+                                });
+                                setproblems(data);
                             } else {
                                 seterr("Format of the JSON file is not valid.");
                                 clearData()
