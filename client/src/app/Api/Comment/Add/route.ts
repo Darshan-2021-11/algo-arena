@@ -12,7 +12,6 @@ interface b{
 
 export async function POST(req:NextRequest){
     try {
-        await middleware(req);
         const {pid, msg, cid, id} = await req.json();
 
         if(!pid || !msg || !id){
@@ -34,7 +33,9 @@ export async function POST(req:NextRequest){
         return NextResponse.json({
             success: true,
             id:comment._id
-        }, { status: 200 })
+        }, { 
+            status: 200 
+        })
 
     } catch (err: any) {
         return fail(err.message ? err.message : "something went wrong.")

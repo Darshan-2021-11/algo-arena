@@ -20,7 +20,13 @@ axiosClient.interceptors.response.use(
             const status = error.response.status;
 
             if (status === 401) {
-                store.dispatch(logout());
+                try {
+                    await axios.get("/Api/User/Auth/Logout");
+                  } catch (error) {
+                    console.log(error);
+                  }finally{
+                    store.dispatch(logout());
+                  }
             } else if (status === 403 && config.retryCount < 2) {
                 try {
                     const { data } = await axios.get("/Api/User/Auth/rotateTokens");

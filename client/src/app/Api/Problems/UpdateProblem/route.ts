@@ -24,7 +24,7 @@ interface body {
 
 export async function POST(req: NextRequest) {
     try {
-        await middleware(req);
+        ;
         const body = await req.json() as body;
 
         if(!body.id || !body.problem){

@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req:NextRequest, res:NextResponse) {
     try {
-        await middleware(req);
+        ;
         const response = NextResponse.json({
             success:true,
             message:"Logged out successfully."

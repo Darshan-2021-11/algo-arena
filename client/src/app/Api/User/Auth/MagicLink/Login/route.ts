@@ -8,7 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
     try {
-        await middleware(req);
+        ;
         const secret = process.env.JWT_SECRET;
         if (!secret) {
             return fail("Server is not working")

@@ -26,63 +26,60 @@ const admin = [
 ]
 
 export async function middleware(req: NextRequest) {
+  
   const { url } = req;
   const u = new URL(url);
   const { pathname } = u;
   if (!NotProtected.includes(pathname)) {
     try {
+      const cookieStore = cookies();
+      const contest_secret = process.env.contest_secret;
+      const contestserverkey = cookieStore.get("contest_secret");
+      if(contest_secret === contestserverkey){
+        NextResponse.next();
+      }
       const secret = process.env.JWT_SECRET;
       if (!secret) {
         return fail("Server configuration failed", 500);
       }
-      console.log("heyo1")
 
-      const cookieStore = cookies();
       const refreshtoken = cookieStore.get("refresh-token")?.value;
       if(!refreshtoken){
         return fail("Unauthorised access", 401);
       }
-      console.log("heyo2")
       const token = cookieStore.get("token")?.value;
       const creftoken = cookieStore.get("x-cref-token")?.value;
 
       if (!token || !creftoken) {
         return fail("Unauthorised access", 403);
       }
-      console.log("heyo3")
 
 
       const redis = await redisConnect();
       if(!redis){
         return fail("Server configuration failed.",500);
       }
-      console.log("heyo4")
 
    
       const data = await redis.get(refreshtoken) as string | null;
-      console.log(data)
       if(!data){
         return fail("Unauthorised access", 401);
       }
-      console.log("heyo5")
 
       const storedtokens = await JSON.parse(data) as  {crefToken : string, token:string, id: string};
 
       if(storedtokens.crefToken !== creftoken || storedtokens.token !== token){
         return fail("unauthorized access.",403);
       }
-      console.log("heyo6")
 
       const payload  =  jwt.verify(token, secret) as  { id: string, name: string, admin?: boolean };
 
       if (admin.includes(pathname) && !payload.admin) {
         return fail("Unauthorised access", 401);
       }
-      console.log("heyo7")
 
       const crefToken= randomBytes(32).toString("hex");
       storedtokens.token = crefToken;
-      console.log(storedtokens,"stored tokens")
 
       // await redis.del(refreshtoken);
 

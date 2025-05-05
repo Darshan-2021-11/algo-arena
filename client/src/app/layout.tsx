@@ -21,7 +21,7 @@ export default function RootLayout({
     <StoreProvider>
       <EditorProvider>
     <html lang="en"
-    className=" select-none"
+    // className=" select-none"
     >
       <head>
       <link

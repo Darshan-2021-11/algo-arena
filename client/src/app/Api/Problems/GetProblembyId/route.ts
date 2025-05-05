@@ -12,7 +12,7 @@ import { middleware } from "../../middleware/route";
 
 export async function GET(req: NextRequest) {
     try {
-        await middleware(req)
+        
         const secret = process.env.JWT_SECRET;
         if (!secret) {
             return fail("Server configuration failed", 500);
@@ -88,7 +88,7 @@ export async function GET(req: NextRequest) {
             result = data[0];
 
             if (redis) {
-                redis.set(key, JSON.stringify(result));
+                redis.set(key, JSON.stringify(result),{EX:60 * 60 * 12});
             }
         }
 

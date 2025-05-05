@@ -7,7 +7,7 @@ import { middleware } from "@/app/Api/middleware/route";
 
 export async function GET(req: NextRequest) {
   try {
-    await middleware(req);
+    ;
     const url = new URL(req.url);
     const token = url.searchParams.get("token");
 

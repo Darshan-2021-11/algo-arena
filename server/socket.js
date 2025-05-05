@@ -8,6 +8,7 @@ const cookie = require('cookie');
 
 io.use(async (socket, next) => {
     try {
+        
         const secret = process.env.JWT_SECRET;
         if (!secret) {
             throw new Error("Server configuration failed.");
@@ -18,8 +19,8 @@ io.use(async (socket, next) => {
         if (!token) {
             throw new Error("Unauthorized access.")
         }
+        const decodedtoken = socket.handshake.auth;
 
-        const decodedtoken = jwt.verify(token, secret);
         const existingUser = users.get(decodedtoken.id);
         if (existingUser) {
             if (existingUser.online) {

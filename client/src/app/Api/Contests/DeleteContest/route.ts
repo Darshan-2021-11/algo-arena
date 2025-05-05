@@ -5,17 +5,23 @@ import mongoose from "mongoose";
 import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import { middleware } from "../../middleware/route";
+import jwt from 'jsonwebtoken'
 
 export async function DELETE(req: NextRequest) {
     try {
-        await middleware(req);
-        const cookieStore = cookies();
-        const token = cookieStore.get("decodedtoken")?.value;
-        if (!token) {
-            return fail("Unauthorised access", 403);
+        ;
+        const secret = process.env.JWT_SECRET;
+        if (!secret) {
+            return fail("Server is not working")
         }
 
-        const decodedtoken = await JSON.parse(token) as { id: string, name: string, admin?: boolean };
+        const cookieStore = cookies();
+        const token = cookieStore.get("token")?.value;
+        if (!token) {
+            return fail("unauthorized access.", 403);
+        }
+
+        const decodedtoken = jwt.verify(token, secret) as { id: string, name: string, admin?: boolean };
 
         if (!decodedtoken.admin) {
             return fail("Unauthorized access.", 403);

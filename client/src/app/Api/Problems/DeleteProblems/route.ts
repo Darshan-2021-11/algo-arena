@@ -7,7 +7,7 @@ import { middleware } from "../../middleware/route";
 
 export async function POST(req: NextRequest) {
     try {
-        await middleware(req);
+        ;
         const {ids} = await req.json() as {ids:string[]};
 
         

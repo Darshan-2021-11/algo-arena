@@ -1,4 +1,4 @@
-const axios = require('../utils/axios');
+const axios = require('axios');
 
 const { users, list } = require('../data_models');
 const endMatch = require('./endMatch');
@@ -13,11 +13,15 @@ const getResult = async (tokens, headers, problemId) => {
         try {
             const submissionurl = `http://localhost:2358/submissions/${tokens[i]}?base64_encoded=false&wait=false`;
             const data = await axios.get(submissionurl, headers);
+            console.log(data)
             if (data.status === 200) {
-                const storeResultUrl = `/Api/Problems/StoreResult?pid=${problemId}&msg=${data.data.status.description}`
-                const d = await axios.get(storeResultUrl);
-                if (d.data.success || d.data.status.id !== 3) {
+                    const storeResultUrl = `http://localhost:3000/Api/Problems/StoreResult?pid=${problemId}&msg=${data.data.status.description}`
+                    await axios.get(storeResultUrl, headers);
+
+                if ( data.data.status.id !== 3) {
                     return { passed: false, newtokens };
+                }else{
+                    return {passed:true, newtokens}
                 }
 
             } else {
@@ -50,9 +54,10 @@ async function submit({ code, roomid, lang, id }) {
         this.to(roomid).emit("server_report", { status: 1, message: `${user.name} submitted code.` })
         this.emit("server_report", { status: 1, message: `Submitted code.` })
         const url = "http://localhost:3000/Api/Submissions/Run";
+        const contest_secret = process.env.contest_secret;
         const headers = {
             headers: {
-                Cookie: `refresh-token=${user.token}`,
+                Cookie: `contest_secret=${contest_secret}`,
             },
         }
 
@@ -61,26 +66,26 @@ async function submit({ code, roomid, lang, id }) {
         try {
             const { data } = await axios.post(
                 url,
-                { id: room.problem._id, code, lang },
+                { id: room.problem._id, code, lang, user: id },
                 headers
             )
 
             if (data.success) {
                 let tokens = data.tokens;
-                const id = setInterval(async () => {
+                const tid = setInterval(async () => {
                     const res = await getResult(tokens, headers, room.problem._id);
+                    console.log(res)
                     if (res.newtokens.length === 0 && !res.passed) {
-                        clearInterval(id);
+                        clearInterval(tid);
                         this.to(roomid).emit("server_report", { status: 3, message: `${user.name}'s code is wrong.` })
                         this.emit("server_report", { status: 3, message: `Your code is wrong.` });
                     }
                     tokens = res.newtokens;
                     if (res.passed) {
-                        clearInterval(id);
+                        clearInterval(tid);
                         this.emit("win");
                         this.leave(roomid);
                         this.to(roomid).emit("lose");
-                        endMatch(roomid);
                         room.duelid && await completeMatch(
                             id,
                             "win",
@@ -90,6 +95,7 @@ async function submit({ code, roomid, lang, id }) {
                             lang,
                             user.token
                         )
+                        endMatch(roomid);
                     }
 
                 }, 1000);

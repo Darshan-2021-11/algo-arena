@@ -5,7 +5,6 @@ import { middleware } from "../middleware/route";
 
 export async function GET(req: NextRequest) {
     try {
-        await middleware(req);
         const url = new URL(req.url);
         const params = url.searchParams;
         const year = Number(params.get("y"));
@@ -22,7 +21,8 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({
             success: true,
             activity:activity.activity
-        }, { status: 200 })
+        }, { 
+            status: 200 })
 
     } catch (err: any) {
         return fail(err.message ? err.message : "something went wrong.")

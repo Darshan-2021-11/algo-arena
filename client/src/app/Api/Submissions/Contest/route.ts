@@ -20,7 +20,7 @@
 
 // export async function POST(req: NextRequest) {
 // 	try {
-// 		await middleware(req);
+// 		;
 		
 // 		const secret = process.env.JWT_SECRET;
 // 		if (!secret) {

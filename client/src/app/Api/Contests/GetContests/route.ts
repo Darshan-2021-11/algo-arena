@@ -17,7 +17,7 @@ export interface Response {
 
 export async function GET(req: NextRequest) {
     try {
-        await middleware(req);
+        ;
         const params = new URL(req.url).searchParams;
         const time = params.get("t");
         const page: number = Number(params.get('P')) || 1;

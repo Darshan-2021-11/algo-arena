@@ -4,10 +4,13 @@ const users = new Map();
 
 const userToken = new Map();
 
+const authTokens = new Map();
+
 module.exports = {
     list,
     users,
-    userToken
+    userToken,
+    authTokens
 }
 
 /*

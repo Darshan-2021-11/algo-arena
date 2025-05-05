@@ -7,7 +7,6 @@ import { middleware } from "@/app/Api/middleware/route";
 
 export async function GET(req:NextRequest){
     try {
-        await middleware(req);
         const url = new URL(req.url);
         const id = url.searchParams.get("pid");
         const limit = Number(url.searchParams.get("l") ) || 10;
@@ -49,7 +48,9 @@ export async function GET(req:NextRequest){
         return NextResponse.json({
             success: true,
             comments
-        }, { status: 200 })
+        }, { 
+            status: 200
+         })
 
     } catch (err: any) {
         return fail(err.message ? err.message : "something went wrong.")

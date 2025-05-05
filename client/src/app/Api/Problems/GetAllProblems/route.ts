@@ -22,10 +22,7 @@ export interface Response {
 
 export async function GET(req: NextRequest) {
     try {
-        const a = await middleware(req)
-        if(a.status !== 200){
-            return a;
-        }
+      
         const secret = process.env.JWT_SECRET;
         if (!secret) {
             return fail("Server configuration failed", 500);

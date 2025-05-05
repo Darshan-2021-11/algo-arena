@@ -10,7 +10,6 @@ import { middleware } from "../../middleware/route";
 
 export async function POST(req: NextRequest) {
     try {
-        await middleware(req);
         const { problems, contestid } = await req.json();
 
         await dbConnect();

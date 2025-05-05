@@ -11,7 +11,7 @@ import { middleware } from "@/app/Api/middleware/route";
 
 export async function POST(req: NextRequest) {
   try {
-    await middleware(req)
+    
     const secret = process.env.JWT_SECRET;
     if (!secret) {
       return fail("Server configuration failed", 500);

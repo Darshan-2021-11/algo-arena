@@ -6,7 +6,7 @@ import { middleware } from "../middleware/route";
 
 export async function GET(req:NextRequest) {
     try {
-        await middleware(req);
+        ;
         await dbConnect();
 
         const users = await Leaderboard.aggregate([

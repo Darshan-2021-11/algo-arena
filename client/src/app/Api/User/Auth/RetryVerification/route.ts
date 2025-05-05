@@ -12,7 +12,7 @@ import { middleware } from "@/app/Api/middleware/route";
 
 export async function POST(req: NextRequest) {
   try {
-    await middleware(req);
+    ;
     const secretKey = process.env.NEXT_PUBLIC_SECRET_KEY;
     if (!secretKey) {
       return fail("Missing server configuration", 500);

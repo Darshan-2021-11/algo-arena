@@ -24,7 +24,8 @@ async function endMatch(roomid, draw){
             socket?.leave(roomid);
         })
         list.delete(roomid);
-        room.duelid && await completeMatch(room.mems[0].id, "draw", room.mems[1].id, room.duelid, null, null, token );
+        console.log("fsdoifjoaisdfjoidsa",room.duelid)
+        draw && room.duelid && await completeMatch(room.mems[0].id, "draw", room.mems[1].id, room.duelid, null, null, token );
     } catch (error) {
         console.log(error);
     }

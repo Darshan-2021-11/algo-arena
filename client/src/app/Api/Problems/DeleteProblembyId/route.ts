@@ -1,11 +1,11 @@
 import Problem from "@/app/lib/api/models/Problem/problemModel";
 import { fail, success } from "@/app/lib/api/response";
 import { NextRequest } from "next/server";
-import { middleware } from "../../middleware/route";
+import { redisConnect } from "@/app/lib/api/redisConnect";
 
 export async function DELETE(req: NextRequest) {
     try {
-        await middleware(req);
+        ;
         const url = new URL(req.url);
         const id = url.searchParams.get("p");
         if (!id) {
@@ -13,17 +13,25 @@ export async function DELETE(req: NextRequest) {
         }
 
         await Problem.findByIdAndUpdate(
-            id, 
-            { 
-                isdeleted: true, 
-                $unset: { 
-                    tags: "", 
-                    constraints: "", 
-                    testcases: "", 
-                    timeLimit: "", 
-                    spaceLimit: "", 
-                } 
+            id,
+            {
+                isdeleted: true,
+                $unset: {
+                    tags: "",
+                    constraints: "",
+                    testcases: "",
+                    timeLimit: "",
+                    spaceLimit: "",
+                }
             });
+
+        const key = `problem${id}`;
+
+        const redis = await redisConnect()
+        
+        if(redis){
+            redis.del(key);
+        }
 
         return success("successfully deleted.")
     } catch (error: any) {

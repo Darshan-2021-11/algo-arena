@@ -7,7 +7,7 @@ import { middleware } from "../../middleware/route";
 
 export async function POST(req:NextRequest){
     try {
-        await middleware(req);
+        ;
         const url = new URL(req.url);
         const params = url.searchParams;
         const qid = params.get("id");

@@ -80,7 +80,7 @@ const socketContext = createContext<SocketContextType | null>(null);
 
 const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const SocketRef = useRef<Socket<ServerToClientEvents, ClientToServerEvents> | null>(null);
-    const { id } = useSelector(useAuth);
+    const { id, username } = useSelector(useAuth);
 
     const [initload, setinitload] = useState(true);
     const [loading, setLoading] = useState(false);
@@ -124,8 +124,9 @@ const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
             if (!SocketRef.current || !SocketRef.current.active) {
                 setinitload(true);
                 closeSocket();
-                SocketRef.current = io("http://localhost:9310", {
-                    withCredentials: true
+                SocketRef.current = io(`http://localhost:9310`, {
+                    withCredentials: true,
+                    auth:{id,name:username}
                 });
                 const soc = SocketRef.current;
                 if (soc) {

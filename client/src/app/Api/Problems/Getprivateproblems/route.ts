@@ -22,7 +22,7 @@ export interface Response {
 
 export async function GET(req : NextRequest){
     try{
-        await middleware(req)
+        
         const params = new URL(req.url).searchParams;
         const page : number = Number(params.get('p')) || 1;
         const pagelen = Number(params.get('l')) || 10;

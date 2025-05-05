@@ -16,9 +16,7 @@ axiosClient.interceptors.response.use(
         if (error.response) {
             const status = error.response.status;
 
-            if (status === 401) {
-                store.dispatch(logout());
-            } else if (status === 403 && config.retryCount < 2) {
+            if (status === 403 && config.retryCount < 2) {
                 try {
                     const { data } = await axios.get("/Api/User/Auth/rotateTokens");
                     if (data.success) {
@@ -30,15 +28,8 @@ axiosClient.interceptors.response.use(
                 } catch (error) {
                     console.log(error)
                 }
-            } else if (status === 500) {
-                store.dispatch(setError("Server error. Try again later."));
-            } else {
-                store.dispatch(setError(error.response.data?.message || "Something went wrong."));
             }
-        } else {
-            store.dispatch(setError("Network error. Please check your connection."));
         }
-
         return Promise.reject(error);
     }
 

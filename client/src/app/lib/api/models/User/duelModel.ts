@@ -19,7 +19,6 @@ const DuelSchema = new Schema({
     winner:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"User",
-        default:null
     },
     duration:{
         type:Number,
@@ -28,7 +27,7 @@ const DuelSchema = new Schema({
         default:30
     },
     status: {
-        type: String,
+        type: Number,
         enum: [ 1,2],
             // "in-progress", "completed"],
         default: 1,

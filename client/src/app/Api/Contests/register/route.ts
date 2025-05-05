@@ -6,7 +6,7 @@ import { middleware } from "../../middleware/route";
 
 export async function POST(req: NextRequest) {
     try {
-        await middleware(req);
+        ;
         const {id,user} = await req.json();
 
         if(!id || !user){

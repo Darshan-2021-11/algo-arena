@@ -33,7 +33,7 @@ export const validateUserInput = (username: string, email: string, password: str
 
 export async function POST(req: NextRequest) {
   try {
-    await middleware(req)
+    
     const secretKey = process.env.NEXT_PUBLIC_SECRET_KEY;
     const origin = process.env.NEXT_PUBLIC_ORIGIN;
     if (!secretKey || !origin ) {

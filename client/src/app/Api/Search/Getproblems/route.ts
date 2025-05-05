@@ -5,7 +5,7 @@ import { NextRequest } from "next/server";
 import { middleware } from "../../middleware/route";
 
 export async function GET(req: NextRequest) {
-    await middleware(req);
+    ;
     const url = new URL(req.url);
     const params = url.searchParams;
     const text = params.get("t");
@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
         return fail("Text is required.");
     }
     const ntext = ".*" + text + ".*";
-    const key = `ntext-${i}-${j}`
+    const key = `${ntext}-${i}-${j}`
 
     try {
         const redis = await redisConnect();

@@ -13,8 +13,6 @@ import { middleware } from "@/app/Api/middleware/route";
 
 export const GET = async (req:NextRequest) => {
     try {
-        const a = await middleware(req);
-        console.log(a,'yo')
         const secretkey = process.env.JWT_SECRET;
         if (!secretkey) return fail("Server not working.");
 
@@ -42,8 +40,9 @@ export const GET = async (req:NextRequest) => {
         await dbConnect();
         const user = await User.findOne({_id: new mongoose.Types.ObjectId(storedtokens.id)}).select("username verified admin isdeleted")
 
-        if (!user.verified || user.isdeleted) return fail("User not found.");
+        console.log(user,storedtokens);
 
+        if (!user || !user.verified || user.isdeleted) return fail("User not found.");
 
         const response = NextResponse.json({
             success:true
@@ -90,7 +89,7 @@ export const GET = async (req:NextRequest) => {
             sameSite: "strict"
         });
 
-        await redis.set(refreshToken, JSON.stringify({ crefToken, token }), { EX: 30 * 24 * 60 * 60 });
+        await redis.set(refreshToken, JSON.stringify({ crefToken, token,id:user._id }), { EX: 30 * 24 * 60 * 60 });
 
         return response
 

@@ -13,7 +13,7 @@ import { middleware } from "@/app/Api/middleware/route";
 
 export const GET = async (req:NextRequest) => {
     try {
-        await middleware(req);
+        ;
         const secretkey = process.env.JWT_SECRET;
         if (!secretkey) return fail("Server not working.");
 

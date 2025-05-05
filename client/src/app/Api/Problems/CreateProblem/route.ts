@@ -19,7 +19,7 @@ interface typebody {
 
 export async function POST(req: NextRequest) {
     try {
-        await middleware(req);
+        ;
         const body = await req.json() as typebody;
 
         await dbConnect();

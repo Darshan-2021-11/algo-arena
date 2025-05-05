@@ -24,6 +24,7 @@ const Commentpage: React.FC<commentpayload> = ({ comments, setcomments, id }) =>
     const getComments = async () => {
         try {
             const url = `/Api/Comment/List/ByProblemId?pid=${id}&id=${auth.id}`
+            console.log(url);
             const { data } = await axios.get(url);
             if (data.success) {
                 setcomments([...comments, ...data.comments])
@@ -50,7 +51,8 @@ const Commentpage: React.FC<commentpayload> = ({ comments, setcomments, id }) =>
             const url = `/Api/Comment/Add`
             const body = {
                 pid: id,
-                msg
+                msg,
+                id:auth.id
             }
             const { data } = await axios.post(url, { ...body });
             if (data.success) {
@@ -69,9 +71,9 @@ const Commentpage: React.FC<commentpayload> = ({ comments, setcomments, id }) =>
 
             >
                 <div
-                    className="p-3 overflow-scroll flex-1 pb-28"
+                    className="p-3 overflow-scroll flex-1 pb-28 "
                     style={{
-                        height: "calc(85vh - 100px)"
+                        height: "60vh"
                     }}
                 >
                     {
@@ -113,7 +115,7 @@ const Commentpage: React.FC<commentpayload> = ({ comments, setcomments, id }) =>
                     placeholder="write something here and press enter."
                     className="pl-3 w-full pt-2 pb-2 outline-none rounded-xl absolute bg-zinc-700 left-0 "
                     style={{
-                        top:"70vh"
+                        top:"63vh"
                     }}
                 />
             </div>

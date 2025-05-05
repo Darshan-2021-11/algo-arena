@@ -10,7 +10,7 @@ import { middleware } from "../../middleware/route";
 
 export async function DELETE(req: NextRequest) {
     try {
-        await middleware(req);
+        ;
         const secret = process.env.JWT_SECRET;
         if (!secret) {
             return fail("Server is not working")
@@ -22,7 +22,7 @@ export async function DELETE(req: NextRequest) {
             return fail("unauthorized access.", 403);
         }
 
-        const decodedToken = jwt.verify(token, secret) as { id: string, name: string };
+        const decodedToken = jwt.verify(token, secret) as { id: string, name: string, admin?:boolean };
 
         const user = new URL(req.url).searchParams.get("u");
         if (!user) {

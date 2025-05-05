@@ -20,19 +20,24 @@ export interface Response {
 
 export async function GET(req: NextRequest) {
 	try {
-		await middleware(req)
+		
+		const secret = process.env.JWT_SECRET;
+		if (!secret) {
+			return fail("Server is not working")
+		}
+
 		const cookieStore = cookies();
-        const token = cookieStore.get("decodedtoken")?.value;
-        if (!token) {
-            return fail("Unauthorised access", 403);
-        }
+		const token = cookieStore.get("token")?.value;
+		if (!token) {
+			return fail("unauthorized access.", 403);
+		}
 
-        const decodedtoken = await JSON.parse(token)  as { id: string, name: string, admin?: boolean };
+		const decodedtoken = jwt.verify(token, secret) as { id: string, name: string, admin?: boolean };
 
-		if(!decodedtoken.admin){
+		if (!decodedtoken.admin) {
 			return fail("Unauthorised access", 403);
 		}
-		
+
 		const params = new URL(req.url).searchParams;
 		const page: number = Number(params.get('P')) || 1;
 		const pagelen = Number(params.get('l')) || 10;
@@ -56,7 +61,7 @@ export async function GET(req: NextRequest) {
 				$limit: pagelen
 			},
 			{
-				$project:{
+				$project: {
 					"name": 1,
 					"startTime": 1,
 					"endTime": 1,

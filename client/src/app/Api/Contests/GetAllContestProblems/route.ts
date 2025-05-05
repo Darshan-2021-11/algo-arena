@@ -21,14 +21,19 @@ export interface Response {
 
 export async function GET(req: NextRequest) {
 	try {
-		await middleware(req);
-		const cookieStore = cookies();
-        const token = cookieStore.get("decodedtoken")?.value;
-        if (!token) {
-            return fail("Unauthorised access", 403);
-        }
+		;
+		const secret = process.env.JWT_SECRET;
+		if (!secret) {
+			return fail("Server is not working")
+		}
 
-        const decodedtoken = await JSON.parse(token)  as { id: string, name: string, admin?: boolean };
+		const cookieStore = cookies();
+		const token = cookieStore.get("token")?.value;
+		if (!token) {
+			return fail("unauthorized access.", 403);
+		}
+
+		const decodedtoken = jwt.verify(token, secret) as { id: string, name: string, admin?: boolean };
 
 		if (!decodedtoken.admin) {
 			return fail("Unauthorized accesss.", 403);
@@ -36,7 +41,7 @@ export async function GET(req: NextRequest) {
 
 		const params = new URL(req.url).searchParams;
 		const contestid = params.get("id");
-		if(!contestid){
+		if (!contestid) {
 			return fail("invalid req");
 		}
 
@@ -44,12 +49,12 @@ export async function GET(req: NextRequest) {
 
 		const result = await Problem.aggregate([
 			{
-				$match:{contest:new mongoose.Types.ObjectId(contestid)}
+				$match: { contest: new mongoose.Types.ObjectId(contestid) }
 			},
 			{
-				$project:{
-					alias:1,
-					score:1,
+				$project: {
+					alias: 1,
+					score: 1,
 				}
 			}
 		])

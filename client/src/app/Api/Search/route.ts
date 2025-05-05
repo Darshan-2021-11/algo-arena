@@ -5,7 +5,7 @@ import { NextRequest } from "next/server";
 import { middleware } from "../middleware/route";
 
 export async function GET(req: NextRequest) {
-    await middleware(req);
+    ;
     const url = new URL(req.url);
     const text = url.searchParams.get("t");
     if (!text) {

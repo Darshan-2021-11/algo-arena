@@ -10,7 +10,7 @@ import { middleware } from "@/app/Api/middleware/route";
 
 export async function POST(req: NextRequest) {
   try {
-    await middleware(req);
+    ;
     const origin = process.env.NEXT_PUBLIC_ORIGIN;
     if (!origin) {
       return fail("Missing server configuration", 500);
