@@ -1,7 +1,6 @@
 "use client"
-import { errorhandler } from "@/app/lib/errorhandler";
 import Toggle from "@/app/utils/Auth/toggle";
-import axios from "axios";
+import axios from "@/app/lib/errorhandler";
 import Link from "next/link";
 import { FormEvent, useRef, useState } from "react";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
@@ -95,6 +94,7 @@ const Create =()=>{
     }
 
     const handleSubmit =async(e:FormEvent<HTMLFormElement>)=>{
+        try {
             seterr(null);
             setmsg(null);
             setload(true);
@@ -111,13 +111,17 @@ const Create =()=>{
                 setmsg("Contest created successfully");
                 formref.current?.reset();
             }
+            
+        } catch (error:any) {
+            console.log(error);
+            seterr(error.response.data.message|| "unable to create contests")
+        }finally{
+            setload(false);
+        }
     }
 
     return(
-        <form ref={formref} onSubmit={()=>{
-            errorhandler(handleSubmit)
-            setload(false);
-            }} className="flex items-start justify-center flex-col m-3">
+        <form ref={formref} onSubmit={handleSubmit} className="flex items-start justify-center flex-col m-3">
             <div >name</div>
             <input className=" p-1 outline-none m-1 bg-zinc-700 w-96 h-8 rounded-lg" type="text" name="name" id="" />
             <div className="mt-3">Description</div>

@@ -1,4 +1,4 @@
-const axios = require('axios');
+const axios = require('../utils/axios');
 
 const { users, list } = require('../data_models');
 const endMatch = require('./endMatch');
@@ -52,7 +52,7 @@ async function submit({ code, roomid, lang, id }) {
         const url = "http://localhost:3000/Api/Submissions/Run";
         const headers = {
             headers: {
-                Cookie: `token=${user.token}`,
+                Cookie: `refresh-token=${user.token}`,
             },
         }
 

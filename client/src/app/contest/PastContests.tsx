@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "@/app/lib/errorhandler";
 import { useEffect, useRef, useState } from "react";
 import { contestmodel } from "../lib/api/contestModel";
 import Link from "next/link";

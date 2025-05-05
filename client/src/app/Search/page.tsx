@@ -1,5 +1,5 @@
 "use client"
-import axios from "axios";
+import axios from "@/app/lib/errorhandler";
 import Link from "next/link";
 import React, { useEffect, useRef, useState } from "react";
 import { v4 } from "uuid";

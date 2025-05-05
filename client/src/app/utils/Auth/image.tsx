@@ -1,7 +1,7 @@
 import { arrayBufferToBase64, base64ToArrayBuffer } from "@/app/lib/arraybufferhandler"
 import { updateImg, useAuth } from "@/app/lib/slices/authSlice"
 import { RootState } from "@/app/lib/store"
-import axios from "axios"
+import axios from "@/app/lib/errorhandler"
 import { ChangeEvent, useEffect, useRef, useState } from "react"
 import { AiOutlineLoading3Quarters } from "react-icons/ai"
 import { FaRegUserCircle } from "react-icons/fa"

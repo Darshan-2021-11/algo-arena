@@ -1,5 +1,5 @@
 import { useAuth } from "@/app/lib/slices/authSlice";
-import axios from "axios";
+import axios from "@/app/lib/errorhandler";
 import React, { Dispatch, KeyboardEventHandler, SetStateAction, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { v4 } from "uuid";

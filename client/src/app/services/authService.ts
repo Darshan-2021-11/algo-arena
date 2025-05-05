@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "@/app/lib/errorhandler";
 
 const SignIn =async(email:string, password:string)=>{
     try {

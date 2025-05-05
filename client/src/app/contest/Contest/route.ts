@@ -1,6 +1,6 @@
 "use server";
 
-import axios from "axios";
+import axios from "@/app/lib/errorhandler";
 import { NextRequest, NextResponse } from "next/server";
 import { fail } from "@/app/lib/api/response";
 import Submission from "@/app/lib/api/models/User/submissionModel";

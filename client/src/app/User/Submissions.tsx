@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "@/app/lib/errorhandler";
 import { useSelector } from "react-redux";
 import { useAuth } from "../lib/slices/authSlice";
 import { useEffect, useRef, useState } from "react";

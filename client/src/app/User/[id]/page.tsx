@@ -7,7 +7,7 @@ import { useAuth } from '@/app/lib/slices/authSlice';
 import Submissions from '../Submissions';
 import { RxCross2 } from "react-icons/rx";
 import Dp from '@/app/utils/Auth/dp';
-import axios from 'axios';
+import axios from '@/app/lib/errorhandler';
 import { setError } from '@/app/lib/slices/popupSlice';
 
 

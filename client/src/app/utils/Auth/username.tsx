@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "@/app/lib/errorhandler";
 import React, { useEffect, useRef, useState } from "react";
 
 interface nametype {

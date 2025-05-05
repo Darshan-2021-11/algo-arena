@@ -4,12 +4,11 @@ import { useState } from "react"
 import Tags from "./tags"
 import Constraints from "./constraints";
 import Testcases from "./testcases";
-import axios from "axios";
+import axios from "@/app/lib/errorhandler";
 import { LuLoaderCircle } from "react-icons/lu";
 import Toggle from "@/app/utils/Auth/toggle";
 import { useSelector } from "react-redux";
 import { useAuth } from "@/app/lib/slices/authSlice";
-import { errorhandler } from "@/app/lib/errorhandler";
 
 interface obj {
     input: string
@@ -102,8 +101,6 @@ const Page = () => {
             if (!body) {
                 return;
             }
-            // console.log(body);
-
             const url = "/Api/Problems/CreateProblem";
 
             const { data } = await axios.post(url, body);
@@ -115,7 +112,7 @@ const Page = () => {
 
         } catch (error: any) {
             console.log(error)
-            seterr(error.response.data.message || "Unable to add problem.")
+            seterr(error.response.data.message || "Unable to add problem.");
         }finally{
             setLoading(false)
         }
@@ -129,7 +126,7 @@ const Page = () => {
             <form
                 className="pt-14 text-black flex flex-col"
                 onSubmit={(e) => {
-                    errorhandler(handleSubmit,e);
+                    handleSubmit(e)
                 }}
             >
                 <input

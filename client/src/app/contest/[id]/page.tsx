@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import axios from "axios";
+import axios from "@/app/lib/errorhandler";
 import { contestproblemmodel } from "@/app/lib/api/contestModel";
 import { v4 as uuidv4 } from 'uuid';
 import { useParams } from "next/navigation";

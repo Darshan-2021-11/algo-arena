@@ -1,7 +1,7 @@
 'use client'
 import { useRef, useState } from 'react';
 import Link from "next/link";
-import axios from "axios";
+import axios from "@/app/lib/errorhandler";
 import { LuLoaderCircle } from 'react-icons/lu';
 import { generateHeader } from '../lib/customHeader';
 import Username from '../utils/Auth/username';

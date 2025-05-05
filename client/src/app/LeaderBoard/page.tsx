@@ -1,5 +1,5 @@
 "use client"
-import axios from 'axios';
+import axios from '../lib/errorhandler';
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';

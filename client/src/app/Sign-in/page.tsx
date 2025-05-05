@@ -1,7 +1,7 @@
 'use client'
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import axios from "axios";
+import axios from "@/app/lib/errorhandler";
 import { LuLoaderCircle } from "react-icons/lu";
 import { useDispatch } from 'react-redux';
 import { login } from '../lib/slices/authSlice';

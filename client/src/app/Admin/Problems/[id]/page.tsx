@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import axios from "@/app/lib/errorhandler";
 import { useParams } from "next/navigation";
 import ProblemDescription from "./Problem";
 import { Problem } from "@/app/lib/api/problemModel";
@@ -101,7 +101,7 @@ const IDE: React.FC<pagetype> = ({ altproblem, contesturl }) => {
   const failed_test: resulttype[] = [
     { status: { id: null, description: null }, time: "0.000", memory: "N/A " },
   ];
- 
+
   const getResult = async () => {
     if (tokens.current.length == 0) {
       if (idref.current) {
@@ -225,9 +225,9 @@ const IDE: React.FC<pagetype> = ({ altproblem, contesturl }) => {
     //             <Commentpage comments={Comment} setcomments={setComment} id={id} />
     //           )}
     //         </div>
-         
 
-          
+
+
     //       </div>
 
     //     </>
@@ -235,7 +235,7 @@ const IDE: React.FC<pagetype> = ({ altproblem, contesturl }) => {
     //     <div>Invalid page </div>
     //   )}
     // </div>
-    Problem && <ProblemDescription Problem={Problem}/>
+    Problem && <ProblemDescription Problem={Problem} />
   );
 };
 

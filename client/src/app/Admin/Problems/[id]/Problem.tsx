@@ -1,7 +1,7 @@
 'use client'
 
 import { FormEvent, useEffect, useRef, useState } from "react"
-import axios from "axios";
+import axios from "@/app/lib/errorhandler";
 import Tags from "../../Addproblem/tags";
 import Constraints from "../../Addproblem/constraints";
 import { LuLoaderCircle } from "react-icons/lu";

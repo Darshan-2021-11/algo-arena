@@ -1,6 +1,6 @@
 'use client'
 import {  useState } from 'react';
-import axios from "axios";
+import axios from "@/app/lib/errorhandler";
 import { LuLoaderCircle } from "react-icons/lu";
 import { generateHeader } from '../../lib/customHeader';
 import Email from '../../utils/Auth/email';

@@ -1,7 +1,7 @@
 "use client"
 import { setError, setMessage } from "@/app/lib/slices/popupSlice";
 import Password from "@/app/utils/Auth/passwords";
-import axios from "axios";
+import axios from "@/app/lib/errorhandler";
 import { FormEvent, useRef, useState } from "react";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { useDispatch } from "react-redux";

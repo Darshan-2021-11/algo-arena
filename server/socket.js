@@ -12,9 +12,9 @@ io.use(async (socket, next) => {
         if (!secret) {
             throw new Error("Server configuration failed.");
         }
-        const t = socket.handshake.headers.cookie;
-        const cookies = cookie.parse(t || "");
-        const token = cookies.token;
+        const t = socket.handshake.headers.cookie || "";
+        const cookies = cookie.parse(t);
+        const token = cookies["refresh-token"];
         if (!token) {
             throw new Error("Unauthorized access.")
         }

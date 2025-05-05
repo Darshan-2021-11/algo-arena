@@ -2,7 +2,7 @@
 import { updateEmail, useAuth } from "@/app/lib/slices/authSlice";
 import { setError, setMessage } from "@/app/lib/slices/popupSlice";
 import Email from "@/app/utils/Auth/email";
-import axios from "axios";
+import axios from "@/app/lib/errorhandler";
 import { FormEvent, useState } from "react";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";

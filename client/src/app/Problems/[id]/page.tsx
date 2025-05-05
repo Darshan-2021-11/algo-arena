@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import axios from "@/app/lib/errorhandler";
 import { useParams } from "next/navigation";
 import { Problem } from "@/app/lib/api/problemModel";
 import { v4 as uuidv4, v4 } from "uuid";

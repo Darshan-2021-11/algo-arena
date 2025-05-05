@@ -4,7 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { login, logout as logoutSlice, useAuth } from "../lib/slices/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "@/app/lib/errorhandler";
 import { FaUserEdit } from "react-icons/fa";
 import { MdSpaceDashboard } from "react-icons/md";
 import { IoIosLogOut } from "react-icons/io";

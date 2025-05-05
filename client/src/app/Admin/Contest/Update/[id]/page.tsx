@@ -1,7 +1,6 @@
 "use client"
-import { errorhandler } from "@/app/lib/errorhandler";
 import Toggle from "@/app/utils/Auth/toggle";
-import axios from "axios";
+import axios from "@/app/lib/errorhandler";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { FormEvent, useEffect, useRef, useState } from "react";
@@ -101,6 +100,7 @@ const Create = () => {
     }
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+        try {
             seterr(null);
             setmsg(null);
             setload(true);
@@ -113,7 +113,7 @@ const Create = () => {
             if (!body) {
                 return;
             }
-            body.ispublic = !p;
+            body.ispublic = p;
             if( body.name === original.name && body.description === original.description && body.startTime === original.startTime && body.endTime === original.endTime && body.ispublic === original.ispublic ){
                 seterr("Change something to update.")
                 return;
@@ -124,14 +124,23 @@ const Create = () => {
                 setmsg("Contest updated successfully");
                 formref.current?.reset();
             }
+
+        } catch (error: any) {
+            console.log(error);
+            seterr(error.response.data.message || "unable to create contests")
+        } finally {
+            setload(false);
+        }
     }
 
     useEffect(() => {
-        const instantfunc = async () => {
+        (async () => {
+            try {
                 const url = `/Api/Contests/GetContest?id=${params.id}`;
                 const { data } = await axios.get(url);
+                console.log(data)
                 if (data.success) {
-                    // console.log(typeof(data.body.ispublic),data.body.ispublic)
+                    console.log(typeof(data.body.ispublic),data.body.ispublic)
                     if(data.body.ispublic){
                         setp(false)
                     }else{
@@ -139,8 +148,11 @@ const Create = () => {
                     }
                     setoriginal(data.body);
                 }
-        }
-        errorhandler(instantfunc);
+            } catch (error) {
+                console.log(error)
+            }
+
+        })()
     }, [])
 
     return (
@@ -153,10 +165,7 @@ const Create = () => {
 
             {
                 original &&
-                <form ref={formref} onSubmit={()=>{
-                    handleSubmit
-                    setload(false);
-                    }} className="shadow-2xl bg-zinc-900 shadow-zinc-900 p-2 rounded-2xl flex items-start justify-center flex-col m-3">
+                <form ref={formref} onSubmit={handleSubmit} className="shadow-2xl bg-zinc-900 shadow-zinc-900 p-2 rounded-2xl flex items-start justify-center flex-col m-3">
                     <div >name</div>
                     <input defaultValue={original.name} className=" p-1 outline-none m-1 bg-zinc-700 w-96 h-8 rounded-lg" type="text" name="name" id="" />
                     <div className="mt-3">Description</div>

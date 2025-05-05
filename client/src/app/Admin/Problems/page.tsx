@@ -1,12 +1,11 @@
 "use client"
 import { useEffect, useRef, useState } from "react";
-import axios from "axios";
+import axios from "@/app/lib/errorhandler";
 import { MdEdit } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
 import Link from "next/link";
 import { v4 } from "uuid";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import { errorhandler } from "@/app/lib/errorhandler";
 
 const Problems = () => {
 
@@ -25,37 +24,56 @@ const Problems = () => {
 
 
   const getProblems = async (): Promise<void> => {
+    try {
       const url = `/Api/Problems/GetAllProblems?page=${page}`;
       const { data } = await axios.get(url);
       let newdata: Array<{ title: string, _id: string }> = data.Problems || [];
       setproblems(newdata);
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   const deleteProblem = async (): Promise<void> => {
+    try {
       setloading(true);
       const url = `/Api/Problems/DeleteProblembyId?p=${selectedidref.current}`;
       const { data } = await axios.delete(url);
       if (data.success) {
-        await errorhandler(getProblems);
+        getProblems();
         setconfirm(false);
       }
-     await errorhandler(getCount);
+      getCount()
+    } catch (err: any) {
+      seterr(err.message)
+      console.log(err);
+    } finally {
+      setloading(false);
+    }
   }
 
   const deleteProblems = async () => {
+    try {
       setloading(true);
       const url = `/Api/Problems/DeleteProblems`;
       const body = { ids: select }
       const { data } = await axios.post(url, body);
       if (data.success) {
-        await errorhandler(getProblems);
+        getProblems();
         setconfirm(false);
         setselect([])
       }
-      await errorhandler(getCount);
+      getCount();
+    } catch (err: any) {
+      console.log(err);
+      seterr(err.message);
+    } finally {
+      setloading(false);
+    }
   }
 
   const getCount = async () => {
+    try {
       const url = `/Api/Problems/TotalProblems`;
       const { data } = await axios.get(url);
       if (data.success) {
@@ -69,6 +87,9 @@ const Problems = () => {
           setmaxpage(1)
         }
       }
+    } catch (err: any) {
+      console.log(err);
+    }
   }
 
 
@@ -86,7 +107,7 @@ const Problems = () => {
   }
 
   useEffect(() => {
-    errorhandler(getProblems);
+    getProblems();
     let a = 1;
     if (maxpage - page >= 2) {
       a = page >= 2 ? page - 2 : 0;
@@ -117,7 +138,7 @@ const Problems = () => {
 
   useEffect(() => {
     (async () => {
-      await errorhandler(getCount);
+      await getCount();
     })()
   }, [])
 
@@ -336,10 +357,7 @@ const Problems = () => {
                   <div className="flex">
                     <button
                       className="m-1 p-1 h-10 w-16 flex items-center justify-center bg-red-700 hover:bg-red-900 rounded-md"
-                      onClick={async()=>{
-                        await errorhandler(deleteProblems);
-                        setloading(false);
-                      }}
+                      onClick={deleteProblems}
                     >{
                         !loading ?
                           <span>delete</span>
@@ -389,10 +407,7 @@ const Problems = () => {
                   <div className="flex">
                     <button
                       className="m-1 p-1 h-10 w-16 flex items-center justify-center bg-red-700 hover:bg-red-900 rounded-md"
-                      onClick={async()=>{
-                        await errorhandler(deleteProblem);
-                        setloading(false);
-                      }}
+                      onClick={deleteProblem}
                     >
                       {
                         !loading ?

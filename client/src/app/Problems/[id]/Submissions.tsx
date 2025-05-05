@@ -1,6 +1,6 @@
 import { useAuth } from "@/app/lib/slices/authSlice"
 import { submissionType } from "@/app/User/Submissions"
-import axios from "axios"
+import axios from "@/app/lib/errorhandler"
 import { Dispatch, useEffect, useRef, useState } from "react"
 import { IoIosArrowDown } from "react-icons/io"
 import { RxCross2 } from "react-icons/rx"

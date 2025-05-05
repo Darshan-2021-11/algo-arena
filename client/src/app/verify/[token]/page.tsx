@@ -1,7 +1,7 @@
 'use client'
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "@/app/lib/errorhandler";
 import { useRouter } from "next/navigation";
 
 const Page : React.FC = ()=>{

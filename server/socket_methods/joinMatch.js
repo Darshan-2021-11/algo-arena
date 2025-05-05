@@ -3,7 +3,7 @@ const { io } = require("..");
 const { list, users, userToken } = require("../data_models");
 const authorize = require("./authorize");
 const endMatch = require("./endMatch");
-const axios = require("axios");
+const axios = require("../utils/axios");
 
 async function joinMatch({ roomid, id }) {
     try {
@@ -84,7 +84,7 @@ async function joinMatch({ roomid, id }) {
             const url = "http://localhost:3000/Api/Duel/Start";
             const headers = {
                 headers: {
-                    Cookie: `token=${user.token}`,
+                    Cookie: `refresh-token=${user.token}`,
                 },
             }
             const data = await axios.post(url, { user: Room.mems[0].id, user1: Room.mems[1].id, problem: Room.problem._id, duration: 30 }, headers);
