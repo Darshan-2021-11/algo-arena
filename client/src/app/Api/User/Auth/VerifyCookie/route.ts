@@ -8,7 +8,6 @@ import dbConnect from "@/app/lib/api/databaseConnect";
 import { randomBytes } from "crypto";
 import { redisConnect } from "@/app/lib/api/redisConnect";
 import mongoose from "mongoose";
-import { middleware } from "@/app/Api/middleware/route";
 
 
 export const GET = async (req:NextRequest) => {
@@ -104,7 +103,7 @@ export const GET = async (req:NextRequest) => {
             sameSite: "strict"
         });
 
-        await redis.set(refreshToken, JSON.stringify({ crefToken, token }), { EX: 30 * 24 * 60 * 60 });
+        await redis.set(refreshToken, JSON.stringify({ crefToken, token, id:user._id }), { EX: 30 * 24 * 60 * 60 });
 
         return response
 

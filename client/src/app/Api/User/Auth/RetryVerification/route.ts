@@ -6,7 +6,6 @@ import { fail } from "@/app/lib/api/response";
 import handleEmailVerification from "@/app/lib/api/emailVerification";
 import User from "@/app/lib/api/models/User/userModel";
 import dbConnect from "@/app/lib/api/databaseConnect";
-import { middleware } from "@/app/Api/middleware/route";
 
 
 

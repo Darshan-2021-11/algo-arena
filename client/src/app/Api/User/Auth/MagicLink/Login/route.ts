@@ -1,4 +1,3 @@
-import { middleware } from "@/app/Api/middleware/route";
 import User from "@/app/lib/api/models/User/userModel";
 import { redisConnect } from "@/app/lib/api/redisConnect";
 import { fail } from "@/app/lib/api/response";

@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import contestModel from "@/app/lib/api/models/Contest/contestModel";
 import { contestmodel as cm } from "@/app/lib/api/contestModel";
 import dbConnect from "@/app/lib/api/databaseConnect";
-import { middleware } from "../../middleware/route";
 
 export interface Response {
     success: boolean,

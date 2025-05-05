@@ -7,7 +7,6 @@ import { fail } from "@/app/lib/api/response";
 import jwt from 'jsonwebtoken';
 import mongoose from "mongoose";
 import Problem from "@/app/lib/api/models/Problem/problemModel";
-import { middleware } from "../../middleware/route";
 
 export interface Response {
 	success: boolean,

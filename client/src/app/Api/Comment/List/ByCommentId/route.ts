@@ -1,7 +1,6 @@
 import { fail } from "@/app/lib/api/response";
 import { NextRequest, NextResponse } from "next/server";
 import Comment from "@/app/lib/api/models/User/commentModels";
-import { middleware } from "@/app/Api/middleware/route";
 
 export async function GET(req:NextRequest){
     try {

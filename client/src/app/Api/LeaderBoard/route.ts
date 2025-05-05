@@ -2,7 +2,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/app/lib/api/databaseConnect";
 import Leaderboard from "@/app/lib/api/models/User/leaderboardModel";
-import { middleware } from "../middleware/route";
 
 export async function GET(req:NextRequest) {
     try {

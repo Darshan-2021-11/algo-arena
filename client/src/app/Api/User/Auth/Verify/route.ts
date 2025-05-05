@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { fail } from "@/app/lib/api/response";
 import jwt from "jsonwebtoken";
 import User from "../../../../lib/api/models/User/userModel";
-import { middleware } from "@/app/Api/middleware/route";
 
 export async function GET(req: NextRequest) {
   try {

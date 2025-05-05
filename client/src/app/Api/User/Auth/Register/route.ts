@@ -8,7 +8,6 @@ import { fail, success } from "@/app/lib/api/response";
 import User from "@/app/lib/api/models/User/userModel";
 import { getBloom } from "@/app/lib/api/generateHash";
 import mongoose from "mongoose";
-import { middleware } from "@/app/Api/middleware/route";
 
 export const validateUserInput = (username: string, email: string, password: string) => {
   const errors: string[] = [];

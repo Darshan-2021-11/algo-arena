@@ -5,7 +5,6 @@ import jwt from 'jsonwebtoken';
 import { fail, success } from "@/app/lib/api/response";
 import Problem from "@/app/lib/api/models/Problem/problemModel";
 import dbConnect from "@/app/lib/api/databaseConnect";
-import { middleware } from "../../middleware/route";
 
 interface problem {
     title: string

@@ -3,7 +3,6 @@
 import { NextRequest } from "next/server";
 import { fail, success } from "@/app/lib/api/response";
 import { getBloom } from "@/app/lib/api/generateHash";
-import { middleware } from "@/app/Api/middleware/route";
 
 export const validateUserInput = (username: string) => {
   const errors: string[] = [];

@@ -6,7 +6,6 @@ import User from "@/app/lib/api/models/User/userModel";
 import mongoose from "mongoose";
 import jwt from 'jsonwebtoken';
 import Submission from "@/app/lib/api/models/User/submissionModel";
-import { middleware } from "../../middleware/route";
 
 export async function DELETE(req: NextRequest) {
     try {

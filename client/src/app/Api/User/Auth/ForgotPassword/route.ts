@@ -6,7 +6,6 @@ import User from "../../../../lib/api/models/User/userModel";
 import dbConnect from "../../../../lib/api/databaseConnect";
 import { fail } from "@/app/lib/api/response";
 import handleEmailVerification from "@/app/lib/api/emailVerification";
-import { middleware } from "@/app/Api/middleware/route";
 
 export async function POST(req: NextRequest) {
   try {

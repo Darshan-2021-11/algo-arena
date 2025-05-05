@@ -4,7 +4,6 @@ import { NextRequest } from "next/server";
 import { fail, success } from "@/app/lib/api/response";
 import Contest from "@/app/lib/api/models/Contest/contestModel";
 import dbConnect from "@/app/lib/api/databaseConnect";
-import { middleware } from "../../middleware/route";
 import jwt from "jsonwebtoken";
 
 export async function POST(req: NextRequest) {

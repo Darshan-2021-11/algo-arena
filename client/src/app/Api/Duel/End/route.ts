@@ -4,7 +4,6 @@ import mongoose, { ObjectId } from "mongoose";
 import Duel from "@/app/lib/api/models/User/duelModel";
 import UserDuel from "@/app/lib/api/models/User/userDuelModel";
 import dbConnect from "@/app/lib/api/databaseConnect";
-import { middleware } from "../../middleware/route";
 
 interface db {
     status: number,

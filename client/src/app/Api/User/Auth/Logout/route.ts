@@ -1,7 +1,4 @@
-import { middleware } from "@/app/Api/middleware/route";
-import { success } from "@/app/lib/api/response";
 import { fail } from "assert";
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req:NextRequest, res:NextResponse) {

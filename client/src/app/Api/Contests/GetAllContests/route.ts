@@ -6,7 +6,6 @@ import { contestmodel as cm } from "@/app/lib/api/contestModel";
 import dbConnect from "@/app/lib/api/databaseConnect";
 import { fail } from "@/app/lib/api/response";
 import jwt from "jsonwebtoken";
-import { middleware } from "../../middleware/route";
 
 export interface Response {
 	success: boolean,

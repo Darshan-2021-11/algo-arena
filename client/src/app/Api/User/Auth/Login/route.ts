@@ -7,7 +7,6 @@ import dbConnect from "../../../../lib/api/databaseConnect";
 import { fail } from "@/app/lib/api/response";
 import { randomBytes } from "crypto";
 import { redisConnect } from "@/app/lib/api/redisConnect";
-import { middleware } from "@/app/Api/middleware/route";
 
 interface reqbody {
   username: string

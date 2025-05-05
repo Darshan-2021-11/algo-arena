@@ -3,7 +3,6 @@ import Contest from "@/app/lib/api/models/Contest/contestModel";
 import { fail, success } from "@/app/lib/api/response";
 import mongoose from "mongoose";
 import { NextRequest } from "next/server";
-import { middleware } from "../../middleware/route";
 
 export async function POST(req:NextRequest){
     try {

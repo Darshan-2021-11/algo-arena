@@ -4,7 +4,6 @@ import { fail, success } from "@/app/lib/api/response";
 import mongoose from "mongoose";
 import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
-import { middleware } from "../../middleware/route";
 import jwt from 'jsonwebtoken'
 
 export async function DELETE(req: NextRequest) {

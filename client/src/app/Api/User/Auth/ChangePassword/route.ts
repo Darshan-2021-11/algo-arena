@@ -7,7 +7,6 @@ import dbConnect from "../../../../lib/api/databaseConnect";
 import { fail } from "@/app/lib/api/response";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
-import { middleware } from "@/app/Api/middleware/route";
 
 export async function POST(req: NextRequest) {
   try {

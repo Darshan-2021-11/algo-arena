@@ -8,7 +8,6 @@ import dbConnect from "@/app/lib/api/databaseConnect";
 import { randomBytes } from "crypto";
 import { redisConnect } from "@/app/lib/api/redisConnect";
 import mongoose from "mongoose";
-import { middleware } from "@/app/Api/middleware/route";
 
 
 export const GET = async (req:NextRequest) => {
@@ -29,7 +28,6 @@ export const GET = async (req:NextRequest) => {
         }
 
         const redisdata = await redis.get(refreshtoken) as string | null;
-        await redis.del(refreshtoken);
 
         if (!redisdata) {
             return fail("unauthorised access.", 401);

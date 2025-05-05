@@ -8,7 +8,6 @@ import dbConnect from "@/app/lib/api/databaseConnect";
 import Submission from "@/app/lib/api/models/User/submissionModel";
 import mongoose from "mongoose";
 import jwt from 'jsonwebtoken';
-import { middleware } from "../../middleware/route";
 
 export interface Response {
     success: boolean,

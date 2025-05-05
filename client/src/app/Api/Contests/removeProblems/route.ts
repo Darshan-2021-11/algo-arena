@@ -4,7 +4,6 @@ import { fail, success } from "@/app/lib/api/response";
 import dbConnect from "@/app/lib/api/databaseConnect";
 import mongoose from "mongoose";
 import Contest from "@/app/lib/api/models/Contest/contestModel";
-import { middleware } from "../../middleware/route";
 
 export async function POST(req: NextRequest) {
     try {

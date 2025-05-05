@@ -4,7 +4,6 @@ import { NextRequest } from "next/server";
 import { randomBytes } from 'crypto';
 import { redisConnect } from "@/app/lib/api/redisConnect";
 import handleEmailVerification from "@/app/lib/api/emailVerification";
-import { middleware } from "@/app/Api/middleware/route";
 
 const sendemail = async(email:string, token:string) => {
     try {

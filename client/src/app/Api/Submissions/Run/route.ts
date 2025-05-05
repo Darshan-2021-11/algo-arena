@@ -19,8 +19,8 @@ export async function POST(req: NextRequest) {
     try {
         ;
         const { id, code, lang,user } = await req.json();
-        const problem = await Problem.findById(id).select("testcases") as { testcases: Testcase[] };
-        const { testcases } = problem 
+        const problem = await Problem.findById(id).select("testcases difficulty") as { testcases: Testcase[], difficulty:string };
+        const { testcases, difficulty } = problem 
 
         if (testcases.length == 0) {
             return fail("No test cases found.");
@@ -84,7 +84,21 @@ export async function POST(req: NextRequest) {
                 language: lang,
                 code: code,
             })
-            const usersubmission = await UserProblem.findOneAndUpdate({ user: user }, { $inc: { submission: 1 } });
+
+
+            const update : any =  {
+                $inc: { submission: 1 }
+            };
+
+            if(difficulty === "Hard"){
+                update.$inc.hardQuestion = 1;
+            }else if(difficulty === "Medium"){
+                update.$inc.mediumQuestion = 1;
+            }else{
+                update.$inc.easyQuestion = 1;
+            }
+
+            const usersubmission = await UserProblem.findOneAndUpdate({ user: user }, update);
             if (!usersubmission) {
                 await UserProblem.create({
                     user: user,

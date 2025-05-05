@@ -8,7 +8,6 @@ import Problem from "../../../lib/api/models/Problem/problemModel"
 import dbConnect from "@/app/lib/api/databaseConnect";
 import jwt from "jsonwebtoken";
 import { redisConnect } from "@/app/lib/api/redisConnect";
-import { middleware } from "../../middleware/route";
 
 export interface Response {
     success: boolean,

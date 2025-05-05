@@ -81,8 +81,6 @@ export async function middleware(req: NextRequest) {
       const crefToken= randomBytes(32).toString("hex");
       storedtokens.token = crefToken;
 
-      // await redis.del(refreshtoken);
-
       await redis.set(refreshtoken,JSON.stringify(storedtokens),{EX:30 * 24 * 60 * 60});
       const response = NextResponse.next();
 
