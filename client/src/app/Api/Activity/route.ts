@@ -1,9 +1,11 @@
 import Activity from "@/app/lib/api/models/User/activityModel";
 import { fail } from "@/app/lib/api/response";
 import { NextRequest, NextResponse } from "next/server";
+import { middleware } from "../middleware/route";
 
 export async function GET(req: NextRequest) {
     try {
+        await middleware(req);
         const url = new URL(req.url);
         const params = url.searchParams;
         const year = Number(params.get("y"));

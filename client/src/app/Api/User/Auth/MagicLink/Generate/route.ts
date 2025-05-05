@@ -4,6 +4,7 @@ import { NextRequest } from "next/server";
 import { randomBytes } from 'crypto';
 import { redisConnect } from "@/app/lib/api/redisConnect";
 import handleEmailVerification from "@/app/lib/api/emailVerification";
+import { middleware } from "@/app/Api/middleware/route";
 
 const sendemail = async(email:string, token:string) => {
     try {
@@ -20,6 +21,7 @@ const sendemail = async(email:string, token:string) => {
 
 export async function POST(req: NextRequest) {
     try {
+        await middleware(req);
         const { email } = await req.json();
 
         const regex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;

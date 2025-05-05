@@ -6,11 +6,13 @@ import { fail } from "@/app/lib/api/response";
 import handleEmailVerification from "@/app/lib/api/emailVerification";
 import User from "@/app/lib/api/models/User/userModel";
 import dbConnect from "@/app/lib/api/databaseConnect";
+import { middleware } from "@/app/Api/middleware/route";
 
 
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
   try {
+    await middleware(req);
     const secretKey = process.env.NEXT_PUBLIC_SECRET_KEY;
     if (!secretKey) {
       return fail("Missing server configuration", 500);

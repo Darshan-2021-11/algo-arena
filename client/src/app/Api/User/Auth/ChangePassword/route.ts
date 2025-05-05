@@ -7,15 +7,17 @@ import dbConnect from "../../../../lib/api/databaseConnect";
 import { fail } from "@/app/lib/api/response";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
+import { middleware } from "@/app/Api/middleware/route";
 
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
+    await middleware(req)
     const secret = process.env.JWT_SECRET;
     if (!secret) {
       return fail("Server configuration failed", 500);
     }
 
-    const body = await request.json();
+    const body = await req.json();
     const newPassword = body.newPassword;
     const token = body.token;
     if (!newPassword || !token) {

@@ -1,9 +1,11 @@
 import { fail } from "@/app/lib/api/response";
 import { NextRequest, NextResponse } from "next/server";
 import Comment from "@/app/lib/api/models/User/commentModels";
+import { middleware } from "@/app/Api/middleware/route";
 
 export async function GET(req:NextRequest){
     try {
+        await middleware(req);
         const url = new URL(req.url);
         const cid = url.searchParams.get("cid");
         const limit = Number(url.searchParams.get("l") || "10");

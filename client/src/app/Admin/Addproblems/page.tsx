@@ -7,6 +7,7 @@ import axios from "axios";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { useSelector } from "react-redux";
 import { useAuth } from "@/app/lib/slices/authSlice";
+import { errorhandler } from "@/app/lib/errorhandler";
 
 type TestCase = {
     input: string;
@@ -48,7 +49,6 @@ const Addproblems = () => {
     }
 
     const uploadData = async () => {
-        try {
             setload(true);
             const url = "/Api/Problems/CreateProblems";
 
@@ -59,12 +59,6 @@ const Addproblems = () => {
             } else {
                 seterr("something went wrong.");
             }
-
-        } catch (error) {
-            console.log(error)
-        } finally {
-            setload(false);
-        }
     }
 
     const validData = (input: any[]) => {
@@ -251,7 +245,10 @@ const Addproblems = () => {
                             <div
                                 title="upload"
                                 className="cursor-pointer hover:scale-105 transition-all m-3 absolute right-0 bottom-28 rounded-lg bg-green-700 w-10 h-10 flex items-center justify-center"
-                                onClick={uploadData}
+                                onClick={()=>{
+                                    errorhandler(uploadData);
+                                    setload(false);
+                                    }}
                             >
                                 <RxCheck className="scale-150" />
                             </div>

@@ -1,10 +1,10 @@
 "use client"
+import { errorhandler } from "@/app/lib/errorhandler";
 import { updateProblem, useContest } from "@/app/lib/slices/contestSlice";
 import axios from "axios";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import { IoAddOutline } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import { v4 } from "uuid";
 
@@ -14,7 +14,6 @@ const Contest = () => {
   const [prob, setprob] = useState<{ _id: string, title: string }[]>([]);
   const [selected, setsel] = useState<string[]>([]);
   const [added, setadded] = useState<string[]>([]);
-  // const [eprob, seteprob] = useState<{_id:string, score:number}[]>([]);
   const { problems } = useSelector(useContest);
   const dispatch = useDispatch();
   const params = useParams();
@@ -25,7 +24,6 @@ const Contest = () => {
   const [del, setdel] = useState(false);
 
   const getCount = async () => {
-    try {
       const url = `/Api/Problems/TotalProblems?pr=true`;
       const { data } = await axios.get(url);
       if (data.success) {
@@ -39,39 +37,27 @@ const Contest = () => {
           setmaxpage(1)
         }
       }
-    } catch (err: any) {
-      console.log(err);
-    }
   }
 
   const Getallproblems = async () => {
-    try {
       if (currentpage.current > max) {
         return;
       }
 
       const url = `/Api/Problems/GetAllProblems?p=${currentpage.current}&pr=true`;
       const { data } = await axios.get(url);
-      console.log(data)
       if (data.success) {
         const p = [...prob, ...data.Problems];
         setprob(p);
-        // if(data.end){
-        //     setend(/true);
-        //   }   
         currentpage.current++;
       }
-
-    } catch (error) {
-      console.log(error);
-    }
   }
 
 
   useEffect(() => {
     (async () => {
-      await getCount()
-      await Getallproblems();
+      await errorhandler(getCount);
+      await errorhandler(Getallproblems);
     })()
 
     document.addEventListener("scrollend", Getallproblems);
@@ -81,7 +67,6 @@ const Contest = () => {
   }, []);
 
   const addProblems = async () => {
-    try {
       setloading(true);
       const url = "/Api/Contests/addProblems";
       const body = {
@@ -96,15 +81,9 @@ const Contest = () => {
         setconfirm(false);
         setsel([]);
       }
-    } catch (error) {
-      console.log(error);
-    }finally{
-      setloading(false);
-    }
   }
 
   const removeProblems = async () => {
-    try {
       setloading(true);
       const url = "/Api/Contests/removeProblems";
       const body = {
@@ -125,11 +104,6 @@ const Contest = () => {
         setdel(false);
         setadded([]);
       }
-    } catch (error) {
-      console.log(error);
-    }finally{
-      setloading(false);
-    }
   }
 
 
@@ -377,7 +351,10 @@ const Contest = () => {
                 <div className="flex">
                   <button
                     className="m-1 p-1 h-10 w-16 flex items-center justify-center bg-green-700 hover:bg-green-900 rounded-md"
-                    onClick={addProblems}
+                    onClick={()=>{
+                      errorhandler(addProblems);
+                      setloading(false);
+                    }}
                   >{
                       !loading ?
                         <span>add</span>
@@ -440,7 +417,10 @@ const Contest = () => {
                 <div className="flex">
                   <button
                     className="m-1 p-1 h-10 w-16 flex items-center justify-center bg-red-700 hover:bg-red-900 rounded-md"
-                    onClick={removeProblems}
+                    onClick={()=>{
+                      errorhandler(removeProblems);
+                      setloading(false);
+                    }}
                   >{
                       !loading ?
                         <span>remove</span>

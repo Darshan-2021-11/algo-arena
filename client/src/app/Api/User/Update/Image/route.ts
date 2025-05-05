@@ -2,9 +2,11 @@ import Dp from "@/app/lib/api/models/User/dpModel";
 import { fail, success } from "@/app/lib/api/response";
 import { NextRequest } from "next/server";
 import mongoose from "mongoose";
+import { middleware } from "@/app/Api/middleware/route";
 
 export async function POST(req: NextRequest) {
     try {
+        await middleware(req);
         const id = new URL(req.url).searchParams.get("id");
         if(!id){
             return fail("id is required.");

@@ -1,5 +1,5 @@
 'use server'
-import { fail } from "@/app/lib/api/response";
+import { fail, success } from "@/app/lib/api/response";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import jwt from 'jsonwebtoken';
@@ -13,7 +13,8 @@ import { middleware } from "@/app/Api/middleware/route";
 
 export const GET = async (req:NextRequest) => {
     try {
-        await middleware(req);
+        const a = await middleware(req);
+        console.log(a,'yo')
         const secretkey = process.env.JWT_SECRET;
         if (!secretkey) return fail("Server not working.");
 
@@ -39,29 +40,14 @@ export const GET = async (req:NextRequest) => {
         const storedtokens = await JSON.parse(redisdata) as { crefToken: string, token: string, id: string };
 
         await dbConnect();
-        const userdata = await User.aggregate([
-            { $match: { _id: new mongoose.Types.ObjectId(storedtokens.id) } },
-            { $lookup: { from: "dps", localField: "_id", foreignField: "user", as: "photo" } },
-            { $project: { username: 1, password: 1, verified: 1, admin: 1, email: 1, "photo.type": 1, "photo.size": 1, "photo.data": 1 } }
-        ])
+        const user = await User.findOne({_id: new mongoose.Types.ObjectId(storedtokens.id)}).select("username verified admin isdeleted")
 
-        if (userdata.length === 0) return fail("User not found.");
-
-        const user = userdata[0];
-        if (user.isdeleted) return fail("User not found.");
+        if (!user.verified || user.isdeleted) return fail("User not found.");
 
 
         const response = NextResponse.json({
-            user: {
-                id: user._id,
-                name: user.username,
-                email: user.email,
-                admin: user.admin,
-                photo: user.photo.length > 0 && user.photo[0]
-            },
-            message: "successffully information fetched.",
-            success: true
-        }, { status: 200 })
+            success:true
+        },{status:200});
 
         const tokenval: { id: string, name: string, admin?: boolean } = {
             id: user._id, name: user.username

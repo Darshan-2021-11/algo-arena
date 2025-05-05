@@ -1,9 +1,11 @@
 import Problem from "@/app/lib/api/models/Problem/problemModel";
 import { fail, success } from "@/app/lib/api/response";
 import { NextRequest } from "next/server";
+import { middleware } from "../../middleware/route";
 
 export async function DELETE(req: NextRequest) {
     try {
+        await middleware(req);
         const url = new URL(req.url);
         const id = url.searchParams.get("p");
         if (!id) {

@@ -1,3 +1,4 @@
+import { middleware } from "@/app/Api/middleware/route";
 import User from "@/app/lib/api/models/User/userModel";
 import { redisConnect } from "@/app/lib/api/redisConnect";
 import { fail } from "@/app/lib/api/response";
@@ -7,6 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
     try {
+        await middleware(req);
         const secret = process.env.JWT_SECRET;
         if (!secret) {
             return fail("Server is not working")

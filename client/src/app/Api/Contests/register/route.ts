@@ -2,9 +2,11 @@ import { fail, success } from "@/app/lib/api/response";
 import { NextRequest } from "next/server";
 import Participant from "@/app/lib/api/models/Contest/participantModel";
 import dbConnect from "@/app/lib/api/databaseConnect";
+import { middleware } from "../../middleware/route";
 
 export async function POST(req: NextRequest) {
     try {
+        await middleware(req);
         const {id,user} = await req.json();
 
         if(!id || !user){

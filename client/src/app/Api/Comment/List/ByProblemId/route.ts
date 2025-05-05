@@ -2,10 +2,12 @@ import { fail } from "@/app/lib/api/response";
 import { NextRequest, NextResponse } from "next/server";
 import Comment from "@/app/lib/api/models/User/commentModels";
 import mongoose from "mongoose";
+import { middleware } from "@/app/Api/middleware/route";
 
 
 export async function GET(req:NextRequest){
     try {
+        await middleware(req);
         const url = new URL(req.url);
         const id = url.searchParams.get("pid");
         const limit = Number(url.searchParams.get("l") ) || 10;

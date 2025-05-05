@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import contestModel from "@/app/lib/api/models/Contest/contestModel";
 import { contestmodel as cm } from "@/app/lib/api/contestModel";
 import dbConnect from "@/app/lib/api/databaseConnect";
+import { middleware } from "../../middleware/route";
 
 export interface Response {
     success: boolean,
@@ -14,10 +15,10 @@ export interface Response {
 }
 
 
-export async function GET(request: NextRequest) {
+export async function GET(req: NextRequest) {
     try {
-      
-        const params = new URL(request.url).searchParams;
+        await middleware(req);
+        const params = new URL(req.url).searchParams;
         const time = params.get("t");
         const page: number = Number(params.get('P')) || 1;
         const pagelen = Number(params.get('l')) || 10;

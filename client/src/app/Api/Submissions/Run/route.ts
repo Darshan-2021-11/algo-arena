@@ -5,12 +5,11 @@ import { NextRequest, NextResponse } from "next/server";
 import Problem from "../../../lib/api/models/Problem/problemModel";
 import { fail } from "@/app/lib/api/response";
 import Submission from "@/app/lib/api/models/User/submissionModel";
-import { cookies } from "next/headers";
-import jwt from 'jsonwebtoken';
 import dbConnect from "@/app/lib/api/databaseConnect";
 import mongoose from "mongoose";
 import UserProblem from "@/app/lib/api/models/User/userProblemModel";
 import Activity from "@/app/lib/api/models/User/activityModel";
+import { middleware } from "../../middleware/route";
 
 interface Testcase {
     input: string
@@ -19,6 +18,7 @@ interface Testcase {
 
 export async function POST(req: NextRequest) {
     try {
+        await middleware(req);
         const { id, code, lang,user } = await req.json();
         const problem = await Problem.findById(id).select("testcases") as { testcases: Testcase[] };
         const { testcases } = problem 

@@ -4,9 +4,11 @@ import { fail, success } from "@/app/lib/api/response";
 import mongoose from "mongoose";
 import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
+import { middleware } from "../../middleware/route";
 
 export async function DELETE(req: NextRequest) {
     try {
+        await middleware(req);
         const cookieStore = cookies();
         const token = cookieStore.get("decodedtoken")?.value;
         if (!token) {

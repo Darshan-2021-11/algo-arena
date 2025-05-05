@@ -1,3 +1,4 @@
+import { middleware } from "@/app/Api/middleware/route";
 import User from "@/app/lib/api/models/User/userModel";
 import { fail, success } from "@/app/lib/api/response";
 import mongoose from "mongoose";
@@ -5,6 +6,7 @@ import { NextRequest } from "next/server";
 
 export async function GET(req:NextRequest){
     try {
+        await middleware(req);
         const url = new URL(req.url);
         const params = url.searchParams;
         const id = params.get("id");

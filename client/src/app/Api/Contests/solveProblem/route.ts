@@ -7,9 +7,11 @@ import Problem from "@/app/lib/api/models/Problem/problemModel";
 import Leaderboard from "@/app/lib/api/models/User/leaderboardModel";
 import Participant from "@/app/lib/api/models/Contest/participantModel";
 import dbConnect from "@/app/lib/api/databaseConnect";
+import { middleware } from "../../middleware/route";
 
 export async function POST(req: NextRequest) {
     try {
+        await middleware(req);
         const { id, contestid, user } = await req.json();
 
         if(!id || !contestid || !user){

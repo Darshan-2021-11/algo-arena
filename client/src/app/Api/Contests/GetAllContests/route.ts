@@ -6,6 +6,7 @@ import { contestmodel as cm } from "@/app/lib/api/contestModel";
 import dbConnect from "@/app/lib/api/databaseConnect";
 import { fail } from "@/app/lib/api/response";
 import jwt from "jsonwebtoken";
+import { middleware } from "../../middleware/route";
 
 export interface Response {
 	success: boolean,
@@ -17,8 +18,9 @@ export interface Response {
 }
 
 
-export async function GET(request: NextRequest) {
+export async function GET(req: NextRequest) {
 	try {
+		await middleware(req)
 		const cookieStore = cookies();
         const token = cookieStore.get("decodedtoken")?.value;
         if (!token) {
@@ -31,7 +33,7 @@ export async function GET(request: NextRequest) {
 			return fail("Unauthorised access", 403);
 		}
 		
-		const params = new URL(request.url).searchParams;
+		const params = new URL(req.url).searchParams;
 		const page: number = Number(params.get('P')) || 1;
 		const pagelen = Number(params.get('l')) || 10;
 		let i = 0, j = pagelen;

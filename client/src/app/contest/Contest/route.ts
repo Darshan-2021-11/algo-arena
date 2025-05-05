@@ -2,7 +2,6 @@
 
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
-import ContestProblem from "../../lib/api/models/Contest/problemModel";
 import { fail } from "@/app/lib/api/response";
 import Submission from "@/app/lib/api/models/User/submissionModel";
 import { cookies } from "next/headers";
@@ -12,6 +11,7 @@ import mongoose from "mongoose";
 import UserProblem from "@/app/lib/api/models/User/userProblemModel";
 import Activity from "@/app/lib/api/models/User/activityModel";
 import Participant from "@/app/lib/api/models/Contest/participantModel";
+import Contest from "@/app/lib/api/models/Contest/contestModel";
 
 interface Testcase {
   input: string;
@@ -37,9 +37,9 @@ export async function POST(req: NextRequest) {
     };
 
     const { id, alias, contestId, code, lang } = await req.json();
-    const { testcases } = (await ContestProblem.findById(id).select(
+    const { testcases } = await Contest.findById(id).select(
       "testcases"
-    )) as { testcases: Testcase[] };
+    ) as { testcases: Testcase[] };
 
     if (testcases.length == 0) {
       return fail("No test cases found.");

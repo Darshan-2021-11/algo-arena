@@ -8,6 +8,7 @@ import Problem from "../../../lib/api/models/Problem/problemModel"
 import dbConnect from "@/app/lib/api/databaseConnect";
 import jwt from "jsonwebtoken";
 import { redisConnect } from "@/app/lib/api/redisConnect";
+import { middleware } from "../../middleware/route";
 
 export interface Response {
     success: boolean,
@@ -19,10 +20,10 @@ export interface Response {
 }
 
 
-export async function GET(request : NextRequest){
+export async function GET(req : NextRequest){
     try{
-        
-        const params = new URL(request.url).searchParams;
+        await middleware(req)
+        const params = new URL(req.url).searchParams;
         const page : number = Number(params.get('p')) || 1;
         const pagelen = Number(params.get('l')) || 10;
         let i = 0, j = pagelen;

@@ -2,8 +2,10 @@ import Problem from "@/app/lib/api/models/Problem/problemModel";
 import { redisConnect } from "@/app/lib/api/redisConnect";
 import { fail, success } from "@/app/lib/api/response";
 import { NextRequest } from "next/server";
+import { middleware } from "../../middleware/route";
 
 export async function GET(req: NextRequest) {
+    await middleware(req);
     const url = new URL(req.url);
     const params = url.searchParams;
     const text = params.get("t");

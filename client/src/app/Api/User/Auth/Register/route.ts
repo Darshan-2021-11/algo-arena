@@ -8,6 +8,7 @@ import { fail, success } from "@/app/lib/api/response";
 import User from "@/app/lib/api/models/User/userModel";
 import { getBloom } from "@/app/lib/api/generateHash";
 import mongoose from "mongoose";
+import { middleware } from "@/app/Api/middleware/route";
 
 export const validateUserInput = (username: string, email: string, password: string) => {
   const errors: string[] = [];
@@ -30,15 +31,16 @@ export const validateUserInput = (username: string, email: string, password: str
 };
 
 
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
+    await middleware(req)
     const secretKey = process.env.NEXT_PUBLIC_SECRET_KEY;
     const origin = process.env.NEXT_PUBLIC_ORIGIN;
     if (!secretKey || !origin ) {
       return fail("Missing server configuration", 500);
     }
 
-    const { username, email, password } = await request.json();
+    const { username, email, password } = await req.json();
     if (!username || !email || !password) {
       return fail("All fields are required", 400);
     }

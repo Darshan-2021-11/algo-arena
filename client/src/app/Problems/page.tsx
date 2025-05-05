@@ -4,6 +4,7 @@ import axios from 'axios'
 import Link from 'next/link';
 import { Problem } from '../lib/api/problemModel';
 import { v4 } from 'uuid';
+import { errorhandler } from '../lib/errorhandler';
 
 const Page = () => {
 
@@ -16,18 +17,18 @@ const Page = () => {
   
 
   const getProblems = async (): Promise<void> => {
-    try {
+    // try {
       const url = `Api/Problems/GetAllProblems?page=${page}`;
       const { data } = await axios.get(url);
       let newdata: Array<any> = data.Problems || [];
       setproblems(newdata);
-    } catch (err) {
-      console.log(err);
-    }
+    // } catch (err) {
+    //   console.log(err);
+    // }
   }
 
   const getCount = async () => {
-    try {
+    // try {
       const url = `/Api/Problems/TotalProblems`;
       const { data } = await axios.get(url);
       if (data.success) {
@@ -44,9 +45,9 @@ const Page = () => {
 
           setmaxpage(mp)
       }
-    } catch (err: any) {
-      console.log(err);
-    }
+    // } catch (err: any) {
+    //   console.log(err);
+    // }
   }
 
 
@@ -64,7 +65,7 @@ const Page = () => {
   }
 
   useEffect(() => {
-    getProblems();
+    errorhandler(getProblems);
     let a = 1;
     if (maxpage - page >= 2) {
       a = page >= 2 ? page - 2 : 0;
@@ -93,7 +94,8 @@ const Page = () => {
 
   useEffect(()=>{
     (async()=>{
-      await getCount()
+      // await getCount()
+      await errorhandler(getCount);
     })()
   },[])
 

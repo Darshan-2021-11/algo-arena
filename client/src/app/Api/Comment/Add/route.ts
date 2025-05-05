@@ -1,7 +1,7 @@
 import { fail } from "@/app/lib/api/response";
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import Comment from "@/app/lib/api/models/User/commentModels";
+import { middleware } from "../../middleware/route";
 
 interface b{
     problem:string,
@@ -12,6 +12,7 @@ interface b{
 
 export async function POST(req:NextRequest){
     try {
+        await middleware(req);
         const {pid, msg, cid, id} = await req.json();
 
         if(!pid || !msg || !id){

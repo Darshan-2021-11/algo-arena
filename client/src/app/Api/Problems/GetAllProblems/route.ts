@@ -8,6 +8,7 @@ import Problem from "../../../lib/api/models/Problem/problemModel"
 import dbConnect from "@/app/lib/api/databaseConnect";
 import jwt from "jsonwebtoken";
 import { redisConnect } from "@/app/lib/api/redisConnect";
+import { middleware } from "../../middleware/route";
 
 export interface Response {
     success: boolean,
@@ -19,8 +20,12 @@ export interface Response {
 }
 
 
-export async function GET(request: NextRequest) {
+export async function GET(req: NextRequest) {
     try {
+        const a = await middleware(req)
+        if(a.status !== 200){
+            return a;
+        }
         const secret = process.env.JWT_SECRET;
         if (!secret) {
             return fail("Server configuration failed", 500);
@@ -33,7 +38,7 @@ export async function GET(request: NextRequest) {
         }
 
         const decodedtoken = jwt.verify(token, secret) as { id: string, name: string, admin?: boolean  };
-        const params = new URL(request.url).searchParams;
+        const params = new URL(req.url).searchParams;
         const pr = params.get("pr");
         const page: number = Number(params.get('page')) || 1;
         const pagelen = Number(params.get('len')) || 10;

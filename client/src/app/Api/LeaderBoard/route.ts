@@ -1,13 +1,12 @@
 "use server"
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/app/lib/api/databaseConnect";
-import { fail } from "@/app/lib/api/response";
-import { cookies } from "next/headers";
-import jwt from "jsonwebtoken"
 import Leaderboard from "@/app/lib/api/models/User/leaderboardModel";
+import { middleware } from "../middleware/route";
 
-export async function GET() {
+export async function GET(req:NextRequest) {
     try {
+        await middleware(req);
         await dbConnect();
 
         const users = await Leaderboard.aggregate([

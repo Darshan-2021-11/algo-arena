@@ -1,12 +1,10 @@
-import Activity from "@/app/lib/api/models/User/activityModel";
 import { fail } from "@/app/lib/api/response";
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import jwt from 'jsonwebtoken';
 import mongoose from "mongoose";
 import Duel from "@/app/lib/api/models/User/duelModel";
 import UserDuel from "@/app/lib/api/models/User/userDuelModel";
 import dbConnect from "@/app/lib/api/databaseConnect";
+import { middleware } from "../../middleware/route";
 
 interface db {
     status:number,
@@ -25,6 +23,7 @@ interface ub {
 
 export async function POST(req: NextRequest) {
     try {
+        await middleware(req);
         const {user1, result, user2, duelid, code, lang } = await req.json();
 
         await dbConnect();

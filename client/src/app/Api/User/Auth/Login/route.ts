@@ -7,19 +7,19 @@ import dbConnect from "../../../../lib/api/databaseConnect";
 import { fail } from "@/app/lib/api/response";
 import { randomBytes } from "crypto";
 import { redisConnect } from "@/app/lib/api/redisConnect";
-import { getBloom } from "@/app/lib/api/generateHash";
+import { middleware } from "@/app/Api/middleware/route";
 
 interface reqbody {
   username: string
   password: string
   rememberme?: boolean
-  email:string
+  email: string
 }
 
 interface validateoutput {
   query: {
     username?: string
-    email?:string
+    email?: string
   }
   success: boolean
   message: string
@@ -27,13 +27,13 @@ interface validateoutput {
 
 
 const validateInput = (data: reqbody): validateoutput => {
-  const op : validateoutput = {
+  const op: validateoutput = {
     success: false,
     message: "",
     query: {},
   }
   try {
-    const { username,email, password } = data;
+    const { username, email, password } = data;
 
     if ((!username && !email) || !password) {
       op.message = "All fields are required"
@@ -41,21 +41,21 @@ const validateInput = (data: reqbody): validateoutput => {
     }
 
 
-    if(email){ 
+    if (email) {
       const isemail = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
-      if(isemail.test(email)){
-        op.query = {email};
+      if (isemail.test(email)) {
+        op.query = { email };
       }
     }
 
-    if(username){
+    if (username) {
       if (username.length < 3 || username.length > 12) {
         op.message = "username size must be between 3 to 12"
         return op;
       }
       op.query = { username };
     }
-    
+
     const ispassword = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,20}$/;
 
     if (!ispassword.test(password)) {
@@ -74,8 +74,9 @@ const validateInput = (data: reqbody): validateoutput => {
 
 }
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
   try {
+    await middleware(req);
     const secret = process.env.JWT_SECRET;
     if (!secret) {
       return fail("Server is not working")
@@ -92,14 +93,12 @@ export async function POST(req: NextRequest, res: NextResponse) {
       return fail(message, 400);
     }
 
-    const redis = await redisConnect();
-
     await dbConnect();
 
     const userdata = await User.aggregate([
-      {$match:query},
-      {$lookup:{ from:"dps", localField:"_id", foreignField:"user", as:"photo"}},
-      {$project:{ username:1, password:1, verified:1, admin:1, email:1, "photo.type":1, "photo.size":1, "photo.data":1}}
+      { $match: query },
+      { $lookup: { from: "dps", localField: "_id", foreignField: "user", as: "photo" } },
+      { $project: { username: 1, password: 1, verified: 1, admin: 1, email: 1, "photo.type": 1, "photo.size": 1, "photo.data": 1 } }
     ])
 
 
@@ -117,12 +116,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
       return fail("Invalid username or password.", 403);
     }
 
-
-    const expiry = data.rememberme
-      ? Number(process.env.NEXT_PUBLIC_EXPIRES_IN_30D) ? Number(process.env.NEXT_PUBLIC_EXPIRES_IN_30D) : 24 * 60 * 60 * 30
-      : Number(process.env.NEXT_PUBLIC_EXPIRES_IN_24H) ? Number(process.env.NEXT_PUBLIC_EXPIRES_IN_24H) : 24 * 60 * 60;
-
-
     const tokenval: { id: string, name: string, admin?: boolean } = {
       id: existingUser._id, name: existingUser.username
     }
@@ -134,19 +127,14 @@ export async function POST(req: NextRequest, res: NextResponse) {
     const token = jwt.sign(
       tokenval,
       secret,
-      { expiresIn: expiry }
+      { expiresIn: 15 * 60 }
     );
-    const crefToken = randomBytes(32).toString("hex");
 
-    if (!crefToken) {
-      return fail("Server is not working")
-    }
-
-    const user: { id: string, name: string, admin?: boolean, email:string, photo:{type:string, size:number, data:string} } = {
+    const user: { id: string, name: string, admin?: boolean, email: string, photo: { type: string, size: number, data: string } } = {
       id: existingUser._id,
       name: existingUser.username,
-      email:existingUser.email,
-      photo:existingUser.photo[0]
+      email: existingUser.email,
+      photo: existingUser.photo[0]
     };
 
 
@@ -160,31 +148,42 @@ export async function POST(req: NextRequest, res: NextResponse) {
       user: user,
     }, { status: 200 });
 
+    const crefToken = randomBytes(32).toString("hex");
+    const refreshToken = randomBytes(64).toString("hex");
+
     response.cookies.set("token", token, {
       httpOnly: true,
-      maxAge: 24 * 60 * 60,
+      maxAge: 15 * 60,
       path: "/",
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
     });
+
+    response.cookies.set("refresh-token", refreshToken, {
+      httpOnly: true,
+      maxAge: 30 * 24 * 60 * 60,
+      path: "/",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict"
+    })
 
     response.cookies.set("x-cref-token", crefToken, {
       httpOnly: true,
-      maxAge: 60 * 60,
+      maxAge: 15 * 60,
       path: "/",
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "strict"
     });
 
-   
+    const redis = await redisConnect();
 
-    // if (redis) {
-    //   try {
-    //     redis.set(crefToken, existingUser.name, { EX: 3600 });
-    //   } catch (error) {
-    //     console.log(error);
-    //   }
-    // }
+    if (redis) {
+      try {
+        await redis.set(refreshToken, JSON.stringify({ crefToken, token, id:existingUser._id }), { EX: 30 * 24 * 60 * 60 });
+      } catch (error) {
+        console.log(error);
+      }
+    }
 
     return response;
 

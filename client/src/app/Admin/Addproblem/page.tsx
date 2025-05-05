@@ -9,6 +9,7 @@ import { LuLoaderCircle } from "react-icons/lu";
 import Toggle from "@/app/utils/Auth/toggle";
 import { useSelector } from "react-redux";
 import { useAuth } from "@/app/lib/slices/authSlice";
+import { errorhandler } from "@/app/lib/errorhandler";
 
 interface obj {
     input: string
@@ -128,7 +129,7 @@ const Page = () => {
             <form
                 className="pt-14 text-black flex flex-col"
                 onSubmit={(e) => {
-                    handleSubmit(e)
+                    errorhandler(handleSubmit,e);
                 }}
             >
                 <input

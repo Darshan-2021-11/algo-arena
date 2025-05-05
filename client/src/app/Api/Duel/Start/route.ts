@@ -4,9 +4,11 @@ import Duel from "@/app/lib/api/models/User/duelModel";
 import mongoose from "mongoose";
 import Activity from "@/app/lib/api/models/User/activityModel";
 import dbConnect from "@/app/lib/api/databaseConnect";
+import { middleware } from "../../middleware/route";
 
 export async function POST(req: NextRequest) {
     try {
+        await middleware(req);
         const { user, user1, problem, duration } = await req.json();
 
         if (!user || !problem || !user1) {

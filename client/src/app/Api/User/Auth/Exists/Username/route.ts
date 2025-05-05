@@ -3,6 +3,7 @@
 import { NextRequest } from "next/server";
 import { fail, success } from "@/app/lib/api/response";
 import { getBloom } from "@/app/lib/api/generateHash";
+import { middleware } from "@/app/Api/middleware/route";
 
 export const validateUserInput = (username: string) => {
   const errors: string[] = [];
@@ -15,15 +16,16 @@ export const validateUserInput = (username: string) => {
 };
 
 
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
+    await middleware(req);
     const secretKey = process.env.NEXT_PUBLIC_SECRET_KEY;
     const origin = process.env.NEXT_PUBLIC_ORIGIN;
     if (!secretKey || !origin ) {
       return fail("Missing server configuration", 500);
     }
 
-    const { username } = await request.json();
+    const { username } = await req.json();
     if (!username) {
       return fail("All fields are required", 400);
     }

@@ -7,6 +7,7 @@ import { fail } from "@/app/lib/api/response";
 import jwt from 'jsonwebtoken';
 import mongoose from "mongoose";
 import Problem from "@/app/lib/api/models/Problem/problemModel";
+import { middleware } from "../../middleware/route";
 
 export interface Response {
 	success: boolean,
@@ -18,8 +19,9 @@ export interface Response {
 }
 
 
-export async function GET(request: NextRequest) {
+export async function GET(req: NextRequest) {
 	try {
+		await middleware(req);
 		const cookieStore = cookies();
         const token = cookieStore.get("decodedtoken")?.value;
         if (!token) {
@@ -32,10 +34,10 @@ export async function GET(request: NextRequest) {
 			return fail("Unauthorized accesss.", 403);
 		}
 
-		const params = new URL(request.url).searchParams;
+		const params = new URL(req.url).searchParams;
 		const contestid = params.get("id");
 		if(!contestid){
-			return fail("invalid request");
+			return fail("invalid req");
 		}
 
 		await dbConnect();

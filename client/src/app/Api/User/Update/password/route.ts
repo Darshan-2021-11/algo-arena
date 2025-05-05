@@ -7,9 +7,11 @@ import dbConnect from "../../../../lib/api/databaseConnect";
 import { fail } from "@/app/lib/api/response";
 import { cookies } from "next/headers";
 import mongoose from "mongoose";
+import { middleware } from "@/app/Api/middleware/route";
 
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
+    await middleware(req)
     const cookiestore = cookies();
     const token = cookiestore.get("decodedtoken")?.value as string;
     if (!token) {
@@ -17,7 +19,7 @@ export async function POST(request: NextRequest) {
     }
     const decodedtoken = await  JSON.parse(token) as { id: string, name: string, admin?: boolean };
 
-    const body = await request.json();
+    const body = await req.json();
     const newPassword = body.newPassword;
     if (!newPassword) {
       return fail("newPassword is required.", 400);
