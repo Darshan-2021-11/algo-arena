@@ -26,7 +26,10 @@ const admin = [
 ]
 
 export async function middleware(req: NextRequest) {
-  
+  const useragent = req.headers.get("user-agent");
+  if(!useragent?.includes('Mozilla') && !useragent?.includes('Chrome')){
+    return fail("Unauthorised access", 401);
+  }
   const { url } = req;
   const u = new URL(url);
   const { pathname } = u;
@@ -35,7 +38,7 @@ export async function middleware(req: NextRequest) {
       const cookieStore = cookies();
       const contest_secret = process.env.contest_secret;
       const contestserverkey = cookieStore.get("contest_secret");
-      if(contest_secret === contestserverkey){
+      if (contest_secret === contestserverkey) {
         NextResponse.next();
       }
       const secret = process.env.JWT_SECRET;
@@ -44,7 +47,7 @@ export async function middleware(req: NextRequest) {
       }
 
       const refreshtoken = cookieStore.get("refresh-token")?.value;
-      if(!refreshtoken){
+      if (!refreshtoken) {
         return fail("Unauthorised access", 401);
       }
       const token = cookieStore.get("token")?.value;
@@ -56,32 +59,32 @@ export async function middleware(req: NextRequest) {
 
 
       const redis = await redisConnect();
-      if(!redis){
-        return fail("Server configuration failed.",500);
+      if (!redis) {
+        return fail("Server configuration failed.", 500);
       }
 
-   
+
       const data = await redis.get(refreshtoken) as string | null;
-      if(!data){
+      if (!data) {
         return fail("Unauthorised access", 401);
       }
 
-      const storedtokens = await JSON.parse(data) as  {crefToken : string, token:string, id: string};
+      const storedtokens = await JSON.parse(data) as { crefToken: string, token: string, id: string };
 
-      if(storedtokens.crefToken !== creftoken || storedtokens.token !== token){
-        return fail("unauthorized access.",403);
+      if (storedtokens.crefToken !== creftoken || storedtokens.token !== token) {
+        return fail("unauthorized access.", 403);
       }
 
-      const payload  =  jwt.verify(token, secret) as  { id: string, name: string, admin?: boolean };
+      const payload = jwt.verify(token, secret) as { id: string, name: string, admin?: boolean };
 
       if (admin.includes(pathname) && !payload.admin) {
         return fail("Unauthorised access", 401);
       }
 
-      const crefToken= randomBytes(32).toString("hex");
+      const crefToken = randomBytes(32).toString("hex");
       storedtokens.token = crefToken;
 
-      await redis.set(refreshtoken,JSON.stringify(storedtokens),{EX:30 * 24 * 60 * 60});
+      await redis.set(refreshtoken, JSON.stringify(storedtokens), { EX: 30 * 24 * 60 * 60 });
       const response = NextResponse.next();
 
       response.cookies.set("x-cref-token", crefToken, {
