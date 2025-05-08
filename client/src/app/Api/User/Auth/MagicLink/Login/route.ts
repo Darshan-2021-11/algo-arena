@@ -52,7 +52,6 @@ export async function GET(req: NextRequest) {
             { expiresIn: 86400 }
         );
 
-        const crefToken = randomBytes(32).toString("hex");
 
         const userdata: { id: string, name: string} = {
             id: user._id,
@@ -66,24 +65,37 @@ export async function GET(req: NextRequest) {
             user: userdata,
         }, { status: 200 });
 
-        response.cookies.set("token", jwttoken, {
-            httpOnly: true,
-            maxAge: 24 * 60 * 60,
-            path: "/",
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+        const crefToken = randomBytes(32).toString("hex");
+        const refreshToken = randomBytes(64).toString("hex");
+    
+        response.cookies.set("token", token, {
+          httpOnly: true,
+          maxAge: 15 * 60,
+          path: "/",
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
         });
-
+    
+        response.cookies.set("refresh-token", refreshToken, {
+          httpOnly: true,
+          maxAge: 30 * 24 * 60 * 60,
+          path: "/",
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict"
+        })
+    
         response.cookies.set("x-cref-token", crefToken, {
-            httpOnly: true,
-            maxAge: 60 * 60,
-            path: "/",
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+          httpOnly: true,
+          maxAge: 15 * 60,
+          path: "/",
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict"
         });
 
+        
         if (redis) {
             await redis.del(email);
+          await redis.set(refreshToken, JSON.stringify({ crefToken, token, id:user._id }), { EX: 30 * 24 * 60 * 60 });
         }
 
         return response;

@@ -39,7 +39,7 @@ export const ProblemSchema = new Schema(
       validate: {
         validator: function (tags: string[]) {
           return (
-            tags.every((tag) => tag.length >= 1 && tag.length <= 15) &&
+            tags.every((tag) => tag.length >= 1 && tag.length <= 100) &&
             tags.length <= 10
           );
         },
@@ -55,7 +55,7 @@ export const ProblemSchema = new Schema(
           return (
             constraints.every(
               (constraint) =>
-                constraint.length >= 1 && constraint.length <= 25
+                constraint.length >= 1 && constraint.length <= 100
             ) && constraints.length <= 10
           );
         },

@@ -7,6 +7,7 @@ import axios from "@/app/lib/errorhandler";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { useSelector } from "react-redux";
 import { useAuth } from "@/app/lib/slices/authSlice";
+import Papa from 'papaparse';
 
 type TestCase = {
     input: string;
@@ -22,7 +23,7 @@ type Problem = {
     testcases: TestCase[];
     timeLimit: number;
     spaceLimit: number;
-    author:string | null
+    author: string | null
 };
 
 type ProblemList = Problem[];
@@ -37,7 +38,7 @@ const Addproblems = () => {
 
     const inputref = useRef<HTMLInputElement | null>(null);
 
-    const allowedType = [".json"];
+    const allowedType = [".json", ".csv"];
 
     const clearData = () => {
         setproblems([]);
@@ -176,27 +177,42 @@ const Addproblems = () => {
             }
 
             if (!allowed) {
-                console.log("not allowed bro");
+                // console.log("not allowed bro");
                 seterr("Invalid file type");
                 e.target.value = "";
                 return;
             }
             if (value) {
                 const reader = new FileReader();
-                reader.onload = async(e) => {
+                reader.onload = async (e) => {
                     try {
                         const text = e.target?.result as string;
                         if (text) {
-                            const jsondata = await JSON.parse(text) as Problem[];
+                            let jsondata : Problem[] ;
+                            if(value.name.endsWith(".csv")){
+                                const data = Papa.parse(text,{header:true});
+                                const temparr = data.data;
+                                data.errors.map((d)=>{
+                                    const i = d.row as number;
+                                    temparr[i] = null;
+                                })
+                                console.log(temparr)
+                                const narr = temparr.filter((t)=>t != null );
+                                jsondata = narr as unknown as Problem[];
+                                console.log(jsondata)
+                            }else{
+                                jsondata = await JSON.parse(text) as Problem[];
+                            }
+
                             if (validData(jsondata)) {
                                 value?.name && setname(value?.name);
-                                const data  = jsondata.map((j)=>{
+                                const data = jsondata.map((j) => {
                                     j.author = auth.id;
                                     return j;
                                 });
                                 setproblems(data);
                             } else {
-                                seterr("Format of the JSON file is not valid.");
+                                seterr("Format of the file is not valid.");
                                 clearData()
                             }
                         }
@@ -282,12 +298,12 @@ const Addproblems = () => {
                 {name ? name : "File Name"}
             </div>
             <div className="h-4/5 w-4/5 bg-gray-100 text-gray-900 overflow-y-auto p-5 rounded-lg shadow-inner">
-            {
-                err && 
-                <div
-                className="mb-6 p-4 bg-white rounded-lg shadow-md text-red-600"
-                >{err}</div>
-            }
+                {
+                    err &&
+                    <div
+                        className="mb-6 p-4 bg-white rounded-lg shadow-md text-red-600"
+                    >{err}</div>
+                }
                 {problems.map((p) => (
                     <div
                         key={v4()}

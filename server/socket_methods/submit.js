@@ -14,11 +14,11 @@ const getResult = async (tokens, headers, problemId) => {
             const submissionurl = `http://localhost:2358/submissions/${tokens[i]}?base64_encoded=false&wait=false`;
             const data = await axios.get(submissionurl, headers);
             console.log(data)
-            if (data.status === 200) {
+            if (data.status === 200 && data.data.status.id !== 1 && data.data.status.id !== 2) {
                     const storeResultUrl = `http://localhost:3000/Api/Problems/StoreResult?pid=${problemId}&msg=${data.data.status.description}`
                     await axios.get(storeResultUrl, headers);
 
-                if ( data.data.status.id !== 3) {
+                if ( data.data.status.id !== 3 ) {
                     return { passed: false, newtokens };
                 }else{
                     return {passed:true, newtokens}

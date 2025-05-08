@@ -29,11 +29,11 @@ export const GET = async (req:NextRequest) => {
         }
 
         const redisdata = await redis.get(refreshtoken) as string | null;
-        await redis.del(refreshtoken);
 
         if (!redisdata) {
             return fail("unauthorised access.", 401);
         }
+
 
         const storedtokens = await JSON.parse(redisdata) as { crefToken: string, token: string, id: string };
 
@@ -104,6 +104,7 @@ export const GET = async (req:NextRequest) => {
         });
 
         await redis.set(refreshToken, JSON.stringify({ crefToken, token, id:user._id }), { EX: 30 * 24 * 60 * 60 });
+        await redis.del(refreshtoken);
 
         return response
 

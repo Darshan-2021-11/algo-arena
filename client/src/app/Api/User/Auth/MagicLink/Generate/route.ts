@@ -4,6 +4,7 @@ import { NextRequest } from "next/server";
 import { randomBytes } from 'crypto';
 import { redisConnect } from "@/app/lib/api/redisConnect";
 import handleEmailVerification from "@/app/lib/api/emailVerification";
+import dbConnect from "@/app/lib/api/databaseConnect";
 
 const sendemail = async(email:string, token:string) => {
     try {
@@ -43,6 +44,8 @@ export async function POST(req: NextRequest) {
         }
 
         const query = { verified: true, email };
+
+        await dbConnect();
 
         const user = await User.findOne(query).select("_id");
 

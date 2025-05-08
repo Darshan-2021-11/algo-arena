@@ -164,7 +164,7 @@ const IDE: React.FC<pagetype> = ({ altproblem }) => {
     const updatedTokens: string[] = [];
     for (let i = 0; i < tokens.current.length; i++) {
       try {
-        const submissionurl = `http://localhost:2358/submissions/${tokens.current[i]}?base64_encoded=false&wait=false`;
+        const submissionurl = `/Api/Submissions/getResult?id=${tokens.current[i]}`;
         const data = await axios.get(submissionurl);
         if (data.status === 200 && data.data.status.id !== 1 && data.data.status.id !== 2 && problemId.current) {
           const storeResultUrl = `/Api/Problems/StoreResult?pid=${problemId.current}&msg=${data.data.status.description}`;
@@ -177,7 +177,7 @@ const IDE: React.FC<pagetype> = ({ altproblem }) => {
             time: data.data.time,
             memory: data.data.memory,
             errmsg: data.data.stderr,
-            output: data.data.message,
+            output: data.data.message || data.data.stdout,
             down: false
           };
           if (d.data.success) {

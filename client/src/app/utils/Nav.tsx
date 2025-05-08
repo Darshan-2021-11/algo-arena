@@ -10,7 +10,6 @@ import { MdSpaceDashboard } from "react-icons/md";
 import { IoIosLogOut } from "react-icons/io";
 import Dp from "./Auth/dp";
 import Popup from "./popup";
-import { setMessage } from "../lib/slices/popupSlice";
 
 const Nav: React.FC = () => {
   const router = useRouter();
