@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
                 difficulty: 1,
                 tags: 1,
                 constraints: 1,
-                testcases: { $slice: ["$testcases", 3] },
+                testcases: { $slice: ["$testcases", 1] },
                 private: 1
             }
 

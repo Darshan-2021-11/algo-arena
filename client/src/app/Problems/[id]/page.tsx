@@ -135,7 +135,7 @@ const IDE: React.FC<pagetype> = ({ altproblem }) => {
         : { id, code: value, lang };
         */
       const url = "/Api/Submissions/Run";
-      const body = { id, code: value, lang,user:auth.id };
+      const body = { id, code: value, lang, user: auth.id };
       const header = { "Content-Type": "application/json" };
 
       const response = await axios.post(url, body, { headers: header });
@@ -164,7 +164,8 @@ const IDE: React.FC<pagetype> = ({ altproblem }) => {
     const updatedTokens: string[] = [];
     for (let i = 0; i < tokens.current.length; i++) {
       try {
-        const submissionurl = `/Api/Submissions/getResult?id=${tokens.current[i]}`;
+        const token = tokens.current[i];
+        const submissionurl = `/Api/Submissions/getResult?id=${token}`;
         const data = await axios.get(submissionurl);
         if (data.status === 200 && data.data.status.id !== 1 && data.data.status.id !== 2 && problemId.current) {
           const storeResultUrl = `/Api/Problems/StoreResult?pid=${problemId.current}&msg=${data.data.status.description}`;
@@ -192,22 +193,22 @@ const IDE: React.FC<pagetype> = ({ altproblem }) => {
                 console.log(error);
               }
             }
-            const results = [...result];
-            let newrs = [];
-            newrs = results.map((t: any) => {
-              if (typeof t === "string") {
+            setresult(prev => prev.map((t: any) => {
+              // console.log(t,tokens.current[i],i,tokens.current)
+              if (typeof t === "string" && t === token) {
                 t = res;
               }
               return t;
-            });
-            setresult(newrs);
+            }));
           } else {
             res.status.id = 11;
             res.status.id = "unable to get result";
           }
         } else {
-          updatedTokens.push(tokens.current[i]);
+
+          updatedTokens.push(token);
         }
+
       } catch (error) {
         console.log(error);
       }
@@ -302,7 +303,7 @@ const IDE: React.FC<pagetype> = ({ altproblem }) => {
                     description
                   </p>
                   {
-                    !altproblem &&
+                    (!altproblem && !contestid) &&
                     <p
                       className="mr-4 bg-black pt-1 pb-1 pl-2 pr-2 rounded-xl cursor-pointer text-gray-50 hover:text-gray-300"
                       onClick={() => setp("b")}
@@ -316,7 +317,7 @@ const IDE: React.FC<pagetype> = ({ altproblem }) => {
                   >submissions</p>
                 </div>
                 {p === "a" && <ProblemDescription Problem={Problem} />}
-                {p === "b" && !altproblem && <Commentpage comments={Comment} setcomments={setComment} id={id} />}
+                {(p === "b" && !contestid) && !altproblem && <Commentpage comments={Comment} setcomments={setComment} id={id} />}
                 {p === "c" && !altproblem && <Submissions id={id} />}
 
               </div>
@@ -440,7 +441,7 @@ const IDE: React.FC<pagetype> = ({ altproblem }) => {
                             <pre
                               className="bg-zinc-800 p-4"
                             >
-                              {r?.output}
+                              {r?.output?.slice(0, 100)}{typeof (r?.output) === "string" && r.output?.length > 100 && "..."}
                             </pre>
                           </div>
                         </div>
@@ -497,7 +498,7 @@ const IDE: React.FC<pagetype> = ({ altproblem }) => {
 
         </>
       ) : (
-        <div>Invalid page </div>
+        <div>Loading... </div>
       )}
     </div>
   );

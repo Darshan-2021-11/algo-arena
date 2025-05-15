@@ -23,7 +23,7 @@ const CodeEditor : React.FC<editortype> =({setValue,setlang, lang, value})=>{
           }}
         >
           <option value="python">Python</option>
-          <option value="javascript">JavaScript</option>
+          {/* <option value="javascript">JavaScript</option> */}
           <option value="cpp">C++</option>
           <option value="c">C</option>
           <option value="java">Java</option>

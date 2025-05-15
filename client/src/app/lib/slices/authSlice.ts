@@ -1,55 +1,53 @@
-import { RootState } from "@/app/lib/store";
+﻿import { RootState } from "@/app/lib/store";
 import { createSlice } from "@reduxjs/toolkit";
 
-
-export interface value{
-    username:string | null,
-    admin:boolean,
-    loggedIn:boolean,
-    rememberme:boolean,
-    email:string|null,
-    id:string | null,
-    img:{
-        type:string,
-        data:string
+export interface value {
+    username: string | null,
+    admin: boolean,
+    loggedIn: boolean,
+    rememberme: boolean,
+    email: string | null,
+    id: string | null,
+    img: {
+        type: string,
+        data: string
     } | null
 }
 
-const initialState : value ={
+const initialState: value = {
     username: null,
-    admin:false,
-    loggedIn:false,
-    rememberme:true,
-    email:null,
-    id:null,
-    img:null
+    admin: false,
+    loggedIn: false,
+    rememberme: true,
+    email: null,
+    id: null,
+    img: null
 }
 
 const authSlice = createSlice({
-    name:"auth",
+    name: "auth",
     initialState,
-    reducers:{
-        login(state, action){
+    reducers: {
+        login(state, action) {
             state.username = action.payload.name;
             state.id = action.payload.id;
             state.loggedIn = true;
             state.admin = !!action.payload.admin;
             state.email = action.payload.email;
-            if(action.payload.type && action.payload.data){
+            if (action.payload.type && action.payload.data) {
                 state.img = {
-                    type:action.payload.type,
-                    data:action.payload.data
+                    type: action.payload.type,
+                    data: action.payload.data
                 };
             }
         },
-        updateEmail(state, action){
+        updateEmail(state, action) {
             state.email = action.payload;
         },
-        
-        updateImg(state, action){
+        updateImg(state, action) {
             state.img = action.payload;
         },
-        logout(state){
+        logout(state) {
             state.username = null;
             state.id = null;
             state.loggedIn = false;
@@ -57,12 +55,12 @@ const authSlice = createSlice({
             state.email = null;
             state.img = null;
         },
-        memory(state){
+        memory(state) {
             state.rememberme != state.rememberme;
         }
     }
 })
 
-export const {login, logout, memory, updateEmail, updateImg} = authSlice.actions;
-export const useAuth = (state:RootState)=>state.auth as value;
+export const { login, logout, memory, updateEmail, updateImg } = authSlice.actions;
+export const useAuth = (state: RootState) => state.auth as value;
 export default authSlice.reducer;

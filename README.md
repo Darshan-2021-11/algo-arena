@@ -3,154 +3,80 @@
 Algo Arena is an interactive platform designed for algorithm enthusiasts to practice, compete, and improve their coding skills. The platform offers a wide range of algorithm challenges, from basic to advanced levels, allowing users to solve problems and compete in duels.
 
 ## Table of Contents
-
 - [Introduction](#introduction)
-- [File Strucutre](#file%structure)
+- [Project Structure](#project-structure)
 - [Features](#features)
-- [Installation](#installation)
+- [Installation (Docker)](#installation-docker)
 - [Usage](#usage)
 - [Contributing](#contributing)
 - [License](#license)
 - [Contact](#contact)
 
 ## Introduction
-
 Welcome to Algo Arena! This platform is designed to help you improve your algorithmic problem-solving skills. Whether you're preparing for coding interviews, participating in coding competitions, or just want to sharpen your skills, Algo Arena offers a variety of challenges to suit your needs.
 
-## File Structure
+## Project Structure
 ```
 ./
-├── frontend/
-└── backend/
-```
-### Frontend
-```
-frontend/
-├── public/                # Static files (images, fonts, etc.)
-│   └── ...
-├── src/                   # Application source code
-│   ├── components/        # Reusable UI components
-│   │   └── ...
-│   ├── containers/        # Container components (stateful)
-│   │   └── ...
-│   ├── pages/             # Next.js page components
-│   │   └── ...
-│   ├── layouts/           # Layout components
-│   │   └── ...
-│   ├── hooks/             # Custom hooks
-│   │   └── ...
-│   ├── services/          # Service classes for API calls, etc.
-│   │   └── ...
-│   ├── stores/            # State management (e.g., Redux)
-│   │   └── ...
-│   ├── styles/            # Global styles and Tailwind configurations
-│   │   └── ...
-│   ├── utils/             # Utility functions
-│   │   └── ...
-│   ├── types/             # TypeScript types and interfaces
-│   │   └── ...
-│   ├── api/               # Backend API routes (Next.js API)
-│   │   ├── controllers/   # API route controllers
-│   │   ├── models/        # Database models
-│   │   ├── routes/        # API route definitions
-│   │   ├── services/      # Business logic and services
-│   │   └── utils/         # Backend utility functions
-│   └── editor/            # Custom editor implementation
-│       └── ...
-├── .env                   # Environment variables
-├── .eslintrc.js           # ESLint configuration
-├── .prettierrc            # Prettier configuration
-├── next.config.js         # Next.js configuration
-├── package.json           # Project dependencies and scripts
-├── tsconfig.json          # TypeScript configuration
-└── README.md              # Project documentation
-```
-### Backend:
-```
-backend/
-├── src/                   # Backend source code
-│   ├── sockets/           # Socket.io related code for duel matches
-│   │   ├── controllers/   # Socket event controllers
-│   │   ├── services/      # Business logic and services
-│   │   ├── middlewares/   # Middleware for socket.io
-│   │   └── utils/         # Utility functions for socket.io
-│   └── server.ts          # Entry point for the backend server
-├── .env                   # Environment variables
-├── .eslintrc.js           # ESLint configuration
-├── .prettierrc            # Prettier configuration
-├── tsconfig.json          # TypeScript configuration
-├── package.json           # Project dependencies and scripts
-└── README.md              # Project documentation
-
-
+├── client/        # Next.js frontend
+├── server/        # Node.js/Express backend
+├── judge0/        # Judge0 code execution engine (with its own docker-compose.yml)
+├── docker-compose.yml  # Main orchestrator for all services
+└── README.md
 ```
 
 ## Features
-
 - **Wide Range of Challenges**: From simple sorting algorithms to complex graph problems.
 - **Duet System**: Two players compete against each other within a set time limit to solve algorithm challenges.
 - **Real-Time Feedback**: Get instant feedback on your code with our automated testing system.
+- **Contests & Leaderboards**: Participate in contests and view rankings.
+- **Admin Panel**: Manage problems, contests, and users.
 
-## Installation
+## Installation (Docker)
 
-To get started with Algo Arena, follow these steps:
+### Prerequisites
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running (Windows, Mac, or Linux)
 
-1. **Clone the Repository**:
-    ```bash
-    git clone https://github.com/Darshan-2021-11/algo-arena.git
-    ```
-2. **Navigate to the Project Directory**:
-    ```bash
-    cd algo-arena
-    ```
+### 1. Clone the Repository
+```powershell
+git clone https://github.com/Darshan-2021-11/algo-arena.git
+cd algo-arena
+```
 
-3. **Backend Setup**:
-    - Navigate to the server directory:
-      ```bash
-      cd server
-      ```
-    - Create a `.env` file in the server directory with the following variables:
-      ```env
-      PORT=your_backend_port
-      ORIGIN=your_origin
-      ```
-    - Install dependencies and run the backend server:
-      ```bash
-      npm install
-      npm start
-      ```
+### 2. Environment Variables
+- Create a `.env` file in both `client/` and `server/` as needed for your environment (see sample `.env.example` if available).
+- For most local development, defaults will work, but you may want to set up Firebase keys and other secrets.
 
-4. **Frontend Setup**:
-    - Navigate to the frontend directory:
-      ```bash
-      cd frontend
-      ```
-    - Create a `.env` file in the frontend directory with the following variables:
-      ```env
-      NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
-      NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
-      NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_firebase_project_id
-      NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
-      NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
-      NEXT_PUBLIC_FIREBASE_APP_ID=your_firebase_app_id
-      NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your_firebase_measurement_id
-      NEXT_PUBLIC_SOCKET_URL=your_socket_url
-      ```
-    - Install dependencies and run the frontend server:
-      ```bash
-      npm install
-      npm run dev
-      ```
+### 3. Start All Services (Recommended)
+This will start the frontend, backend, MongoDB, Redis, and Judge0 (if you want to use the public Judge0 image):
+```powershell
+docker compose up --build
+```
+- The client will be available at [http://localhost:3000](http://localhost:3000)
+- The server will be available at [http://localhost:5000](http://localhost:5000)
+- Judge0 API will be available at [http://localhost:2358](http://localhost:2358)
+- MongoDB and Redis are available internally to the containers
 
-5. **Docker Setup for Judge0**:
-    - Ensure you have Docker installed and running on your machine.
-    - Build and run the Judge0 API container:
-      ```bash
-      docker-compose up --build
-      ```
+#### If you want to use your own Judge0 stack
+- Go to the `judge0/` directory and run:
+  ```powershell
+  cd judge0
+  docker compose up -d
+  ```
+- Remove or comment out the `judge0` service in the main `docker-compose.yml`.
+- Make sure your backend is configured to use the correct Judge0 API URL (e.g., `JUDGE0_URL=http://localhost:2358`).
+
+### 4. Manual (Non-Docker) Setup (Advanced)
+If you want to run services manually:
+- Start MongoDB and Redis locally (or use Docker for just these services)
+- In `server/` and `client/`, run:
+  ```powershell
+  npm install
+  npm run build
+  npm start # or npm run dev for client
+  ```
 
 ## Usage
-
 1. **Sign Up / Log In**: Create an account or log in to access all features.
 2. **Browse Challenges**: Explore the list of available challenges and select one to solve.
 3. **Duet System**: Challenge a friend or another user to a duel and solve the algorithm within the set time limit.
@@ -275,7 +201,6 @@ async function fetchUserData(userId: string): Promise<User> {
   - Conduct regular stand-up meetings to track progress and address any blockers.
 
 Thank you for contributing to AlgoArena! Let's build something amazing together. 🚀
-
 
 ## License
 

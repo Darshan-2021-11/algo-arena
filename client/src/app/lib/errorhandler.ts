@@ -1,7 +1,7 @@
 import axios from "axios";
 import { logout } from "./slices/authSlice";
-import { setError } from "./slices/popupSlice";
 import { store } from "./store";
+import { setError } from "./slices/popupSlice";
 
 const axiosClient = axios.create({
     baseURL: "",
