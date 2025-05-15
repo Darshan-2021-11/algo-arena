@@ -12,7 +12,7 @@ services:
   server:
     build: ./server
     ports:
-      - "5000:5000"
+      - "9310:9310"
     environment:
       - NODE_ENV=production
       - MONGO_URL=mongodb://mongo:27017/algoarena

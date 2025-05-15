@@ -73,7 +73,7 @@ export async function GET(req: NextRequest) {
           maxAge: 15 * 60,
           path: "/",
           secure: process.env.NODE_ENV === "production",
-          sameSite: "strict",
+          sameSite: "lax",
         });
     
         response.cookies.set("refresh-token", refreshToken, {
@@ -81,7 +81,7 @@ export async function GET(req: NextRequest) {
           maxAge: 30 * 24 * 60 * 60,
           path: "/",
           secure: process.env.NODE_ENV === "production",
-          sameSite: "strict"
+          sameSite: "lax"
         })
     
         response.cookies.set("x-cref-token", crefToken, {
@@ -89,7 +89,7 @@ export async function GET(req: NextRequest) {
           maxAge: 15 * 60,
           path: "/",
           secure: process.env.NODE_ENV === "production",
-          sameSite: "strict"
+          sameSite: "lax"
         });
 
         

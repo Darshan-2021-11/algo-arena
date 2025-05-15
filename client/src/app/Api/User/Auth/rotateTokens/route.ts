@@ -68,7 +68,7 @@ export const GET = async (req:NextRequest) => {
             maxAge: 15 * 60,
             path: "/",
             secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            sameSite: "lax",
         });
 
         response.cookies.set("refresh-token", refreshToken, {
@@ -76,7 +76,7 @@ export const GET = async (req:NextRequest) => {
             maxAge: 30 * 24 * 60 * 60,
             path: "/",
             secure: process.env.NODE_ENV === "production",
-            sameSite: "strict"
+            sameSite: "lax"
         })
 
         response.cookies.set("x-cref-token", crefToken, {
@@ -84,7 +84,7 @@ export const GET = async (req:NextRequest) => {
             maxAge: 15 * 60,
             path: "/",
             secure: process.env.NODE_ENV === "production",
-            sameSite: "strict"
+            sameSite: "lax"
         });
 
         await redis.set(refreshToken, JSON.stringify({ crefToken, token,id:user._id }), { EX: 30 * 24 * 60 * 60 });
